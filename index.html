@@ -143,7 +143,7 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .vit-field .mq:hover { filter: drop-shadow(0 0 2px #fff); }
 .crowd-v { position: absolute; transform: translateX(-50%); height: 36%; z-index: 4; background: transparent; border: 0; padding: 0; }
 .crowd-v.back { height: 29%; z-index: 3; }
-.crowd-v .sprite { height: 100%; width: auto; animation: idle 2.6s steps(1) infinite; }
+.crowd-v .sprite { height: 100%; width: auto; animation: idle var(--bd, 2.6s) steps(1) infinite; }
 .crowd-v:nth-child(2n) .sprite { animation-delay: -1.3s; }
 .crowd-v .chat { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; border: 2px solid var(--edge); border-radius: 8px; padding: 0 5px; font-weight: 800; font-size: 11px; line-height: 14px; }
 .crowd-v .nm { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); font-family: var(--font-display); font-size: 10px; background: var(--paper); border: 2px solid var(--edge); border-radius: 6px; padding: 0 4px; white-space: nowrap; opacity: 0; }
@@ -567,6 +567,12 @@ body.portrait-ok .rotate { display: none; }
 .pw-grid { display: grid; gap: 3px; width: 100%; aspect-ratio: 1; margin: 8px 0; background: #E6DCC8; padding: 3px; border: 2px solid var(--edge); border-radius: 6px; }
 .pw-cell { border: 2px dashed #B9A88C; border-radius: 3px; min-height: 0; }
 @media (max-width: 640px) { .pw-wrap { grid-template-columns: 1fr; } }
+.sprite .swing { animation: hsw 2.4s steps(2) infinite; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes hsw { 0%, 100% { transform: skewX(0deg); } 50% { transform: skewX(-7deg); } }
+.sprite .lv { animation: lovefl 2.4s ease-out infinite; opacity: 0; }
+@keyframes lovefl { 0% { transform: translateY(1px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-4px); opacity: 0; } }
+.crowd-v .sprite.hop2, .cust-spot .sprite.hop2 { animation: hop .45s ease-out 3; }
+@media (prefers-reduced-motion: reduce) { .sprite .swing, .sprite .lv { animation: none; } .sprite .lv { opacity: 1; } }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -1404,13 +1410,29 @@ function zonePix(z) {
 const SPRITES = new Map();
 function spriteSVG(v, opt = {}) {
   const o = outfitOf(v.id);
-  const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, v.rosto, v.base, v.enfeite, v.sig, v.corpo, v.joia, v.cadeira, v.vitiligo, v.auditivo, v.dentes, opt.mood || null, !!opt.crop, !!opt.wave, !!opt.portrait, !!opt.talk, o]);
+  const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, v.rosto, v.base, v.enfeite, v.sig, v.corpo, v.joia, v.cadeira, v.vitiligo, v.auditivo, v.dentes, opt.mood || null, !!opt.crop, !!opt.wave, !!opt.portrait, !!opt.talk, !!opt.rain, o]);
   const hit = SPRITES.get(key);
   if (hit) return hit;
   if (SPRITES.size > 400) SPRITES.clear();
   const out = drawSprite(v, opt, o);
   SPRITES.set(key, out);
   return out;
+}
+/* Little personal touches: resting mouth, pose, how she greets you, favourite shoes */
+const vhash = (v) => [...(v.id + v.nome)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const BOCA = { bia: 'sorriso', lua: 'bico', mel: 'dente', nina: 'sorriso', cida: 'bico', zeze: 'sorriso', tito: 'dente', joaquim: 'normal', helena: 'bico', rita: 'sorriso', flora: 'dente', lis: 'bico', vitoria: 'bico' };
+const POSE = { rita: 'cintura', tito: 'cintura', nina: 'cintura', vitoria: 'cintura', lis: 'cintura' };
+const ACENO = { bia: 'aceno', tito: 'pulinho', cida: 'beijo', joaquim: 'aceno', lua: 'beijo', helena: 'aceno', mel: 'pulinho', nina: 'pulinho', zeze: 'beijo', rita: 'aceno', me: 'aceno' };
+const SAP = { bia: 'laco', lua: 'babado', mel: 'laco', cida: 'fivela', zeze: 'fivela', helena: 'fivela', nina: 'tenis', flora: 'babado', lis: 'fivela', vitoria: 'fivela', rita: 'tenis' };
+const mixHex = (a, b, t) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - t) + parseInt(b.slice(i, i + 2), 16) * t).toString(16).padStart(2, '0')).join('');
+/* Her everyday clothes carry her favourite print, softly */
+function softPat(hex, p) {
+  const alt = isLight(hex) ? shade(hex, -0.1) : shade(hex, 0.16);
+  if (p === 'listras') return (x, y) => (y % 2 ? alt : hex);
+  if (p === 'bolinhas') return (x, y) => (x % 3 === 1 && y % 3 === 1 ? alt : hex);
+  if (p === 'xadrez') return (x, y) => (((x >> 1) + (y >> 1)) % 2 ? alt : hex);
+  if (p === 'florzinha') return (x, y) => (x % 4 === 1 && y % 4 === 1 ? '#F7D35E' : (x % 4 === 1 && y % 4 === 2) || (x % 4 === 2 && y % 4 === 1) ? alt : hex);
+  return solid(hex);
 }
 function drawSprite(v, opt, o) {
   const W = 24, H = 36;
@@ -1444,12 +1466,20 @@ function drawSprite(v, opt, o) {
   const B = v.base || {};
   const leg = B.meia || skin, legD = B.meia ? shade(B.meia, -0.14) : skinD;
   rect(9, 30, 10, 33, leg); rect(13, 30, 14, 33, leg); rect(10, 30, 10, 33, legD); rect(14, 30, 14, 33, legD);
-  const shoe = B.sapato || '#5A3F4F';
-  rows([[34, 8, 10], [34, 13, 15]], shoe); put(8, 34, shade(shoe, 0.3)); put(13, 34, shade(shoe, 0.3));
+  const SS = opt.rain && !v.cadeira ? 'galocha' : SAP[v.id] || ['laco', 'fivela', 'liso'][vhash(v) % 3];
+  const shoe = SS === 'galocha' ? '#E8B931' : B.sapato || '#5A3F4F';
+  if (SS === 'galocha') { rect(8, 31, 10, 34, shoe); rect(13, 31, 15, 34, shoe); rect(10, 31, 10, 34, shade(shoe, -0.15)); rect(15, 31, 15, 34, shade(shoe, -0.15)); rows([[31, 8, 10], [31, 13, 15]], shade(shoe, 0.25)); }
+  else rows([[34, 8, 10], [34, 13, 15]], shoe);
+  put(8, 34, shade(shoe, 0.3)); put(13, 34, shade(shoe, 0.3));
+  rows([[35, 8, 10], [35, 13, 15]], shade(shoe, -0.35));
+  if (SS === 'laco') { put(9, 33, '#F2A7C6'); put(14, 33, '#F2A7C6'); }
+  if (SS === 'fivela') { put(10, 34, '#E8B931'); put(15, 34, '#E8B931'); }
+  if (SS === 'tenis') { rows([[35, 8, 10], [35, 13, 15]], '#F6F0E6'); put(9, 34, '#F6F0E6'); put(14, 34, '#F6F0E6'); }
+  if (SS === 'babado') rows([[30, 8, 11], [30, 12, 15]], '#F6F0E6');
 
   /* arms */
   rect(5, 17, 6, 24, skin); rect(17, 17, 18, 24, skin); rect(6, 18, 6, 24, skinD); rect(18, 18, 18, 24, skinD);
-  rows([[25, 5, 6], [25, 17, 18]], skin);
+  rows([[25, 5, 6], [25, 17, 18]], skin); put(6, 25, skinD); put(18, 25, skinD);
 
   /* skirt */
   const baixo = o.baixo;
@@ -1463,17 +1493,24 @@ function drawSprite(v, opt, o) {
   }
   else if ((baixo && baixo.molde === 'longo') || (!baixo && B.longa)) { rows([[23, 8, 15], [24, 8, 15], [25, 7, 16], [26, 7, 16], [27, 6, 17], [28, 6, 17], [29, 6, 17], [30, 5, 18], [31, 5, 18], [32, 5, 18], [33, 5, 18]], skirtC); hem = 33; rect(16, 27, 18, 33, dim(skirtC, -0.14)); }
   else if (baixo && ['lapis', 'tubinho'].includes(baixo.molde)) { rect(8, 23, 15, 29, skirtC); rect(14, 23, 15, 29, dim(skirtC, -0.14)); hem = 29; }
-  else { rows([[23, 8, 15], [24, 7, 16], [25, 7, 16], [26, 6, 17], [27, 6, 17], [28, 5, 18], [29, 5, 18]], skirtC); rect(16, 26, 18, 29, dim(skirtC, -0.14)); hem = 29; }
+  else {
+    rows([[23, 8, 15], [24, 7, 16], [25, 7, 16], [26, 6, 17], [27, 6, 17], [28, 5, 18], [29, 5, 18]], skirtC); rect(16, 26, 18, 29, dim(skirtC, -0.14)); hem = 29;
+    /* soft folds and a little light on the left */
+    [10, 13].forEach((x) => rect(x, 26, x, 28, (xx, yy) => (g[yy][xx] ? shade(g[yy][xx], -0.1) : null)));
+    rows([[25, 8, 8], [26, 7, 7], [27, 7, 7], [28, 6, 6]], (xx, yy) => (g[yy][xx] ? shade(g[yy][xx], 0.12) : null));
+  }
   rect(0, hem, W - 1, hem, (x, y) => (g[y][x] ? shade(g[y][x], -0.18) : null));
   if (baixo && baixo.molde === 'plissada') for (let x = 6; x <= 17; x += 2) rect(x, 26, x, 28, shade(hexOf(baixo.z[1].cor), -0.25));
   if (baixo && baixo.peca === 'saia') rect(8, 23, 15, 23, zonePix(baixo.z[0]));
 
   /* top */
   const cima = o.cima;
-  const topC = (cima && zonePix(cima.z[0])) || solid(v.roupa);
+  const topC = (cima && zonePix(cima.z[0])) || softPat(v.roupa, v.fav);
   rows([[16, 8, 15], [17, 7, 16], [18, 7, 16], [19, 8, 15], [20, 8, 15], [21, 8, 15], [22, 8, 15]], topC);
   rect(15, 17, 16, 22, dim(topC, -0.14));
   rows([[16, 10, 13]], dim(topC, 0.18));
+  rows([[17, 10, 13]], dim(topC, -0.1));
+  put(8, 17, dim(topC, 0.16)); put(8, 18, dim(topC, 0.1));
   if (!cima || cima.peca === 'camisa') {
     const sl = cima ? zonePix(cima.z[1]) : topC;
     rect(5, 17, 6, 19, sl); rect(17, 17, 18, 19, sl); rect(6, 19, 6, 19, dim(sl, -0.14)); rect(18, 17, 18, 19, dim(sl, -0.14));
@@ -1537,7 +1574,10 @@ function drawSprite(v, opt, o) {
   }[st] || [];
   rows(fronts, hair);
   if (st === 'afro') rows([[3, 4, 19], [4, 3, 20], [5, 3, 20]], hair);
-  if (st !== 'raspado') rows([[4, 10, 12], [5, 8, 9]], hairL);
+  if (st !== 'raspado') { rows([[4, 10, 12], [5, 8, 9]], hairL); put(15, 4, hairL); put(16, 5, mixHex(hair, hairL, 0.5)); }
+  if (st === 'franja') rows([[6, 7, 9]], mixHex(hair, hairL, 0.5));
+  if (['longo', 'cacheado', 'trancas', 'franja'].includes(st)) { put(4, 7, hairL); put(4, 8, mixHex(hair, hairL, 0.5)); }
+  if (!['afro', 'coque', 'raspado'].includes(st) && vhash(v) % 2) { put(12, 2, hair); put(13, 1, hair); put(13, 2, hairD); }
   if (st === 'franja' || st === 'curto') rows([[7, 13, 14]], hairL);
   if (st === 'rabo') put(18, 5, '#D2557A');
 
@@ -1548,9 +1588,10 @@ function drawSprite(v, opt, o) {
   [[8, 7], [9, 7], [14, 7], [15, 7]].forEach(([x, y]) => onSkin(x, y, brow));
   if (R.sobr === 'arco') { onSkin(7, 8, brow); onSkin(16, 8, brow); }
   onSkin(12, 11, skinD);
-  if (R.sardas) [[6, 11], [8, 11], [15, 11], [17, 11], [7, 10], [16, 10]].forEach(([x, y]) => onSkin(x, y, shade(skin, -0.3)));
+  if (R.sardas) [[6, 11], [8, 11], [15, 11], [17, 11], [7, 10], [16, 10]].forEach(([x, y], i) => onSkin(x, y, shade(skin, i > 3 ? -0.16 : -0.24)));
   if (R.pinta) onSkin(16, 13, '#3A2A2A');
-  rows([[12, 6, 7], [12, 16, 17]], '#F4A0A4');
+  const blush = mixHex(skin, '#F0707E', 0.45);
+  rows([[12, 6, 7], [12, 16, 17]], blush); put(5, 12, mixHex(skin, '#F0707E', 0.22)); put(18, 12, mixHex(skin, '#F0707E', 0.22));
   const lip = R.batom || '#9C4652';
   /* mouths per mood; braces show when she smiles wide */
   const mouthPx = (m) => {
@@ -1563,7 +1604,13 @@ function drawSprite(v, opt, o) {
     else if (m === 'emburrada') add([[13, 10, 13]], shade(lip, -0.2));
     else if (m === 'hmm') add([[13, 11, 13]], lip);
     else if (m === 'sono') add([[13, 11, 11]], lip);
-    else add([[13, 11, 12]], lip);
+    else {
+      const bc = BOCA[v.id] || ['normal', 'sorriso', 'bico'][vhash(v) % 3];
+      if (bc === 'sorriso') add([[13, 10, 10], [13, 13, 13], [14, 11, 12]], mixHex(lip, skin, 0.25));
+      else if (bc === 'bico') { add([[13, 11, 11]], lip); add([[13, 12, 12]], mixHex(lip, '#FFFFFF', 0.3)); }
+      else if (bc === 'dente') { add([[13, 11, 12]], lip); px.push([11, 14, '#FFFFFF']); }
+      else add([[13, 11, 12]], lip);
+    }
     return px;
   };
   if (!opt.talk) mouthPx(mood).forEach(([x, y, c]) => put(x, y, c));
@@ -1626,8 +1673,28 @@ function drawSprite(v, opt, o) {
     rect(17, 34, 18, 35, '#4A4550');
   }
 
+  if (POSE[v.id] === 'cintura' && !opt.wave && !v.cadeira && !opt.portrait && !opt.crop) {
+    const arm = g[21][5] || skin, hand = o.luvas ? g[24][5] : skin, br = J.pulseira;
+    for (let y = 20; y <= 25; y++) { g[y][5] = null; g[y][6] = null; }
+    rect(4, 20, 5, 21, arm); put(4, 21, dim(arm, -0.14)); put(5, 22, arm); put(6, 22, br || arm); put(7, 22, hand); put(7, 21, hand);
+  }
   let wave = '';
-  if (opt.wave) {
+  const aceno = ACENO[v.id] || ['aceno', 'pulinho', 'beijo'][vhash(v) % 3];
+  if (opt.wave && (aceno === 'beijo' || (aceno === 'pulinho' && v.cadeira))) {
+    const sleeve = g[17][17] || skin;
+    for (let y = 17; y <= 25; y++) for (let x = 17; x <= 18; x++) g[y][x] = null;
+    const frameOf = (px) => {
+      const set = new Set(px.map(([x, y]) => x + ',' + y));
+      let d = '', ol = '';
+      px.forEach(([x, y, c]) => { d += `<path fill="${c}" d="M${x} ${y}h1v1h-1z"/>`; });
+      px.forEach(([x, y]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => { const k = (x + a) + ',' + (y + b); if (!set.has(k) && !(g[y + b] && g[y + b][x + a])) ol += `M${x + a} ${y + b}h1v1h-1z`; }));
+      return `<path fill="#3A3040" opacity=".9" d="${ol}"/>${d}`;
+    };
+    const hk = '#F06A8A';
+    const toMouth = [[17, 17, sleeve], [17, 16, sleeve], [16, 15, skin], [15, 14, skin], [14, 13, skin], [15, 13, skin]];
+    const blow = [[17, 17, sleeve], [18, 16, sleeve], [19, 15, skin], [20, 14, skin], [21, 14, skin], [21, 10, hk], [23, 10, hk], [21, 11, hk], [22, 11, hk], [23, 11, hk], [22, 12, hk]];
+    wave = `<g class="wv wv1">${frameOf(toMouth)}</g><g class="wv wv2">${frameOf(blow)}</g><g class="wv wvd"><path fill="${sleeve}" d="M17 17h2v3h-2z"/><path fill="${skin}" d="M17 20h2v6h-2z"/><path fill="#3A3040" opacity=".9" d="M19 17h1v9h-1zM17 26h2v1h-2z"/></g>`;
+  } else if (opt.wave && aceno !== 'pulinho') {
     const sleeve = g[17][17] || skin;
     for (let y = 17; y <= 25; y++) for (let x = 17; x <= 18; x++) g[y][x] = null;
     const frame = (dx) => {
@@ -1658,6 +1725,22 @@ function drawSprite(v, opt, o) {
   else if (!v.cadeira && C.alt === 'baixa') { g.splice(30, 2); g.unshift(Array(W).fill(null), Array(W).fill(null), Array(W).fill(null), Array(W).fill(null)); top = 4; }
   else g.unshift(Array(W).fill(null), Array(W).fill(null));
   const H2 = g.length;
+  /* Ponytails, braids and bunches swing on their own layer */
+  let swing = '';
+  const SW = { rabo: [5, 16, (x) => x >= 19], chiquinhas: [4, 13, (x) => x <= 4 || x >= 19], trancas: [14, 23, (x) => x <= 6 || x >= 17], longo: [18, 23, (x) => x <= 6 || x >= 17], cacheado: [17, 22, (x) => x <= 4 || x >= 19] }[st];
+  if (SW && !opt.portrait && !opt.crop) {
+    const fam = new Set([hair, hairD, hairL, '#D2557A']), px = [];
+    for (let y = SW[0] + top; y <= SW[1] + top && y < H2; y++) for (let x = 0; x < W; x++) if (fam.has(g[y][x]) && SW[2](x)) px.push([x, y, g[y][x]]);
+    px.forEach(([x, y]) => { g[y][x] = null; });
+    const set = new Set(px.map(([x, y]) => x + ',' + y));
+    let ol = '';
+    const by = new Map();
+    px.forEach(([x, y, c]) => {
+      by.set(c, (by.get(c) || '') + `M${x} ${y}h1v1h-1z`);
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => { const k = (x + a) + ',' + (y + b); if (!set.has(k) && !(g[y + b] && g[y + b][x + a])) ol += `M${x + a} ${y + b}h1v1h-1z`; });
+    });
+    if (px.length) swing = `<g class="swing" style="animation-delay:-${(vhash(v) % 9) / 4}s"><path fill="#3A3040" opacity=".9" d="${ol}"/>${[...by].map(([c, d]) => `<path fill="${c}" d="${d}"/>`).join('')}</g>`;
+  }
   const filled = (x, y) => y >= 0 && y < H2 && x >= 0 && x < W && g[y][x];
   /* One path per color keeps each sprite to a handful of elements */
   let out = '';
@@ -1687,15 +1770,21 @@ function drawSprite(v, opt, o) {
       ? `<path fill="${ink}" d="M${x} 10h2v1h-2z"/>`
       : mood === 'emburrada'
         ? `<path fill="${iris}" d="M${x} 10h2v2h-2z"/><path fill="${ink}" d="M${x} 9h2v1h-2z"/>`
-        : `<path fill="${iris}" d="M${x} 9h2v3h-2z"/><path fill="${mood === 'amor' ? '#F2A7C6' : shade(iris, 0.35)}" d="M${x + 1} 11h1v1h-1z"/><path fill="#FFFFFF" d="M${x} 9h1v1h-1z"/>${mood === 'surpresa' ? `<path fill="#FFFFFF" d="M${x + 1} 10h1v1h-1z"/>` : ''}`);
-  const lash = closed || mood === 'sono' || mood === 'emburrada' ? '' : `<path fill="${ink}" d="M8 8h2v.6h-2zM14 8h2v.6h-2z"/>`;
+        : `<path fill="#FFFFFF" opacity=".92" d="M${x < 12 ? x - 1 : x + 2} 10h1v2h-1z"/><path fill="${iris}" d="M${x} 9h2v3h-2z"/><path fill="${shade(iris, -0.35)}" d="M${x} 9h2v1h-2z"/><path fill="${mood === 'amor' ? '#F2A7C6' : shade(iris, 0.2)}" d="M${x} 11h1v1h-1z"/><path fill="${mood === 'amor' ? '#F2A7C6' : shade(iris, 0.42)}" d="M${x + 1} 11h1v1h-1z"/><path fill="#FFFFFF" d="M${x} 9h1v1h-1z"/><path fill="#FFFFFF" opacity=".85" d="M${x + 1.3} 10.4h.5v.5h-.5z"/>${mood === 'surpresa' ? `<path fill="#FFFFFF" d="M${x + 1} 10h1v1h-1z"/>` : ''}`);
+  const lash = closed || mood === 'sono' || mood === 'emburrada' ? '' : `<path fill="${ink}" d="M8 8h2v.6h-2zM14 8h2v.6h-2zM7.3 8.2h.9v.5h-.9zM15.8 8.2h.9v.5h-.9z"/>`;
+  const HEART = 'M0 0h1v1h-1zM2 0h1v1h-1zM0 1h3v1h-3zM1 2h1v1h-1z', SPARK = 'M1 0h1v3h-1zM0 1h3v1h-3z';
+  const lv = (x, y, d, c, dl) => `<g transform="translate(${x} ${y})"><g class="lv" style="animation-delay:${dl}s"><path fill="${c}" d="${d}"/></g></g>`;
+  const fxLove = mood === 'amor' || mood === 'vergonha' ? lv(19.5, 2, HEART, '#F06A8A', 0) + lv(3, 4, HEART, '#F59AB0', -1.2)
+    : mood === 'feliz' || mood === 'risada' ? lv(19.5, 2, SPARK, '#F7D35E', -0.4) + lv(3, 5, SPARK, '#FFFFFF', -1.5) : '';
   const mpath = (m) => mouthPx(m).map(([x, y, c]) => `<path fill="${c}" d="M${x} ${y}h1v1h-1z"/>`).join('');
   const talk = opt.talk ? `<g class="mo mo1">${mpath(mood)}</g><g class="mo mo2">${mpath('falando')}</g>` : '';
   const vb = opt.portrait ? `2 ${-1 + top} 20 22` : opt.crop ? `2.5 ${-0.5 + top} 19 19` : '-1 -1 26 40';
-  return `<svg class="sprite${opt.crop ? ' av' : ''}${opt.portrait ? ' port' : ''}" viewBox="${vb}" shape-rendering="crispEdges" role="img" aria-label="${v.nome}">${s}<g transform="translate(${dxW} ${top})">${wave}</g><g transform="translate(0 ${top})"><g class="eyes" style="animation-delay:-${(v.id.length * 0.9) % 5}s">${eye(8)}${eye(14)}${lash}</g>${talk}</g></svg>`;
+  const hv = vhash(v);
+  const hop = opt.wave && aceno === 'pulinho' && !v.cadeira ? ' hop2' : '';
+  return `<svg class="sprite${opt.crop ? ' av' : ''}${opt.portrait ? ' port' : ''}${hop}" viewBox="${vb}" shape-rendering="crispEdges" role="img" aria-label="${v.nome}" style="--bd:${(2.2 + (hv % 6) * 0.2).toFixed(1)}s">${swing}${s}<g transform="translate(${dxW} ${top})">${wave}</g><g transform="translate(0 ${top})"><g class="eyes" style="animation-delay:-${(v.id.length * 0.9) % 5}s;animation-duration:${4 + (hv % 4)}s">${eye(8)}${eye(14)}${lash}</g>${talk}${fxLove}</g></svg>`;
 }
 const avatarSVG = (v, mood) => spriteSVG(v, { mood, crop: true });
-const figureSVG = (v, mood, wave) => spriteSVG(v, { mood, wave });
+const figureSVG = (v, mood, wave) => spriteSVG(v, { mood, wave, rain: !!clock().rain });
 const portraitSVG = (v, mood, talk) => `<div class="portrait" style="--bgp:${shade(v.roupa, 0.55)}">${spriteSVG(v, { mood, portrait: true, talk })}</div>`;
 /* What face does she make for this line of talk? */
 function talkMood(v, line) {
