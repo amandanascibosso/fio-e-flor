@@ -520,6 +520,53 @@ body.portrait-ok .rotate { display: none; }
 .capa-art { background: radial-gradient(circle, #F7E3A3, #F2C4D4); border-radius: 4px; padding: 8px; }
 .capa-art svg { width: 100%; height: auto; }
 .capa-tit { font-weight: 800; font-size: 13px; }
+.mo2 { opacity: 0; }
+.mo1 { animation: mo1 2.6s steps(1) forwards; }
+.mo2 { animation: mo2 2.6s steps(1) forwards; }
+@keyframes mo1 { 0%, 20%, 40%, 60%, 80% { opacity: 0; } 10%, 30%, 50%, 70%, 90%, 100% { opacity: 1; } }
+@keyframes mo2 { 0%, 20%, 40%, 60%, 80% { opacity: 1; } 10%, 30%, 50%, 70%, 90%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mo1 { animation: none; opacity: 1; } .mo2 { animation: none; opacity: 0; } }
+.crowd-v .pet { position: absolute; left: 80%; bottom: 1%; height: 30%; pointer-events: none; }
+.crowd-v .pet svg { height: 100%; width: auto; display: block; animation: petbob 1.8s steps(1) infinite; }
+.crowd-v .pet.ombro { left: 56%; bottom: 52%; height: 22%; }
+.talk-fig { position: relative; }
+.talk-fig .pet { position: absolute; right: -10%; bottom: -4%; width: 42%; }
+.talk-fig .pet svg { width: 100%; height: auto; display: block; }
+.talk-fig .pet.ombro { right: -14%; bottom: auto; top: 58%; width: 30%; }
+@keyframes petbob { 50% { transform: translateY(-4%); } }
+.yarn { animation: yarnroll 3.2s ease-in-out infinite; transform-box: fill-box; }
+@keyframes yarnroll { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-6px); } }
+@media (prefers-reduced-motion: reduce) { .yarn, .crowd-v .pet svg { animation: none; } }
+.tar-btn { position: relative; }
+.tar-btn .badge { position: absolute; top: -6px; right: -6px; background: var(--accent); color: #fff; border-radius: 8px; font-size: 10px; line-height: 14px; min-width: 14px; padding: 0 3px; border: 2px solid var(--edge); }
+.tbar { height: 6px; background: #E6DCC8; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+.tbar span { display: block; height: 100%; background: #6FAE5C; }
+.arco { position: absolute; left: 28%; bottom: 6%; height: 46%; z-index: 2; pointer-events: none; }
+.casorio { display: flex; gap: 14px; align-items: flex-start; }
+.noivas { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.noivas .portrait { width: 96px; height: 106px; }
+.anel { font-size: 22px; }
+@media (max-width: 700px) { .casorio { flex-direction: column; } }
+.want-tag svg.want-rf { width: clamp(46px, 11.6cqw, 76px); }
+.etq-wrap { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.etq-big { width: 150px; min-height: 96px; border-radius: 6px; color: #F6F0E6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 3px dashed rgba(246,240,230,.6); outline: 3px solid var(--edge); text-align: center; padding: 8px; }
+.etq-big b { font-family: var(--font-display); font-size: 16px; word-break: break-word; }
+.etq-big small { font-size: 10px; opacity: .85; }
+.etq-opts { flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; }
+#et-nome { font: inherit; font-size: 16px; padding: 6px 8px; border: 2px solid var(--edge); border-radius: 8px; background: #fff; }
+.tc-stage { position: relative; width: min(46vw, 200px); aspect-ratio: 1; margin: 0 auto; }
+.tc-stage > svg, .tc-stage > div { position: absolute; inset: 0; }
+.tc-stage svg { width: 100%; height: 100%; }
+.tc-ghost { opacity: .22; filter: grayscale(1); }
+.tc-grow { transition: clip-path .25s steps(3); }
+.tc-bar { position: relative; height: 26px; border: 2px solid var(--edge); border-radius: 13px; background: #F3E9DA; margin: 6px 0; }
+.tc-zone { position: absolute; left: 36%; width: 28%; top: 0; bottom: 0; background: #9CC48E; }
+.tc-mark { position: absolute; top: -3px; transform: translateX(-50%); font-size: 20px; line-height: 1; }
+.tc-tap { align-self: center; min-width: 160px; font-size: 18px; }
+.pw-wrap { display: grid; grid-template-columns: minmax(160px, 220px) 1fr; gap: 14px; }
+.pw-grid { display: grid; gap: 3px; width: 100%; aspect-ratio: 1; margin: 8px 0; background: #E6DCC8; padding: 3px; border: 2px solid var(--edge); border-radius: 6px; }
+.pw-cell { border: 2px dashed #B9A88C; border-radius: 3px; min-height: 0; }
+@media (max-width: 640px) { .pw-wrap { grid-template-columns: 1fr; } }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -824,6 +871,16 @@ const MASKS = {
 const PLEATS = (() => { let s = '<path d="M31 26 L69 26"/>'; for (let i = 1; i < 8; i++) s += `<path d="M${31 + i * 4.75} 27 L${20 + i * 7.5} 89"/>`; return s; })();
 const BTN = (y) => `<circle cx="50" cy="${y}" r="1.9" fill="rgba(255,255,255,.85)" stroke="rgba(40,28,45,.4)"/>`;
 const PIECES = {
+  trico: { nome: 'Tricô', g: 'm', fora: true, zonas: [{ nome: 'corpo', g: 'm' }, { nome: 'detalhe', g: 'm' }], moldes: [
+    { id: 'touca', nome: 'Touca', preco: 16, m: 1, split: { y: 62 }, d: 'M26 62 Q26 24 50 22 Q74 24 74 62 Z M24 62 L76 62 L76 76 L24 76 Z M42 14 Q42 6 50 6 Q58 6 58 14 Q58 22 50 22 Q42 22 42 14 Z', det: '<path d="M30 30 l3 3 l3 -3 M44 30 l3 3 l3 -3 M58 30 l3 3 l3 -3 M37 42 l3 3 l3 -3 M51 42 l3 3 l3 -3 M30 54 l3 3 l3 -3 M44 54 l3 3 l3 -3 M58 54 l3 3 l3 -3"/><path d="M30 66 V74 M36 66 V74 M42 66 V74 M48 66 V74 M54 66 V74 M60 66 V74 M66 66 V74 M72 66 V74"/>', cut: [] },
+    { id: 'luvas', nome: 'Luvas', preco: 14, m: 1, split: { y: 66 }, d: 'M14 34 Q14 22 26 22 Q38 22 38 34 L38 66 L14 66 Z M38 40 Q47 38 45 50 L38 53 Z M62 34 Q62 22 74 22 Q86 22 86 34 L86 66 L62 66 Z M62 40 Q53 38 55 50 L62 53 Z M14 66 L38 66 L38 78 L14 78 Z M62 66 L86 66 L86 78 L62 78 Z', det: '<path d="M20 32 l3 3 l3 -3 M28 44 l3 3 l3 -3 M68 32 l3 3 l3 -3 M76 44 l3 3 l3 -3 M18 70 V76 M24 70 V76 M30 70 V76 M66 70 V76 M72 70 V76 M78 70 V76"/>', cut: [] },
+    { id: 'cachecolt', nome: 'Cachecol de lã', preco: 18, m: 2, split: { y: 80 }, d: 'M40 8 L60 8 L60 80 L40 80 Z M40 80 L60 80 L60 88 L40 88 Z', det: '<path d="M44 16 l3 3 l3 -3 M50 28 l3 3 l3 -3 M44 40 l3 3 l3 -3 M50 52 l3 3 l3 -3 M44 64 l3 3 l3 -3 M42 88 V95 M46 88 V96 M50 88 V95 M54 88 V96 M58 88 V95"/>', cut: [] },
+    { id: 'mantinha', nome: 'Mantinha', preco: 26, m: 3, split: { y: 72 }, d: 'M14 14 L86 14 L86 86 L14 86 Z', det: '<path d="M30 30 l3 3 l3 -3 M44 30 l3 3 l3 -3 M58 30 l3 3 l3 -3 M37 42 l3 3 l3 -3 M51 42 l3 3 l3 -3 M30 54 l3 3 l3 -3 M44 54 l3 3 l3 -3 M58 54 l3 3 l3 -3"/><path d="M30 66 l3 3 l3 -3 M50 66 l3 3 l3 -3 M18 86 V92 M26 86 V92 M34 86 V92 M42 86 V92 M50 86 V92 M58 86 V92 M66 86 V92 M74 86 V92 M82 86 V92"/>', cut: [] },
+  ] },
+  patch: { nome: 'Patchwork', g: 'm', fora: true, zonas: [{ nome: 'retalhos', g: 'm' }, { nome: 'retalhos', g: 'm' }], moldes: [
+    { id: 'almofada', nome: 'Almofada de patchwork', preco: 14, split: { y: 50 }, d: 'M20 20 L80 20 L80 80 L20 80 Z', det: '', cut: [] },
+    { id: 'colcha', nome: 'Colcha de patchwork', preco: 30, split: { y: 50 }, d: 'M12 12 L88 12 L88 88 L12 88 Z', det: '', cut: [] },
+  ] },
   vestido: { nome: 'Vestido', g: 'm', zonas: [{ nome: 'corpete', g: 'm' }, { nome: 'saia', g: 'f' }], moldes: [
     { id: 'rodado', nome: 'Vestido rodado', preco: 24, split: { y: 40 },
       d: 'M38 8 L44 8 L46 18 Q50 24 54 18 L56 8 L62 8 L64 30 Q60 36 62 40 L84 86 Q50 96 16 86 L38 40 Q40 36 36 30 Z',
@@ -949,6 +1006,12 @@ const ACCS = {
   tiara:    { nome: 'Tiara',         g: 'f', custo: 3,  preco: 8,  need: 4,  uso: 'pra festa da escola' },
   broche:   { nome: 'Broche de flor', g: 'm', custo: 3, preco: 9,  need: 8,  uso: 'pra usar no casaco' },
   bolsinha: { nome: 'Bolsinha',      g: 'f', custo: 5, preco: 14, need: 12, uso: 'pra levar na feira' },
+  presilha: { nome: 'Presilha', g: 'f', custo: 1, preco: 4, need: 0, uso: 'pra prender a franja', joia: true },
+  pulseira: { nome: 'Pulseira', g: 'f', custo: 1, preco: 5, need: 3, uso: 'pra combinar com o vestido', joia: true },
+  colar: { nome: 'Colar de contas', g: 'm', custo: 2, preco: 7, need: 6, uso: 'pra usar na festa', joia: true },
+  capinha: { nome: 'Capinha de bicho', g: 'f', custo: 3, preco: 8, need: 5, uso: 'pra quando chover', pet: true },
+  lencinho: { nome: 'Lencinho de bicho', g: 'm', custo: 2, preco: 6, need: 5, uso: 'pra passear', pet: true },
+  gravatinha: { nome: 'Gravatinha', g: 'f', custo: 2, preco: 6, need: 5, uso: 'pra ficar elegante', pet: true },
 };
 const AKEYS = Object.keys(ACCS);
 const BOX_MAX = 8;
@@ -968,11 +1031,12 @@ const VILLAGERS = [
   { id: 'helena', nome: 'Prof.ª Helena', quem: 'dá aula na escolinha', pele: '#C68E6A', cabelo: '#1F1A1A', estilo: 'curto', roupa: '#23395F', fav: 'xadrez', need: 10, cores: ['marinho', 'creme', 'vinho'], sig: 'oculos' },
   { id: 'mel', nome: 'Mel', quem: 'abriu uma confeitaria', pele: '#F3D2BC', cabelo: '#E6C46A', estilo: 'rabo', roupa: '#F2A7C6', fav: 'bolinhas', need: 16, cores: ['rosa', 'chiclete', 'creme'], sig: 'avental-rosa' },
   { id: 'nina', nome: 'Nina', quem: 'entrega cartas de bicicleta', pele: '#8C5A3C', cabelo: '#3A2318', estilo: 'trancas', roupa: '#3AA3A6', fav: 'listras', need: 22, cores: ['turquesa', 'lima', 'laranja'], sig: 'bone' },
+  { id: 'rita', nome: 'Rita', quem: 'conserta bicicletas e rádios', pele: '#5C3A28', cabelo: '#2B211C', estilo: 'raspado', roupa: '#E8B931', fav: 'xadrez', need: 34, cores: ['amarelo', 'laranja', 'marinho'], sig: 'chave' },
   { id: 'zeze', nome: 'Vó Zezé', quem: 'tricota na varanda', pele: '#E2B796', cabelo: '#F1EEEA', estilo: 'coque', roupa: '#B3708E', fav: 'florzinha', need: 28, cores: ['lilás', 'malva', 'névoa'], sig: 'oculos' },
 ];
 const SIGS = { bia: 'violao', tito: 'chapeu-pesca', cida: 'oculos', joaquim: 'avental', lua: 'pincel' };
 VILLAGERS.forEach((v) => { v.cores = v.cores || VIL_CORES[v.id]; v.sig = v.sig || SIGS[v.id]; });
-const VTAM = { bia: 'P', tito: 'M', cida: 'M', joaquim: 'G', lua: 'P', helena: 'M', mel: 'G', nina: 'P', zeze: 'M' };
+const VTAM = { bia: 'P', tito: 'M', cida: 'M', joaquim: 'G', lua: 'P', helena: 'M', mel: 'G', nina: 'P', zeze: 'M', rita: 'G' };
 VILLAGERS.forEach((v) => { v.tam = VTAM[v.id]; v.exigente = ['cida', 'helena', 'zeze'].includes(v.id); });
 /* Each one has her own face and everyday clothes */
 const LOOKS = {
@@ -986,7 +1050,21 @@ const LOOKS = {
   nina: { rosto: { olho: '#5A3A2A', sardas: true, batom: '#9C4652', sobr: 'reta' }, base: { short: '#3E5F8F', meia: '#F3EFE6', sapato: '#E8B931' } },
   zeze: { rosto: { olho: '#6E7480', batom: '#B3708E', sobr: 'fina' }, base: { saia: '#6B5B6E', longa: true, sapato: '#5E4B3C', colete: '#B79AD6' } },
 };
-VILLAGERS.forEach((v) => Object.assign(v, LOOKS[v.id]));
+LOOKS.rita = { rosto: { olho: '#5A3A2A', pinta: true, batom: '#9C4652', sobr: 'reta' }, base: { calca: '#3E5F8F', sapato: '#2E2A33', cinto: '#6E5235' } };
+/* Bodies, jewelry and the many ways of being in the village */
+const EXTRAS = {
+  bia: { corpo: { alt: 'baixa' }, joia: { brinco: 'flor', pulseira: '#E8B931' } },
+  tito: { corpo: { larg: 'cheia' }, joia: { brinco: 'argola' } },
+  cida: { corpo: { alt: 'baixa', larg: 'cheia' }, joia: { brinco: 'perola', colar: '#F6F0E6' } },
+  joaquim: { corpo: { alt: 'alta', larg: 'cheia' }, joia: { brinco: 'argola', colar: '#C8463D' } },
+  lua: { corpo: { larg: 'fina' }, joia: { brinco: 'flor', presilha: '#B79AD6' }, vitiligo: true },
+  helena: { joia: { brinco: 'perola', colar: '#E8B931' }, cadeira: true },
+  mel: { corpo: { larg: 'cheia' }, joia: { presilha: '#F2A7C6', pulseira: '#F2A7C6' }, dentes: true },
+  nina: { corpo: { alt: 'alta', larg: 'fina' }, joia: { brinco: 'argola', pulseira: '#3AA3A6' } },
+  zeze: { corpo: { alt: 'baixa' }, joia: { brinco: 'perola', colar: '#B79AD6' }, auditivo: true },
+  rita: { corpo: { alt: 'alta' }, joia: { brinco: 'argola', bandana: '#3AA3A6' } },
+};
+VILLAGERS.forEach((v) => Object.assign(v, LOOKS[v.id], EXTRAS[v.id] || {}));
 const OCCASIONS = [
   { txt: 'um piquenique no domingo', pecas: ['vestido', 'saia', 'camisa'] },
   { txt: 'quando chover', pecas: ['cachecol', 'chapeu'] },
@@ -1194,13 +1272,22 @@ function pieceSVG(peca, moldeId, zs, label, acc, bordado, fin) {
   if (!z[0].cor && !z[1].cor) {
     return `<svg viewBox="0 0 100 100" ${aria}><path d="${m.d}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round" opacity=".55"/>${detMarkup(m)}</svg>`;
   }
+  if (peca === 'patch' && z[0].grid) return `<svg viewBox="0 0 100 100" ${aria}>${patchArt(m, z[0].grid)}</svg>`;
   const L = pieceLayers(m, z, true);
   const extra = acc ? `<svg x="60" y="0" width="40" height="40" viewBox="0 0 40 40">${accSVG(acc.tipo, acc.cor, true)}</svg>` : '';
   const lin = fin ? (fin.linha || shade(hexOf(z[0].cor) || CRU, -0.25)) : null;
   const stitch = lin ? `<path d="${m.d}" fill="none" stroke="${lin}" stroke-width="1.1" stroke-dasharray="2.2 2.2" transform="translate(50 50) scale(.92) translate(-50 -50)"/>` : '';
-  return `<svg viewBox="0 0 100 100" ${aria}><defs>${L.defs}</defs>${L.body}${stitch}${fin ? finMarkup(fin, z) : ''}${bordadoMarkup(bordado)}${extra}</svg>`;
+  return `<svg viewBox="0 0 100 100" ${aria}><defs>${L.defs}</defs>${L.body}${stitch}${fin ? golaBolsoMarkup(m, peca, fin, z) + finMarkup(fin, z) + (fin.etq ? etiquetaMarkup(m) : '') : ''}${bordadoMarkup(bordado)}${extra}</svg>`;
 }
 
+function patchArt(m, grid) {
+  const n = Math.round(Math.sqrt(grid.length)), x0 = m.id === 'colcha' ? 12 : 20, w = m.id === 'colcha' ? 76 : 60, c = w / n;
+  let r = '';
+  grid.forEach((k, i) => { const x = x0 + (i % n) * c, y = x0 + Math.floor(i / n) * c, hx = k ? hexOf(k) : 'var(--paper)'; r += `<rect x="${x}" y="${y}" width="${c}" height="${c}" fill="${hx}"/>${k && bandsOf(k) ? '' : ''}<path d="M${x + 1.5} ${y + 1.5} h${c - 3} v${c - 3} h${-(c - 3)} Z" fill="none" stroke="${k ? shade(hexOf(k), -0.3) : '#C9B9A0'}" stroke-width=".6" stroke-dasharray="1.6 1.4"/>`; });
+  r += `<rect x="${x0}" y="${x0}" width="${w}" height="${w}" fill="none" stroke="#3A3040" stroke-width="2.2" rx="${m.id === 'colcha' ? 1 : 4}"/>`;
+  if (m.id === 'almofada') r += [[x0, x0], [x0 + w, x0], [x0, x0 + w], [x0 + w, x0 + w]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#E8B931" stroke="#3A3040" stroke-width=".8"/>`).join('');
+  return r;
+}
 function accSVG(tipo, cor, inner) {
   const fill = cor ? hexOf(cor) : 'none';
   const st = cor ? '#3A3040' : 'currentColor';
@@ -1212,6 +1299,12 @@ function accSVG(tipo, cor, inner) {
     fuxico: `<circle ${g} cx="20" cy="20" r="15"/>${cor ? [0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<path d="M20 15 L20 7" stroke="${hi}" stroke-width="1.3" stroke-linecap="round" transform="rotate(${a} 20 20)"/>`).join('') : ''}<circle ${g} cx="20" cy="20" r="4.5"/>`,
     tiara: `<path d="M5 31 Q20 2 35 31" fill="none" stroke="${st}" stroke-width="8" stroke-linecap="round"${dash}/>${cor ? `<path d="M5 31 Q20 2 35 31" fill="none" stroke="${fill}" stroke-width="5" stroke-linecap="round"/>` : ''}<path ${g} d="M20 13 L12 8 L12 18 Z M20 13 L28 8 L28 18 Z"/>`,
     broche: `${[0, 72, 144, 216, 288].map((a) => `<ellipse ${g} cx="20" cy="10" rx="6" ry="8" transform="rotate(${a} 20 20)"/>`).join('')}<circle cx="20" cy="20" r="4.5" fill="${cor ? '#E8B931' : 'none'}" stroke="${st}" stroke-width="1.4"${dash}/>`,
+    presilha: `<rect ${g} x="7" y="16" width="26" height="8" rx="4"/><circle cx="12" cy="20" r="2.4" fill="${cor ? '#F7D35E' : 'none'}" stroke="${st}" stroke-width="1"/>`,
+    pulseira: `<ellipse cx="20" cy="20" rx="14" ry="8" fill="none" stroke="${st}" stroke-width="7"${dash}/>${cor ? `<ellipse cx="20" cy="20" rx="14" ry="8" fill="none" stroke="${fill}" stroke-width="4.4"/>` : ''}`,
+    colar: `<path d="M7 7 Q20 34 33 7" fill="none" stroke="${st}" stroke-width="1.2"${dash}/>${[0.1, 0.25, 0.4, 0.6, 0.75, 0.9].map((t) => `<circle ${g} cx="${7 + 26 * t}" cy="${7 + 54 * t * (1 - t)}" r="2.6"/>`).join('')}<circle ${g} cx="20" cy="27" r="4"/>`,
+    capinha: `<path ${g} d="M9 8 H31 L36 33 Q20 38 4 33 Z"/><path ${g} d="M9 8 Q20 15 31 8"/>`,
+    lencinho: `<path ${g} d="M5 9 H35 L20 34 Z"/><path d="M5 9 L1 6 M35 9 L39 6" stroke="${st}" stroke-width="1.6"/>`,
+    gravatinha: `<path ${g} d="M20 20 L5 11 V29 Z M20 20 L35 11 V29 Z"/><rect ${g} x="16.5" y="16.5" width="7" height="7" rx="1.5"/>`,
     bolsinha: `<path d="M13 16 Q13 5 20 5 Q27 5 27 16" fill="none" stroke="${st}" stroke-width="2.4"${dash}/><rect ${g} x="7" y="15" width="26" height="20" rx="5"/><path ${g} d="M7 20 Q20 28 33 20 L33 17 Q33 15 31 15 L9 15 Q7 15 7 17 Z"/><circle cx="20" cy="24" r="1.8" fill="${cor ? '#E8B931' : 'none'}" stroke="${st}" stroke-width="1"/>`,
   };
   return inner ? shapes[tipo] : `<svg viewBox="0 0 40 40" aria-hidden="true">${shapes[tipo]}</svg>`;
@@ -1222,6 +1315,51 @@ function patSwatch(padrao, hex) {
   return `<svg viewBox="0 0 22 22" aria-hidden="true"><defs>${patternDef(id, padrao, hex)}</defs><circle cx="11" cy="11" r="10" fill="url(#${id})" stroke="rgba(0,0,0,.25)"/></svg>`;
 }
 
+/* Each pet is a tiny pixel map: a fur, b shadow, c belly, e eye, n nose/beak, r accent */
+const PET_ART = {
+  cachorro: { neck: [7, 4], m: ['........bb..', '.......baaa.', '.......aaeaa', 'b......aaaan', '.b.....aaa..', '..aaaaaaaa..', '..aaaaaaaa..', '..acccccca..', '..a.a..a.a..', '..b.b..b.b..'] },
+  gata: { neck: [8, 4], m: ['.......b.b..', '.......aaaa.', '.......aeaea', '.......aanaa', '........aaa.', 'b.....aaaa..', 'b....aaaaaa.', '.b...acccca.', '..b..acccca.', '...bbab..ba.'] },
+  coelha: { neck: [7, 6], m: ['........bb..', '........ab..', '........ab..', '.......aaaa.', '.......aaeaa', '..c....aaaan', '.cc..aaaaa..', '..aaaaaaaa..', '..aaaaccaa..', '...bb...bb..'] },
+  galinha: { neck: [6, 5], m: ['.......rr...', '......aaaa..', '......aaeaa.', '......aaaann', 'b.....aaar..', 'bb...aaaa...', 'bbaaaaaaa...', '.baaaaccaa..', '..aaaaaaa...', '.....n.n....'] },
+  papagaio: { neck: [6, 4], m: ['......aaa...', '.....aaaaa..', '.....aaeann.', '.....aaaa.n.', '......aaa...', '......cca...', '.....acccb..', '.....acccb..', '......aab...', '.....rrb....'] },
+};
+const PETS = {
+  tito: { tipo: 'cachorro', nome: 'Paçoca', cor: '#C98A4B', quem: 'o cachorrinho dela', ombro: false },
+  mel: { tipo: 'gata', nome: 'Fubá', cor: '#BFB8B0', quem: 'a gatinha dela' },
+  lua: { tipo: 'coelha', nome: 'Nuvem', cor: '#F3EFE6', quem: 'a coelhinha dela' },
+  joaquim: { tipo: 'galinha', nome: 'Cocota', cor: '#E9DCC6', quem: 'a galinha de estimação dela' },
+  zeze: { tipo: 'papagaio', nome: 'Louro', cor: '#4FA34A', quem: 'o papagaio dela', ombro: true },
+  rita: { tipo: 'cachorro', nome: 'Parafuso', cor: '#4A3E3A', quem: 'o cachorro dela' },
+};
+function petSVG(vid) {
+  const P = PETS[vid];
+  if (!P) return '';
+  const A = PET_ART[P.tipo];
+  const w = state.petWear && state.petWear[vid];
+  const col = { a: P.cor, b: shade(P.cor, -0.28), c: shade(P.cor, 0.4), e: '#2A2230', n: P.tipo === 'galinha' || P.tipo === 'papagaio' ? '#E8A030' : '#3A3040', r: P.tipo === 'papagaio' ? '#D2463D' : '#D2463D' };
+  const g = A.m.map((r) => r.split('').map((ch) => (ch === '.' ? null : col[ch])));
+  const put = (x, y, c) => { if (y >= 0 && y < g.length && x >= 0 && x < 12) g[y][x] = c; };
+  if (w) {
+    const wc = hexOf(w.cor) || '#C8463D', wd = shade(wc, -0.3), [nx, ny] = A.neck;
+    if (w.tipo === 'capinha') for (const y of [ny + 1, ny + 2]) g[y] = g[y].map((c, x) => (c === col.a && x < nx + 2 ? (y === ny + 2 ? wd : wc) : c));
+    if (w.tipo === 'lencinho') { put(nx, ny, wc); put(nx + 1, ny, wc); put(nx + 2, ny, wc); put(nx + 1, ny + 1, wd); }
+    if (w.tipo === 'gravatinha') { put(nx, ny, wc); put(nx + 1, ny, wd); put(nx + 2, ny, wc); }
+  }
+  let out = '';
+  const by = new Map();
+  g.forEach((r, y) => r.forEach((c, x) => { if (c) by.set(c, (by.get(c) || '') + `M${x} ${y}h1v1h-1z`); }));
+  let ol = '';
+  const f = (x, y) => y >= 0 && y < g.length && x >= 0 && x < 12 && g[y][x];
+  for (let y = -1; y <= g.length; y++) for (let x = -1; x <= 12; x++) if (!f(x, y) && (f(x - 1, y) || f(x + 1, y) || f(x, y - 1) || f(x, y + 1))) ol += `M${x} ${y}h1v1h-1z`;
+  out = `<path fill="#3A3040" opacity=".85" d="${ol}"/>` + [...by].map(([c, d]) => `<path fill="${c}" d="${d}"/>`).join('');
+  return `<span class="pet${P.ombro ? ' ombro' : ''}" aria-hidden="true"><svg viewBox="-1 -1 14 12" shape-rendering="crispEdges">${out}</svg></span>`;
+}
+function wearAcc(vid, a) {
+  const o = state.outfits[vid] = state.outfits[vid] || {};
+  if (ACCS[a.tipo].joia) o.joias = { ...(o.joias || {}), [a.tipo]: a.cor };
+  else if (ACCS[a.tipo].pet) { state.petWear = state.petWear || {}; state.petWear[vid] = a; }
+  else o.acc = a;
+}
 function outfitOf(vid) { return (state.outfits && state.outfits[vid]) || {}; }
 function wear(vid, item) {
   const o = state.outfits[vid] = state.outfits[vid] || {};
@@ -1233,6 +1371,7 @@ function wear(vid, item) {
   else if (item.peca === 'cachecol') o.cachecol = piece;
   else if (item.peca === 'avental') o.avental = piece;
   else if (item.peca === 'casaco') o.casaco = piece;
+  else if (item.peca === 'trico') { if (item.molde === 'touca') o.touca = piece; else if (item.molde === 'luvas') o.luvas = piece; else if (item.molde === 'cachecolt') o.cachecol = piece; }
   else if (item.peca === 'macacao') { if (o.baixo && o.baixo.peca === 'vestido') o.cima = null; o.baixo = piece; }
   if (item.acc) o.acc = item.acc;
 }
@@ -1265,7 +1404,7 @@ function zonePix(z) {
 const SPRITES = new Map();
 function spriteSVG(v, opt = {}) {
   const o = outfitOf(v.id);
-  const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, v.rosto, v.base, v.enfeite, v.sig, opt.mood || null, !!opt.crop, !!opt.wave, !!opt.portrait, o]);
+  const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, v.rosto, v.base, v.enfeite, v.sig, v.corpo, v.joia, v.cadeira, v.vitiligo, v.auditivo, v.dentes, opt.mood || null, !!opt.crop, !!opt.wave, !!opt.portrait, !!opt.talk, o]);
   const hit = SPRITES.get(key);
   if (hit) return hit;
   if (SPRITES.size > 400) SPRITES.clear();
@@ -1296,6 +1435,7 @@ function drawSprite(v, opt, o) {
     for (let y = 10; y <= 21; y++) { const c = y % 2 ? hair : hairD; put(4, y, c); put(5, y, c); put(18, y, c); put(19, y, c); }
     rows([[22, 4, 5], [22, 18, 19]], '#D2557A');
   }
+  if (st === 'raspado') { rows([[3, 7, 16], [4, 6, 17]], hairD); }
   if (st === 'chiquinhas') { rect(5, 4, 18, 10, hair); rows([[4, 2, 4], [5, 1, 4], [6, 1, 4], [7, 1, 4], [8, 1, 3], [9, 1, 3], [10, 2, 3], [11, 2, 3], [12, 2, 2], [4, 19, 21], [5, 19, 22], [6, 19, 22], [7, 19, 22], [8, 20, 22], [9, 20, 22], [10, 20, 21], [11, 20, 21], [12, 21, 21]], hair); rows([[9, 1, 1], [9, 22, 22], [11, 2, 2], [11, 21, 21]], hairD); rows([[4, 4, 5], [4, 18, 19]], '#D2557A'); }
   if (st === 'cacheado') { rows([[3, 6, 17], [4, 4, 19]], hair); rect(3, 5, 20, 20, hair); for (let y = 5; y <= 20; y += 2) { put(2, y, hair); put(21, y, hair); put(3, y + 1, hairD); put(20, y + 1, hairD); } rows([[21, 4, 6], [21, 9, 10], [21, 13, 14], [21, 17, 19]], hairD); }
   if (v.sig === 'violao') { rect(20, 10, 20, 21, '#6B4226'); rect(19, 9, 21, 9, '#4E3020'); rows([[22, 18, 22], [23, 17, 23], [24, 17, 23], [25, 18, 22], [26, 17, 23], [27, 17, 23], [28, 18, 22]], '#C98A4B'); rect(19, 25, 21, 25, '#3A2A1F'); rows([[27, 21, 23], [28, 21, 22]], '#A86E36'); }
@@ -1371,10 +1511,18 @@ function drawSprite(v, opt, o) {
   rows([[3, 8, 15], [4, 6, 17], [5, 5, 18], [6, 5, 18], [7, 5, 18], [8, 5, 18], [9, 5, 18], [10, 5, 18], [11, 5, 18], [12, 5, 18], [13, 6, 17], [14, 7, 16]], skin);
   rows([[13, 16, 17], [14, 15, 16]], skinD);
   put(4, 10, skin); put(4, 11, skin); put(19, 10, skin); put(19, 11, skinD);
-  put(4, 12, '#E8B931'); put(19, 12, '#E8B931');
+  const J = { brinco: 'ouro', ...(v.joia || {}), ...(o.joias || {}) };
+  const earring = (x) => {
+    if (J.brinco === 'argola') { put(x, 12, '#E8B931'); put(x, 13, '#E8B931'); put(x + (x < 12 ? -1 : 1), 13, '#C9A23A'); }
+    else if (J.brinco === 'perola') put(x, 12, '#F6F0E6');
+    else if (J.brinco === 'flor') { put(x, 12, '#F2A7C6'); put(x, 13, '#F7D35E'); }
+    else put(x, 12, '#E8B931');
+  };
+  earring(4); earring(19);
 
   /* front hair */
-  rows([[3, 7, 16], [4, 6, 17], [5, 5, 18]], hair);
+  if (st === 'raspado') { rows([[3, 7, 16], [4, 6, 17]], hairD); for (let x = 7; x <= 16; x += 2) put(x, 3, shade(hair, 0.15)); }
+  else rows([[3, 7, 16], [4, 6, 17], [5, 5, 18]], hair);
   const fronts = {
     longo: [[6, 5, 10], [6, 13, 18], [7, 5, 8], [7, 15, 18], [8, 5, 6], [8, 17, 18], [9, 5, 5], [9, 18, 18]],
     franja: [[6, 5, 18], [7, 5, 18], [8, 5, 6], [8, 8, 9], [8, 11, 12], [8, 14, 15], [8, 17, 18]],
@@ -1384,11 +1532,12 @@ function drawSprite(v, opt, o) {
     curto: [[6, 5, 15], [7, 5, 11], [7, 17, 18], [8, 5, 7], [8, 18, 18], [9, 5, 5]],
     rabo: [[6, 5, 9], [6, 14, 18], [7, 5, 7], [7, 16, 18], [8, 5, 5], [8, 18, 18]],
     chiquinhas: [[6, 5, 10], [6, 13, 18], [7, 5, 7], [7, 16, 18]],
+    raspado: [],
     cacheado: [[6, 5, 9], [6, 13, 18], [7, 5, 7], [7, 15, 18], [8, 5, 6], [8, 17, 18], [9, 5, 5], [9, 18, 18]],
   }[st] || [];
   rows(fronts, hair);
   if (st === 'afro') rows([[3, 4, 19], [4, 3, 20], [5, 3, 20]], hair);
-  rows([[4, 10, 12], [5, 8, 9]], hairL);
+  if (st !== 'raspado') rows([[4, 10, 12], [5, 8, 9]], hairL);
   if (st === 'franja' || st === 'curto') rows([[7, 13, 14]], hairL);
   if (st === 'rabo') put(18, 5, '#D2557A');
 
@@ -1403,11 +1552,29 @@ function drawSprite(v, opt, o) {
   if (R.pinta) onSkin(16, 13, '#3A2A2A');
   rows([[12, 6, 7], [12, 16, 17]], '#F4A0A4');
   const lip = R.batom || '#9C4652';
-  if (mood === 'feliz' || mood === 'amor') rows([[13, 10, 10], [13, 13, 13], [14, 11, 12]], lip);
-  else if (mood === 'triste') rows([[13, 11, 12], [14, 10, 10], [14, 13, 13]], ink);
-  else if (mood === 'hmm') rows([[13, 11, 13]], lip);
-  else rows([[13, 11, 12]], lip);
+  /* mouths per mood; braces show when she smiles wide */
+  const mouthPx = (m) => {
+    const px = [];
+    const add = (spec, c) => spec.forEach(([y, x0, x1]) => { for (let x = x0; x <= x1; x++) px.push([x, y, c]); });
+    if (m === 'risada') { add([[13, 10, 13], [14, 11, 12]], '#7A2E3E'); add([[13, 11, 12]], '#FFFFFF'); if (R.dentes || v.dentes) px.push([12, 13, '#9AA0A8']); }
+    else if (m === 'feliz' || m === 'amor') { if (R.dentes || v.dentes) { add([[13, 10, 13]], lip); add([[14, 11, 12]], lip); px.push([11, 13, '#FFFFFF'], [12, 13, '#9AA0A8']); } else { add([[13, 10, 10], [13, 13, 13], [14, 11, 12]], lip); } }
+    else if (m === 'triste') add([[13, 11, 12], [14, 10, 10], [14, 13, 13]], ink);
+    else if (m === 'surpresa' || m === 'falando') add([[13, 11, 12], [14, 11, 12]], '#7A2E3E');
+    else if (m === 'emburrada') add([[13, 10, 13]], shade(lip, -0.2));
+    else if (m === 'hmm') add([[13, 11, 13]], lip);
+    else if (m === 'sono') add([[13, 11, 11]], lip);
+    else add([[13, 11, 12]], lip);
+    return px;
+  };
+  if (!opt.talk) mouthPx(mood).forEach(([x, y, c]) => put(x, y, c));
   if (mood === 'triste') { put(7, 8, shade(skin, -0.4)); put(16, 8, shade(skin, -0.4)); }
+  if (mood === 'vergonha' || mood === 'emburrada') rows([[11, 5, 7], [12, 5, 8], [11, 16, 18], [12, 15, 18]], mood === 'vergonha' ? '#F07C86' : '#F4A0A4');
+  if (mood === 'emburrada') { onSkin(8, 8, brow); onSkin(15, 8, brow); }
+
+  if (v.vitiligo) [[6, 6], [7, 6], [6, 7], [16, 9], [17, 9], [16, 10], [10, 12], [11, 12]].forEach(([x, y]) => onSkin(x, y, shade(skin, 0.42)));
+  if (v.auditivo) { put(20, 9, '#D9CBB0'); put(20, 10, '#D9CBB0'); put(20, 11, '#8B8580'); }
+  if (J.bandana && !o.chapeu) { rows([[4, 6, 17]], J.bandana); put(18, 5, J.bandana); put(19, 6, J.bandana); put(19, 5, shade(J.bandana, -0.2)); }
+  if (J.presilha) { put(6, 5, J.presilha); put(7, 5, J.presilha); put(8, 5, shade(J.presilha, -0.25)); }
 
   /* hats and signature items */
   if (o.chapeu) {
@@ -1440,6 +1607,24 @@ function drawSprite(v, opt, o) {
     if (t === 'bolsinha') { rect(19, 17, 19, 23, '#5E4B3C'); rows([[24, 18, 21], [25, 18, 21], [26, 18, 21]], ac); rect(18, 26, 21, 26, dk); put(20, 25, '#E8B931'); }
   }
   if (v.sig === 'pincel') { rect(19, 21, 19, 26, '#7A4A1F'); put(19, 20, '#E58FA6'); put(19, 19, '#E58FA6'); }
+  if (o.touca && !o.chapeu) {
+    const t0 = zonePix(o.touca.z[0]), t1 = zonePix(o.touca.z[1]) || t0;
+    rows([[1, 8, 15], [2, 6, 17], [3, 5, 18]], t0); rect(5, 4, 18, 5, t1); rows([[0, 10, 13]], t1);
+    for (let x = 6; x <= 17; x += 2) put(x, 5, dim(t1, -0.18));
+  }
+  if (o.luvas) { const l0 = zonePix(o.luvas.z[0]), l1 = zonePix(o.luvas.z[1]) || l0; rect(5, 23, 6, 24, l0); rect(17, 23, 18, 24, l0); put(5, 22, l1); put(6, 22, l1); put(17, 22, l1); put(18, 22, l1); }
+  if (v.sig === 'chave') { rect(19, 21, 19, 26, '#8B8580'); rows([[20, 18, 20], [19, 18, 18], [19, 20, 20]], '#9AA0A8'); }
+  if (J.colar) { rows([[16, 10, 13]], J.colar); put(11, 17, J.colar); put(12, 17, shade(J.colar, -0.2)); }
+  if (J.pulseira) { put(5, 24, J.pulseira); put(6, 24, shade(J.pulseira, -0.2)); }
+  if (v.cadeira) {
+    /* wheelchair: big wheel, seat, footrest and push handles */
+    for (let y = 26; y <= 35; y++) for (let x = 3; x <= 21; x++) if (g[y][x] && (y >= 30 || x >= 17)) g[y][x] = null;
+    rect(7, 27, 17, 27, '#6E6A72'); rect(17, 18, 18, 27, '#5A5660'); rows([[17, 18, 20]], '#5A5660');
+    const leg = (v.base && v.base.meia) || skin, sh = (v.base && v.base.sapato) || '#5A3F4F';
+    rect(12, 28, 16, 29, g[28] && g[28][11] ? g[28][11] : leg); rect(15, 30, 16, 32, leg); rect(15, 33, 17, 33, sh); rect(14, 34, 18, 34, '#6E6A72');
+    for (let y = 24; y <= 35; y++) for (let x = 4; x <= 16; x++) { const d = Math.hypot(x - 10, y - 30); if (d >= 4.3 && d <= 5.6) put(x, y, '#4A4550'); else if (d < 1.2) put(x, y, '#9A958F'); else if (d < 4.3 && (x === 10 || y === 30)) put(x, y, '#8B8590'); }
+    rect(17, 34, 18, 35, '#4A4550');
+  }
 
   let wave = '';
   if (opt.wave) {
@@ -1457,15 +1642,31 @@ function drawSprite(v, opt, o) {
     for (let y = 17; y <= 25; y++) for (let x = 17; x <= 18; x++) down.push([x, y]);
     wave = `<g class="wv wv1">${frame(0)}</g><g class="wv wv2">${frame(1)}</g><g class="wv wvd"><path fill="${sleeve}" d="M17 17h2v3h-2z"/><path fill="${skin}" d="M17 20h2v6h-2z"/><path fill="#3A3040" opacity=".9" d="M19 17h1v9h-1zM17 26h2v1h-2z"/></g>`;
   }
-  const filled = (x, y) => y >= 0 && y < H && x >= 0 && x < W && g[y][x];
+  /* Body shapes: wider or narrower below the neck, taller or shorter legs */
+  const C = v.corpo || {};
+  if (C.larg === 'cheia' || C.larg === 'fina') {
+    for (let y = 15; y < 36; y++) {
+      const r = g[y];
+      g[y] = C.larg === 'cheia'
+        ? [...r.slice(1, 9), r[8], ...r.slice(9, 15), r[15], ...r.slice(16, 23)]
+        : [null, ...r.slice(0, 8), ...r.slice(9, 15), ...r.slice(16, 24), null];
+    }
+  }
+  const dxW = C.larg === 'cheia' ? 1 : C.larg === 'fina' ? -1 : 0;
+  let top = 2;
+  if (!v.cadeira && C.alt === 'alta') { g.splice(32, 0, [...g[30]], [...g[31]]); top = 0; }
+  else if (!v.cadeira && C.alt === 'baixa') { g.splice(30, 2); g.unshift(Array(W).fill(null), Array(W).fill(null), Array(W).fill(null), Array(W).fill(null)); top = 4; }
+  else g.unshift(Array(W).fill(null), Array(W).fill(null));
+  const H2 = g.length;
+  const filled = (x, y) => y >= 0 && y < H2 && x >= 0 && x < W && g[y][x];
   /* One path per color keeps each sprite to a handful of elements */
   let out = '';
-  for (let y = -1; y <= H; y++) for (let x = -1; x <= W; x++) {
+  for (let y = -1; y <= H2; y++) for (let x = -1; x <= W; x++) {
     if (!filled(x, y) && (filled(x - 1, y) || filled(x + 1, y) || filled(x, y - 1) || filled(x, y + 1))) out += `M${x} ${y}h1v1h-1z`;
   }
   let s = `<path fill="#3A3040" opacity=".9" d="${out}"/>`;
   const byColor = new Map();
-  for (let y = 0; y < H; y++) {
+  for (let y = 0; y < H2; y++) {
     let x = 0;
     while (x < W) {
       const c = g[y][x];
@@ -1477,18 +1678,33 @@ function drawSprite(v, opt, o) {
     }
   }
   byColor.forEach((d, c) => { s += `<path fill="${c}" d="${d}"/>`; });
-  /* Big eyes with a shine; happy eyes curve up, love eyes are pink hearts */
+  /* Big eyes with a shine; closed happy eyes, sleepy lines, love eyes in pink */
   const iris = mood === 'amor' ? '#D2557A' : (R.olho || '#3A2A3F');
-  const eye = (x) => (mood === 'feliz'
+  const closed = ['feliz', 'risada', 'vergonha'].includes(mood);
+  const eye = (x) => (closed
     ? `<path fill="${ink}" d="M${x - 1} 10h1v1h-1zM${x} 9h2v1h-2zM${x + 2} 10h1v1h-1z"/>`
-    : `<path fill="${iris}" d="M${x} 9h2v3h-2z"/><path fill="${mood === 'amor' ? '#F2A7C6' : shade(iris, 0.35)}" d="M${x + 1} 11h1v1h-1z"/><path fill="#FFFFFF" d="M${x} 9h1v1h-1z"/>`);
-  const lash = mood === 'feliz' ? '' : `<path fill="${ink}" d="M8 8h2v.6h-2zM14 8h2v.6h-2z"/>`;
-  const vb = opt.portrait ? '2 -1 20 22' : opt.crop ? '2.5 -0.5 19 19' : '-1 -1 26 38';
-  return `<svg class="sprite${opt.crop ? ' av' : ''}${opt.portrait ? ' port' : ''}" viewBox="${vb}" shape-rendering="crispEdges" role="img" aria-label="${v.nome}">${s}${wave}<g class="eyes" style="animation-delay:-${(v.id.length * 0.9) % 5}s">${eye(8)}${eye(14)}${lash}</g></svg>`;
+    : mood === 'sono'
+      ? `<path fill="${ink}" d="M${x} 10h2v1h-2z"/>`
+      : mood === 'emburrada'
+        ? `<path fill="${iris}" d="M${x} 10h2v2h-2z"/><path fill="${ink}" d="M${x} 9h2v1h-2z"/>`
+        : `<path fill="${iris}" d="M${x} 9h2v3h-2z"/><path fill="${mood === 'amor' ? '#F2A7C6' : shade(iris, 0.35)}" d="M${x + 1} 11h1v1h-1z"/><path fill="#FFFFFF" d="M${x} 9h1v1h-1z"/>${mood === 'surpresa' ? `<path fill="#FFFFFF" d="M${x + 1} 10h1v1h-1z"/>` : ''}`);
+  const lash = closed || mood === 'sono' || mood === 'emburrada' ? '' : `<path fill="${ink}" d="M8 8h2v.6h-2zM14 8h2v.6h-2z"/>`;
+  const mpath = (m) => mouthPx(m).map(([x, y, c]) => `<path fill="${c}" d="M${x} ${y}h1v1h-1z"/>`).join('');
+  const talk = opt.talk ? `<g class="mo mo1">${mpath(mood)}</g><g class="mo mo2">${mpath('falando')}</g>` : '';
+  const vb = opt.portrait ? `2 ${-1 + top} 20 22` : opt.crop ? `2.5 ${-0.5 + top} 19 19` : '-1 -1 26 40';
+  return `<svg class="sprite${opt.crop ? ' av' : ''}${opt.portrait ? ' port' : ''}" viewBox="${vb}" shape-rendering="crispEdges" role="img" aria-label="${v.nome}">${s}<g transform="translate(${dxW} ${top})">${wave}</g><g transform="translate(0 ${top})"><g class="eyes" style="animation-delay:-${(v.id.length * 0.9) % 5}s">${eye(8)}${eye(14)}${lash}</g>${talk}</g></svg>`;
 }
 const avatarSVG = (v, mood) => spriteSVG(v, { mood, crop: true });
 const figureSVG = (v, mood, wave) => spriteSVG(v, { mood, wave });
-const portraitSVG = (v, mood) => `<div class="portrait" style="--bgp:${shade(v.roupa, 0.55)}">${spriteSVG(v, { mood, portrait: true })}</div>`;
+const portraitSVG = (v, mood, talk) => `<div class="portrait" style="--bgp:${shade(v.roupa, 0.55)}">${spriteSVG(v, { mood, portrait: true, talk })}</div>`;
+/* What face does she make for this line of talk? */
+function talkMood(v, line) {
+  if (clock().part === 'noite' && /tarde|noite/.test(line)) return 'sono';
+  if (/!/.test(line) && /[Rr]ecorde|enorme|[Aa]chei|[Aa]divinha/.test(line)) return 'surpresa';
+  if (/sonhando|mãos de fada|elogi/.test(line)) return 'vergonha';
+  if (/KK|haha|ri|estranha/.test(line)) return 'risada';
+  return ['feliz', 'risada', 'feliz', null][(v.nome.length + line.length) % 4];
+}
 
 function potSVG(liquid, busy) {
   const fire = busy ? `<g class="flame"><path d="M44 100 Q48 86 54 92 Q58 80 62 92 Q68 84 72 100 Z" fill="#F0A33A"/><path d="M52 100 Q56 92 60 96 Q64 90 66 100 Z" fill="#F7D35E"/></g>` : '';
@@ -1520,7 +1736,8 @@ function curOrder() {
 }
 function newOrder() {
   const line = Math.floor(Math.random() * LINES.length);
-  const tipos = AKEYS.filter((k) => unlocked(ACCS[k]));
+  const tipos = AKEYS.filter((k) => unlocked(ACCS[k]) && !ACCS[k].pet);
+  const enfeites = tipos.filter((k) => !ACCS[k].joia);
   const busy = new Set(state.orders.flatMap((o) => o.vids || [o.vid]));
   let o;
   if (state.served === 0 && !state.orders.length) o = { vid: 'bia', occ: 0, peca: 'saia', cores: ['amarelo', 'amarelo'], line: 0 };
@@ -1539,10 +1756,20 @@ function newOrder() {
       const vids = [v.id, ...free.filter((x) => x.id !== v.id).sort(() => Math.random() - 0.5).slice(0, n - 1).map((x) => x.id)];
       o = { vid: v.id, vids, kind: 'conjunto', occ, cor: tone(pick(pool)), got: [], line };
     } else if (state.served >= 4 && Math.random() < 0.15) {
-      const pk = pick(Object.keys(PIECES).filter((k) => pieceOpen(k) && k !== 'chapeu'));
+      const pk = pick(Object.keys(PIECES).filter((k) => pieceOpen(k) && k !== 'chapeu' && !PIECES[k].fora));
       o = { vid: v.id, kind: 'remendo', peca: pk, molde: pick(PIECES[pk].moldes).id, z: [{ cor: v.cores[0], padrao: v.fav }, { cor: v.cores[1] || v.cores[0], padrao: 'liso' }], holes: 2 + Math.floor(Math.random() * 3), line };
+    } else if (state.served >= 5 && Math.random() < 0.12) {
+      const opts = [];
+      const vz = (a, b2) => [{ cor: a, padrao: v.fav }, { cor: b2, padrao: 'liso' }];
+      const cA = v.cores[0], cB = v.cores[1] || v.cores[0];
+      if (pieceOpen('saia')) opts.push({ tipo: 'saia', antes: { peca: 'vestido', molde: 'rodado', z: vz(cA, cB) }, depois: { peca: 'saia', molde: 'rodada', z: [{ cor: cB, padrao: 'liso' }, { cor: cB, padrao: 'liso' }] } });
+      opts.push({ tipo: 'encurtar', antes: { peca: 'vestido', molde: 'longo', z: vz(cA, cB) }, depois: { peca: 'vestido', molde: 'rodado', z: vz(cA, cB) } });
+      const tem = clothKeys('cloth').filter((k) => (state.cloth[k] || 0) >= MCOLS && baseOf(k) !== baseOf(cB));
+      if (tem.length) { const nova = pick(tem), pk = pick(['vestido', 'saia', 'camisa'].filter(pieceOpen)), md = PIECES[pk].moldes[0].id; opts.push({ tipo: 'cor', cor: nova, antes: { peca: pk, molde: md, z: vz(cA, cB) }, depois: { peca: pk, molde: md, z: [{ cor: cA, padrao: v.fav }, { cor: nova, padrao: 'liso' }] } }); }
+      o = { vid: v.id, kind: 'reforma', ...pick(opts), line };
     } else if (state.served >= 3 && Math.random() < 0.22) {
-      o = { vid: v.id, kind: 'acessorio', acc: { tipo: pick(tipos), cor: scrapCols.length && Math.random() < 0.7 ? pick(scrapCols) : tone(pick(pool)) }, line };
+      const petT = AKEYS.filter((k) => ACCS[k].pet && unlocked(ACCS[k]));
+      o = { vid: v.id, kind: 'acessorio', acc: { tipo: PETS[v.id] && petT.length && Math.random() < 0.45 ? pick(petT) : pick(tipos), cor: scrapCols.length && Math.random() < 0.7 ? pick(scrapCols) : tone(pick(pool)) }, line };
     } else {
       const sid = clock().season.id;
       const occ = pick(OCCASIONS.map((x, i) => i).filter((i) => (!OCCASIONS[i].est || OCCASIONS[i].est.includes(sid)) && OCCASIONS[i].pecas.some(pieceOpen)));
@@ -1554,7 +1781,15 @@ function newOrder() {
       const frio = ['outono', 'inverno'].includes(sid) && ['casaco', 'cachecol', 'chapeu'].includes(o.peca);
       const tec = frio && unlocked(TECIDOS['lã']) && Math.random() < 0.5 ? 'lã' : unlocked(TECIDOS.seda) && ['vestido', 'camisa'].includes(o.peca) && Math.random() < 0.15 ? 'seda' : state.served >= 6 && Math.random() < 0.08 ? 'linho' : null;
       if (tec) o.cores = o.cores.map((k) => { const p = parseKey(k); return keyOf(p.cor, p.tom, tec); });
-      if (state.served >= 3 && Math.random() < 0.3) o.extra = { tipo: pick(tipos) };
+      if (state.served >= 3 && Math.random() < 0.3) o.extra = { tipo: pick(enfeites) };
+      const lans = woolKeys();
+      if (['outono', 'inverno'].includes(sid) && !capital && lans.length && Math.random() < 0.35) {
+        const a1 = pick(lans);
+        o = { vid: v.id, occ, peca: 'trico', molde: pick(['touca', 'luvas', 'cachecolt']), cores: [a1, Math.random() < 0.5 ? a1 : pick(lans)], line };
+      } else if (!capital && state.served >= 6 && clothKeys('scraps').reduce((t, k) => t + state.scraps[k], 0) >= 6 && Math.random() < 0.12) {
+        const molde = Math.random() < 0.6 ? 'almofada' : 'colcha';
+        o = { vid: v.id, occ, peca: 'patch', molde, regra: pick(molde === 'colcha' ? ['xadrez', 'moldura', 'listras'] : ['xadrez', 'listras']), cores: [v.cores[0], v.cores[0]], line };
+      }
     }
     const single = o.kind === 'acessorio' || (o.cores && o.cores[0] === o.cores[1]);
     if (state.served >= 3 && single && o.kind !== 'conjunto' && Math.random() < 0.35) o.riddle = true;
@@ -1591,9 +1826,19 @@ function patchShape(x, y, hex, forma) {
   return `<rect x="${x - 6}" y="${y - 6}" width="12" height="12" rx="1" fill="${hex}" ${st}/>`;
 }
 function requestText(c) {
+  if (c.casamento && c.kind === 'conjunto') return `${nomesDe(c.vids)}: "Somos as madrinhas do casamento da Lua e da Nina! Uma peça toda ${corForm(c.cor, 'f')} pra cada uma, pra gente combinar." (${c.got.length} de ${c.vids.length})`;
+  if (c.casamento) { const P = PIECES[c.peca]; return `"Eu vou me casar! 💍 Você faz ${P.g === 'f' ? 'uma' : 'um'} ${P.nome.toLowerCase()} ${corForm(c.cores[0], P.g)} pra mim? Quero estar linda pra ${c.vid === 'lua' ? 'Nina' : 'Lua'}."`; }
+  if (c.kind === 'reforma') {
+    const A = moldeOf(c.antes.peca, c.antes.molde).nome.toLowerCase();
+    if (c.tipo === 'saia') return `Meu ${A} já tá apertado em cima… Dá pra virar uma saia rodada? Aproveita a parte de baixo!`;
+    if (c.tipo === 'encurtar') return `Esse ${A} arrasta no chão! Você pode encurtar e deixar rodadinho?`;
+    return `Enjoei da cor da parte de baixo d${PIECES[c.antes.peca].g === 'f' ? 'a minha' : 'o meu'} ${A}. Troca por ${c.cor}? Eu sei que você tem esse tecido!`;
+  }
   if (c.kind === 'remendo') { const P = PIECES[c.peca]; return `${['Ai, olha só!', 'Socorro!', 'Que pena…'][c.line % 3]} Rasguei ${P.g === 'f' ? 'minha' : 'meu'} ${moldeOf(c.peca, c.molde).nome.toLowerCase()} ${corForm(c.z[0].cor, P.g)}. Você consegue remendar? São ${c.holes} furinhos.`; }
   if (c.kind === 'conjunto') return `${nomesDe(c.vids)}: "A gente quer ir combinando pra ${OCCASIONS[c.occ].txt}! Uma peça toda ${corForm(c.cor, 'f')} pra cada uma." (${c.got.length} de ${c.vids.length})`;
-  if (c.kind === 'acessorio') return ACC_LINES[c.line % ACC_LINES.length].replace('{what}', accWhat(c.acc.tipo, c.acc.cor, c.riddle)).replace('{uso}', ACCS[c.acc.tipo].uso);
+  if (c.peca === 'patch') return `${['Ai, que frio!', 'Sabe o que falta na minha sala?', 'Vi uma coisa linda na revista…'][c.line % 3]} ${c.molde === 'colcha' ? 'Uma colcha' : 'Uma almofada'} de patchwork com desenho de ${REGRAS[c.regra].toLowerCase()}! Você faz?`;
+  if (c.peca === 'trico') { const M = moldeOf('trico', c.molde); const f = c.molde === 'touca'; return `Tá esfriando! Você tricota ${f ? 'uma' : c.molde === 'luvas' ? 'umas' : 'um'} ${M.nome.toLowerCase()} ${c.cores[0] === c.cores[1] ? `de ${c.cores[0]}` : `de ${c.cores[0]} com detalhe ${c.cores[1].replace(' de lã', '')}`} pra mim?`; }
+  if (c.kind === 'acessorio') return ACC_LINES[c.line % ACC_LINES.length].replace('{what}', accWhat(c.acc.tipo, c.acc.cor, c.riddle)).replace('{uso}', ACCS[c.acc.tipo].pet && PETS[c.vid] ? `${ACCS[c.acc.tipo].uso}. É pro ${PETS[c.vid].nome}, ${PETS[c.vid].quem}` : ACCS[c.acc.tipo].uso);
   const P = PIECES[c.peca];
   const art = P.g === 'f' ? 'uma' : 'um';
   const [zA, zB] = P.zonas;
@@ -1605,9 +1850,11 @@ function requestText(c) {
 }
 function wantIcon(o) {
   if (o.kind === 'remendo') return remendoSVG(o);
+  if (o.kind === 'reforma') return `<svg class="want-rf" viewBox="0 0 100 60" aria-hidden="true">${pieceSVG(o.antes.peca, o.antes.molde, o.antes.z).replace('<svg ', '<svg x="0" y="4" width="46" height="52" ')}<path d="M44 30 h10 m-4 -4 l4 4 l-4 4" stroke="#3A3040" stroke-width="2.4" fill="none"/>${pieceSVG(o.depois.peca, o.depois.molde, o.depois.z).replace('<svg ', '<svg x="54" y="4" width="46" height="52" ')}</svg>`;
   if (o.kind === 'conjunto') return `<span class="want-conj"><span class="wsw" style="background:${hexOf(o.cor)}"></span>×${o.vids.length}</span>`;
   if (o.riddle) return `<span class="want-q">${o.kind === 'acessorio' ? accSVG(o.acc.tipo, null) : pieceSVG(o.peca, null, null)}<b>?</b></span>`;
-  return o.kind === 'acessorio' ? accSVG(o.acc.tipo, o.acc.cor) : pieceSVG(o.peca, null, [{ cor: o.cores[0], padrao: 'liso' }, { cor: o.cores[1], padrao: 'liso' }]);
+  if (o.peca === 'patch') return pieceSVG('patch', o.molde, null);
+  return o.kind === 'acessorio' ? accSVG(o.acc.tipo, o.acc.cor) : pieceSVG(o.peca, o.molde || null, [{ cor: o.cores[0], padrao: 'liso' }, { cor: o.cores[1], padrao: 'liso' }]);
 }
 
 function checkUnlocks(before, after) {
@@ -1623,8 +1870,10 @@ function deliver() {
   if (!c || c.result) return;
   if (c.kind === 'acessorio') { deliverAcc(c); return; }
   if (c.kind === 'conjunto') { deliverConjunto(c); return; }
+  if (c.kind === 'remendo' || c.kind === 'reforma') return;
   const item = state.rack[state.selRack];
   if (!item) return;
+  if (c.peca === 'patch') { deliverPatch(c, item); return; }
   const v = villager(c.vid);
   const P = PIECES[c.peca];
   const twoTone = c.cores[0] !== c.cores[1];
@@ -1632,11 +1881,11 @@ function deliver() {
   const seda = item.z.some((z) => tecOf(z.cor) === 'seda');
   const capMul = c.capital ? 2 : 1;
   const price = moldeOf(item.peca, item.molde).preco + (twoTone ? TWO_TONE_BONUS : 0) + (c.riddle ? 6 : 0) + (toned ? 4 : 0) + (seda ? 6 : 0) + (c.cores.some(tecOf) ? 4 : 0);
-  const pecaOk = item.peca === c.peca;
+  const pecaOk = item.peca === c.peca && (c.peca !== 'trico' || item.molde === c.molde);
   const okA = matchKey(item.z[0].cor, c.cores[0]);
   const okB = matchKey(item.z[1].cor, c.cores[1]);
   const tam = item.tam || 'M';
-  const tamOk = tam === v.tam;
+  const tamOk = tam === v.tam || c.peca === 'trico';
   const fav = item.z.some((z) => z.padrao === v.fav);
   let r;
   if (pecaOk && okA && okB && !tamOk) r = { mood: 'hmm', pay: Math.ceil(price / 2), h: 0, msg: `${TAM_ORDER[tam] < TAM_ORDER[v.tam] ? 'Ficou apertado!' : 'Ficou largo!'} Eu visto ${v.tam}.` };
@@ -1647,7 +1896,9 @@ function deliver() {
   else if (pecaOk) r = { mood: 'hmm', pay: Math.ceil(price / 3), h: 0, msg: 'Gostei da peça, mas as cores não são as que eu pedi.' };
   else r = { mood: 'triste', pay: 4, h: -1, msg: 'Ah... não era isso. Mas obrigada pelo esforço.' };
   r.pay *= capMul;
-  if (v.exigente && item.stars === 1 && r.h >= 1) r = { mood: 'triste', pay: 2, h: -1, msg: 'Essa costura saiu com defeito… assim eu não posso usar.' };
+  if (r.mood === 'amor') r.mood = pick(['amor', 'vergonha', 'risada']);
+  if (r.mood === 'triste' && v.exigente) r.mood = 'emburrada';
+  if (v.exigente && item.stars === 1 && r.h >= 1) r = { mood: 'emburrada', pay: 2, h: -1, msg: 'Essa costura saiu com defeito… assim eu não posso usar.' };
   if (r.h >= 2 && item.stars === 3) { r.pay += 3; r.msg += ' E que acabamento!'; }
   if (r.h >= 2 && item.stars === 1) r.pay = Math.max(2, r.pay - 2);
   if (item.acc) {
@@ -1658,12 +1909,27 @@ function deliver() {
   if (item.fin && r.h >= 1) {
     if (item.fin.botao === VBOTAO[v.id]) { r.pay += 3; r.msg += ` Amei os botões de ${BOTOES[item.fin.botao].nome.toLowerCase()}!`; }
     if (!!item.fin.linha === !!VCONTRASTE[v.id]) r.pay += 2;
+    if (item.fin.gola && item.fin.gola !== 'nenhuma') { r.pay += GOLAS[item.fin.gola].preco + 1; if (item.fin.gola === VGOLA[v.id]) { r.pay += 3; r.msg += ` E a ${GOLAS[item.fin.gola].nome.toLowerCase().replace('babado', 'gola de babado')}… é a minha cara!`; } }
+    if (item.fin.bolso && item.fin.bolso !== 'nenhum') { r.pay += BOLSOS[item.fin.bolso].preco + 1; if (item.fin.bolso === VBOLSO[v.id]) r.pay += 2; }
   }
   if (item.bordado && r.h >= 1 && item.bordado.q) {
     r.pay += item.bordado.q === 2 ? 6 : 3;
     if (item.bordado.q === 2) { r.h += 1; r.msg += ' E esse bordado, que capricho!'; }
   }
   if (r.h >= 1) wear(v.id, item);
+  state.rack.splice(state.selRack, 1);
+  state.selRack = null;
+  settle(c, v, r);
+}
+function deliverPatch(c, item) {
+  const v = villager(c.vid), M = moldeOf('patch', c.molde);
+  const regra = item.peca === 'patch' && item.z[0].regra;
+  const fav = item.peca === 'patch' && item.z[0].grid.some((k) => v.cores.includes(baseOf(k)));
+  let r;
+  if (item.peca === 'patch' && item.molde === c.molde && regra === c.regra) r = { mood: fav ? 'amor' : 'feliz', pay: Math.round(M.preco * 1.5) + (fav ? 4 : 0), h: fav ? 3 : 2, msg: fav ? 'É a coisa mais linda! E com as minhas cores!' : 'Do jeitinho que eu imaginei!' };
+  else if (item.peca === 'patch' && item.molde === c.molde) r = { mood: 'hmm', pay: Math.ceil(M.preco / 2), h: 1, msg: `Linda, mas eu queria o desenho de ${REGRAS[c.regra].toLowerCase()}.` };
+  else if (item.peca === 'patch') r = { mood: 'hmm', pay: Math.ceil(M.preco / 2), h: 1, msg: `Que capricho! Mas eu pedi ${c.molde === 'colcha' ? 'uma colcha' : 'uma almofada'}.` };
+  else r = { mood: v.exigente ? 'emburrada' : 'triste', pay: 3, h: -1, msg: 'Ah… não era isso. Eu queria patchwork!' };
   state.rack.splice(state.selRack, 1);
   state.selRack = null;
   settle(c, v, r);
@@ -1697,12 +1963,45 @@ function deliverAcc(c) {
   else if (corOk) r = { mood: 'hmm', pay: Math.ceil(A.preco / 2), h: 1, msg: `A cor é essa, mas eu queria ${accWhat(c.acc.tipo)}.` };
   else r = { mood: 'triste', pay: 2, h: -1, msg: 'Ah... não era isso. Mas obrigada mesmo assim.' };
   if (r.h >= 2 && a.stars === 3) r.pay += 2;
-  if (r.h >= 1) { state.outfits[v.id] = state.outfits[v.id] || {}; state.outfits[v.id].acc = a; }
+  if (r.h >= 1) wearAcc(v.id, a);
   state.box.splice(state.selAcc, 1);
   state.selAcc = null;
   settle(c, v, r);
 }
+const NOIVAS = ['lua', 'nina'];
+function casamentoStart() {
+  const C = state.casamento = { fase: 1, got: 0 };
+  const id = () => 'o' + Math.floor(gnow()) + Math.floor(Math.random() * 100000);
+  const day = clock().day;
+  const madrinhas = activeVillagers().filter((v) => !NOIVAS.includes(v.id)).slice(0, 3).map((v) => v.id);
+  const cor = makeableColors().includes('rosa') ? 'rosa' : 'amarelo';
+  state.orders.push(
+    { id: id() + 'a', vid: 'lua', occ: 0, peca: 'vestido', cores: ['branco', 'branco'], line: 0, casamento: true, due: day + 9 },
+    { id: id() + 'b', vid: 'nina', occ: 0, peca: pieceOpen('macacao') ? 'macacao' : 'vestido', cores: ['branco', 'branco'], line: 0, casamento: true, due: day + 9 },
+    { id: id() + 'c', vid: madrinhas[0], vids: madrinhas, kind: 'conjunto', occ: 0, cor, got: [], line: 0, casamento: true, due: day + 9 },
+  );
+  C.madrinhas = madrinhas;
+  toast('💍 Novidade! A Lua e a Nina vão se casar! Elas deixaram encomendas no mural.');
+  sfx('chime');
+}
 function settle(c, v, r) {
+  if (c.casamento) {
+    if (r.h >= 1) {
+      r.pay *= 2; r.h += 1;
+      r.msg = c.kind === 'conjunto' ? 'As madrinhas mais lindas da vila! A gente vai arrasar no casamento!' : 'Ai, eu vou chorar… É o vestido dos meus sonhos!';
+      r.mood = 'amor';
+      const C = state.casamento;
+      C.got += 1;
+      if (C.got >= 3 && C.fase < 2) { C.fase = 2; C.dia = clock().day + 1; setTimeout(() => toast('💒 Tudo pronto! O casamento vai ser amanhã na praça.'), 1800); }
+    } else {
+      const again = { ...c, id: c.id + 'x', got: c.kind === 'conjunto' ? [] : undefined };
+      setTimeout(() => { state.orders.push(again); toast(`${v.nome} pediu de novo: o casamento ainda precisa dessa peça!`); save(); renderAll(); }, 4500);
+    }
+  }
+  if (r.h >= 1 && state.etiqueta && c.kind !== 'acessorio' && c.kind !== 'remendo') {
+    state.marca = (state.marca || 0) + (c.kind === 'conjunto' ? c.vids.length : 1);
+    r.pay += marcaNivel()[2];
+  }
   const before = bestHearts();
   state.coins += r.pay;
   state.hearts[v.id] = Math.max(0, (state.hearts[v.id] || 0) + r.h);
@@ -1711,6 +2010,7 @@ function settle(c, v, r) {
   else if (r.h >= 2) { sfx(r.mood === 'amor' ? 'chime' : 'coin'); sparkle($('deliver') || $('deliver-p')); }
   else sfx('coin');
   state.served += 1;
+  if (r.h >= 1) taskEv('entregar');
   c.result = r;
   c.leaveAt = gnow() + 4000;
   state.focus = c.id;
@@ -1767,7 +2067,7 @@ function act(el) {
     if (!p) { openSheet({ kind: 'plant', i }); return; }
     else if (plotStage(p, now) === 3) {
       const n = state.up.regador ? 3 : 2;
-      state.flowers[p.f] += n; state.plots[i] = null;
+      state.flowers[p.f] += n; state.plots[i] = null; taskEv('colher', n);
       sparkle(el); sfx('harvest');
       toast(`+${n} ${FLOWERS[p.f].nome.toLowerCase()} na cesta`);
     } else {
@@ -1801,6 +2101,7 @@ function act(el) {
     const m = !deg && state.up.tacho && cruOf(tec) >= 2 ? 2 : 1;
     addCru(tec, -m);
     state.cloth[key] = (state.cloth[key] || 0) + m * MCOLS;
+    taskEv('tingir');
     state.pot.slots = [];
     const isNew = !deg && !state.discovered.includes(base);
     if (isNew) state.discovered.push(base);
@@ -1841,6 +2142,18 @@ function act(el) {
   else if (a === 'tam') { b.tam = el.dataset.v; }
   else if (a === 'linha') { b.linha = el.dataset.v || null; }
   else if (a === 'botao') { b.botao = el.dataset.v; }
+  else if (a === 'gola') { b.gola = el.dataset.v; }
+  else if (a === 'bolso') { b.bolso = el.dataset.v; }
+  else if (a === 'et-cor') { ui.sheet.cor = el.dataset.v; renderSheet(); return; }
+  else if (a === 'et-ico') { ui.sheet.ico = el.dataset.v; renderSheet(); return; }
+  else if (a === 'et-save') {
+    const s2 = ui.sheet, nome = ($('et-nome').value || '').trim().slice(0, 16);
+    if (!nome) { toast('Dá um nome pra sua marca primeiro!'); return; }
+    const first = !state.etiqueta;
+    state.etiqueta = { nome, cor: s2.cor, ico: s2.ico };
+    toast(first ? `Nasceu a marca "${nome}"! Toda peça nova sai com etiqueta.` : 'Etiqueta nova pronta!'); sfx('chime');
+    ui.sheet = null; renderSheet(); save(); renderAll(); return;
+  }
   else if (a === 'sheet') { openSheet({ kind: el.dataset.kind, mode: el.dataset.mode, z: +el.dataset.z }); return; }
   else if (a === 'close-sheet') { closeSheet(); return; }
   else if (a === 'pickfab') {
@@ -1902,7 +2215,7 @@ function act(el) {
   else if (a === 'gift') { giftTo(+el.dataset.i); return; }
   else if (a === 'desfile') { startDesfile(); return; }
   else if (a === 'inscrever') { inscrever(+el.dataset.i); return; }
-  else if (a === 'cat') { petCat(); sfx('tap'); return; }
+  else if (a === 'cat') { petCat(); sfx('tap'); save(); renderStats(); return; }
   else if (a === 'to-vitrine') {
     const item = state.rack[state.selRack];
     const slot = state.vitrine.indexOf(null);
@@ -1941,10 +2254,54 @@ function act(el) {
   else if (a === 'apr-passar') { aprPassar(); }
   else if (a === 'colher-mata') {
     const p = mataSpots()[+el.dataset.i];
-    if (p && !p.picked) { state.mata.picked.push(p.i); state.corantes[p.k] = (state.corantes[p.k] || 0) + p.n; sparkle(el); sfx('harvest'); toast(`+${p.n} ${CORANTES[p.k].nome.toLowerCase()} na cestinha`); }
+    if (p && !p.picked) { taskEv('mata'); state.mata.picked.push(p.i); state.corantes[p.k] = (state.corantes[p.k] || 0) + p.n; sparkle(el); sfx('harvest'); toast(`+${p.n} ${CORANTES[p.k].nome.toLowerCase()} na cestinha`); }
   }
   else if (a === 'rm-scrap') { ui.sheet.scrap = el.dataset.v; renderSheet(); return; }
   else if (a === 'rm-forma') { ui.sheet.forma = el.dataset.v; renderSheet(); return; }
+  else if (a === 'tc-molde') { ui.sheet.molde = el.dataset.v; renderSheet(); return; }
+  else if (a === 'tc-cor') { ui.sheet[+el.dataset.z ? 'c1' : 'c0'] = el.dataset.v; renderSheet(); return; }
+  else if (a === 'tc-start') {
+    const s2 = ui.sheet, need = tricoNeed(s2);
+    if (Object.entries(need).some(([k, n]) => (state.cloth[k] || 0) < n) || state.rack.length >= rackMax()) return;
+    Object.entries(need).forEach(([k, n]) => { state.cloth[k] -= n; });
+    s2.step = 'tricotar'; s2.rows = 0; s2.miss = 0; s2.t0 = performance.now();
+    save(); renderSheet(); return;
+  }
+  else if (a === 'tc-tap') {
+    const s2 = ui.sheet;
+    if (!s2 || s2.step !== 'tricotar') return;
+    if (s2.pos > 0.36 && s2.pos < 0.64) { s2.rows += 1; sfx('stitch'); } else { s2.miss += 1; sfx('miss'); }
+    if (s2.rows >= TRICO_ROWS) finishTrico(s2); else renderSheet();
+    return;
+  }
+  else if (a === 'pw-tam') { ui.sheet.n = +el.dataset.v; renderSheet(); return; }
+  else if (a === 'pw-cor') { ui.sheet.cor = el.dataset.v; renderSheet(); return; }
+  else if (a === 'pw-cell') {
+    const s2 = ui.sheet, i = +el.dataset.i;
+    if (s2.cells[i] === s2.cor) s2.cells[i] = null;
+    else if (s2.cor) {
+      const left = state.scraps[s2.cor] - s2.cells.slice(0, s2.n * s2.n).filter((k, j) => k === s2.cor && j !== i).length;
+      if (left <= 0) { toast(`Acabaram os retalhos ${s2.cor}.`); return; }
+      s2.cells[i] = s2.cor; sfx('tap');
+    }
+    renderSheet(); return;
+  }
+  else if (a === 'pw-done') {
+    const s2 = ui.sheet, n = s2.n, g = s2.cells.slice(0, n * n), regra = patchRegra(s2.cells, n);
+    if (!regra || state.rack.length >= rackMax()) return;
+    g.forEach((k) => { state.scraps[k] -= 1; });
+    state.rack.push({ peca: 'patch', molde: n === 2 ? 'almofada' : 'colcha', z: [{ cor: g[0], padrao: 'liso', grid: g, regra }, { cor: g[g.length - 1], padrao: 'liso' }], tam: 'M', stars: regra === 'livre' ? 2 : 3 });
+    state.selRack = state.rack.length - 1; state.sub = 'arara';
+    taskEv('costurar'); sfx('chime'); s2.done = regra;
+    save(); renderAll(); renderSheet(); return;
+  }
+  else if (a === 'rf-start') {
+    const c = curOrder();
+    if (!c || c.kind !== 'reforma' || state.sewing) return;
+    if (c.tipo === 'cor') { if ((state.cloth[c.cor] || 0) < MCOLS) { toast(`Falta 1 m de tecido ${c.cor}.`); return; } state.cloth[c.cor] -= MCOLS; }
+    state.sewing = { kind: 'reforma', oid: c.id, peca: c.depois.peca, molde: c.depois.molde, z: c.depois.z.map((z) => ({ ...z })), tam: villager(c.vid).tam || 'M' };
+    save(); openSew(); return;
+  }
   else if (a === 'rm-start') {
     const s2 = ui.sheet, c = curOrder();
     if (!c || !s2.scrap || state.scraps[s2.scrap] < c.holes) return;
@@ -2045,6 +2402,18 @@ function act(el) {
   }
   else if (a === 'sfx-toggle') { SND.sfx = !SND.sfx; saveSnd(); }
   else if (a === 'music') { setMusic(!SND.music); }
+  else if (a === 'petalas') {
+    const C = state.casamento;
+    if (C && C.fase === 2) {
+      C.fase = 3; state.coins += 80;
+      const before = bestHearts();
+      activeVillagers().forEach((v) => { state.hearts[v.id] = (state.hearts[v.id] || 0) + 2; });
+      state.best = Math.max(before, totalHearts()); checkUnlocks(before, state.best);
+      sfx('chime'); sparkle(el, 30);
+      toast('🌸 Que festa linda! +80 moedas e +2 ♥ com todo mundo.');
+    }
+  }
+  else if (a === 'amb-toggle') { SND.amb = !SND.amb; saveSnd(); if (SND.amb) actx(); else ambStop(); }
   else if (a === 'reset') {
     if (el.dataset.armed) { state = fresh(); el.textContent = 'Recomeçar do zero'; delete el.dataset.armed; ui.sheet = null; renderSheet(); }
     else {
@@ -2067,6 +2436,7 @@ function renderStats() {
     <span class="chip-h">${clockIcon(ck)}Dia ${ck.day} · ${ck.season.nome} · ${ck.part}</span>
     <span class="chip-h"><span class="coin" aria-hidden="true"></span>${state.coins}<small>moedas</small></span>
     <span class="chip-h"><span class="hrt" aria-hidden="true">♥</span>${totalHearts()}<small>carinho</small></span>
+    <button class="snd-btn tar-btn" data-act="sheet" data-kind="tarefas" id="tar-btn" aria-label="Tarefas do dia" title="Tarefas do dia">📋${(() => { const T = tarefasHoje(); const left = T.list.filter((x) => x.n < TAREFAS[x.id].n).length; return left ? `<span class="badge">${left}</span>` : ''; })()}</button>
     <button class="snd-btn" data-act="sheet" data-kind="conquistas" id="conq-btn" aria-label="Conquistas" title="Conquistas">🏅</button>
     <button class="snd-btn" data-act="music" id="music-btn" aria-pressed="${SND.music}" aria-label="Música" title="Música">♪</button>
     <button class="shop-btn" data-act="sheet" data-kind="loja" id="open-loja">Loja</button>`;
@@ -2193,13 +2563,13 @@ function renderAtelie() {
   let balcao = '';
   if (waiting) {
     const v = villager(c.vid);
-    const rem = c.kind === 'remendo';
-    const needsMeasure = !accOrder && !conj && !rem && !state.measured[v.id];
+    const rem = c.kind === 'remendo', rf = c.kind === 'reforma';
+    const needsMeasure = !accOrder && !conj && !rem && !rf && !['trico', 'patch'].includes(c.peca) && !state.measured[v.id];
     const favKnown = (state.hearts[v.id] || 0) >= 3 && !accOrder && !conj;
-    const gosta = !accOrder && !conj && (state.hearts[v.id] || 0) >= 4 && VBOTAO[v.id] ? `Gosta de botão de ${BOTOES[VBOTAO[v.id]].nome.toLowerCase()} e linha ${VCONTRASTE[v.id] ? 'colorida' : 'combinando'}` : '';
-    const info = [gosta, conj ? `Conjunto: ${c.got.length} de ${c.vids.length} peças · cada uma toda ${c.cor}` : !accOrder ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
+    const gosta = !accOrder && !conj && (state.hearts[v.id] || 0) >= 4 && VBOTAO[v.id] ? `Gosta de botão de ${BOTOES[VBOTAO[v.id]].nome.toLowerCase()}, linha ${VCONTRASTE[v.id] ? 'colorida' : 'combinando'}${(state.hearts[v.id] || 0) >= 6 && VGOLA[v.id] ? `, ${GOLAS[VGOLA[v.id]].nome.toLowerCase()} e ${BOLSOS[VBOLSO[v.id]].nome.toLowerCase()}` : ''}` : '';
+    const info = [gosta, conj ? `Conjunto: ${c.got.length} de ${c.vids.length} peças · cada uma toda ${c.cor}` : !accOrder && !rf && !['trico', 'patch'].includes(c.peca) ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
     balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>${conj ? nomesDe(c.vids) : v.nome} no balcão</b>${info ? `<span class="help">${info}</span>` : ''}
-      <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${rem ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
+      <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${rf ? `<button class="primary sm" data-act="rf-start" id="rf-start">✂️ Reformar${c.tipo === 'cor' ? ` (1 m de ${c.cor})` : ''}</button>` : ''}${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${rem || rf ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
       ${hintBox(c)}
       <button class="linkish" data-act="skip" id="skip">Recusar pedido</button></div></div>`;
   }
@@ -2209,14 +2579,16 @@ function renderAtelie() {
   let title, content, confirmCard = '';
   if (sub === 'mesa') {
     title = 'Mesa de trabalho';
-    const tiles = Object.keys(PIECES).filter(pieceOpen).flatMap((pk) => PIECES[pk].moldes.map((m) => {
+    const tiles = Object.keys(PIECES).filter((pk) => pieceOpen(pk) && !PIECES[pk].fora).flatMap((pk) => PIECES[pk].moldes.map((m) => {
       const on = b.peca === pk && moldeOf(b.peca, b.molde).id === m.id;
       return `<button class="piece" data-act="pickmolde" data-p="${pk}" data-v="${m.id}" id="molde-${m.id}" aria-pressed="${on}">${pieceSVG(pk, m.id, on ? b.z : null)}${m.nome}<span class="price"><span class="coin" aria-hidden="true"></span>${m.preco}</span></button>`;
     })).join('');
     const rackFull = state.rack.length >= rackMax();
     const m = b.peca ? moldeOf(b.peca, b.molde) : null;
     content = `<p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
-      <button class="btn" data-act="sheet" data-kind="estampa" id="open-estampa" style="align-self:flex-start">✏️ Criar estampa (${(state.myPats || []).length} de 3)</button>`;
+      <div class="deliver-row"><button class="btn" data-act="sheet" data-kind="estampa" id="open-estampa">✏️ Criar estampa (${(state.myPats || []).length} de 3)</button>
+      <button class="btn" data-act="sheet" data-kind="trico" id="open-trico">🧶 Tricô</button>
+      <button class="btn" data-act="sheet" data-kind="patch" id="open-patch">🧩 Patchwork</button></div>`;
     confirmCard = m ? `<div class="confirm-card">${pieceSVG(b.peca, b.molde, null, 'Molde escolhido')}<div><b>${m.nome}</b><span>${m.cut.length} moldes de papel</span>
       <button class="primary sm" data-act="confirm-molde" id="confirm-molde" ${rackFull ? 'disabled' : ''}>${rackFull ? 'Arara cheia' : 'Confirmar molde'}</button></div></div>` : '';
   } else if (sub === 'arara') {
@@ -2250,7 +2622,7 @@ function renderAtelie() {
       <div class="accs">${accBtns}</div>
       <p class="label">Caixinha · ${state.box.length} de ${BOX_MAX}</p>
       <div class="box">${box}</div>
-      <div class="deliver-row">${adornBtn}${selA && ['laco', 'tiara', 'broche', 'fuxico'].includes(selA.tipo) ? `<button class="btn" data-act="cat-wear" id="cat-wear">Colocar no Novelo 🐱</button>` : ''}</div>`;
+      <div class="deliver-row">${adornBtn}${selA && ['laco', 'tiara', 'broche', 'fuxico', 'presilha', 'colar', 'lencinho', 'gravatinha', 'capinha'].includes(selA.tipo) ? `<button class="btn" data-act="cat-wear" id="cat-wear">Colocar no Novelo 🐱</button>` : ''}</div>`;
   }
 
   $('p-atelie').innerHTML = `
@@ -2289,6 +2661,21 @@ function renderTabs() {
   document.querySelectorAll('[data-badge-for]').forEach((el) => { el.textContent = marks[el.dataset.badgeFor] || ''; });
 }
 
+function casamentoHoje() {
+  const C = state.casamento;
+  return C && C.fase === 2 && clock().day >= C.dia;
+}
+const ARCO = `<svg class="arco" viewBox="0 0 60 70" aria-hidden="true" shape-rendering="crispEdges"><path d="M6 70 V28 Q6 4 30 4 Q54 4 54 28 V70" fill="none" stroke="#F6F0E6" stroke-width="5"/><path d="M6 70 V28 Q6 4 30 4 Q54 4 54 28 V70" fill="none" stroke="#9CC48E" stroke-width="1.5" stroke-dasharray="3 4"/>${[[6, 50], [6, 34], [9, 18], [18, 8], [30, 5], [42, 8], [51, 18], [54, 34], [54, 50]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3.4" fill="${['#F2A7C6', '#FFFFFF', '#F7D35E', '#E58FA6'][i % 4]}"/><circle cx="${x}" cy="${y}" r="1.2" fill="#E8B931"/>`).join('')}</svg>`;
+function renderCasamento() {
+  const C = state.casamento;
+  const [a, b] = NOIVAS.map(villager);
+  $('gen-title').textContent = 'Casamento da Lua e da Nina';
+  const done = C.fase >= 3;
+  $('gen-body').innerHTML = `<div class="casorio"><div class="noivas">${portraitSVG(a, 'amor', true)}<span class="anel" aria-hidden="true">💍</span>${portraitSVG(b, 'amor', true)}</div>
+    <div class="talk-txt"><p class="quote">${done ? 'Obrigada por fazer parte do dia mais bonito das nossas vidas! Cada pontinho dessas roupas tem carinho seu.' : 'A praça está cheia de flores. As madrinhas estão de mãos dadas, e a Vó Zezé já está chorando de emoção…'}</p>
+    <p class="quote">${done ? '"Agora a gente vai costurar uma vida inteira juntas!" diz a Nina, rindo.' : '"Aceito!" dizem as duas, ao mesmo tempo. Todo mundo aplaude!'}</p>
+    ${done ? '<p class="sub">🎁 +80 moedas e +2 ♥ com todas as moradoras</p>' : '<button class="primary" data-act="petalas" id="petalas">Jogar pétalas! 🌸</button>'}</div></div>`;
+}
 function renderVila() {
   const c = clock();
   const vs = activeVillagers();
@@ -2296,14 +2683,14 @@ function renderVila() {
   const vit = state.vitrine.map((it, i) => (it
     ? `<button class="mq" data-act="from-vitrine" data-i="${i}" id="vit-${i}" aria-label="Devolver ${moldeOf(it.peca, it.molde).nome} pra arara" title="${moldeOf(it.peca, it.molde).nome} (${it.tam || 'M'}) · toque pra devolver">${pieceSVG(it.peca, it.molde, it.z, null, it.acc, it.bordado, it.fin)}</button>`
     : '<span class="mq"></span>')).join('');
-  const POS = [[47, 3], [57.5, 3], [68, 3], [78.5, 3], [89, 3], [52, 17], [62.5, 17], [73, 17], [83.5, 17]];
+  const POS = [[47, 3], [57.5, 3], [68, 3], [78.5, 3], [89, 3], [52, 17], [62.5, 17], [73, 17], [83.5, 17], [42, 17]];
   const isConc = c.dayInSeason === 3;
   const waveAll = ui.wave === 'vila';
   ui.wave = null;
   const crowd = vs.map((v, i) => ({ v, i, p: POS[i % POS.length] })).sort((a, b) => b.p[1] - a.p[1]).map(({ v, i, p }) => {
     const novo = state.talked[v.id] !== c.day;
     const dx = ((i * 37) % 9 - 4) * 1.4;
-    return `<button class="crowd-v${p[1] > 10 ? ' back' : ''}" data-act="talk" data-v="${v.id}" id="talk-${v.id}" style="left:${p[0]}%;bottom:${p[1]}%;--dx:${dx}cqw;--dur:${9 + (i * 3) % 8}s" aria-label="Conversar com ${v.nome}">${novo ? '<span class="chat" aria-hidden="true">…</span>' : ''}${figureSVG(v, null, waveAll && i % 2 === 0)}<span class="nm">${v.nome}</span></button>`;
+    return `<button class="crowd-v${p[1] > 10 ? ' back' : ''}" data-act="talk" data-v="${v.id}" id="talk-${v.id}" style="left:${p[0]}%;bottom:${p[1]}%;--dx:${dx}cqw;--dur:${9 + (i * 3) % 8}s" aria-label="Conversar com ${v.nome}">${novo ? '<span class="chat" aria-hidden="true">…</span>' : ''}${figureSVG(v, c.part === 'noite' && i % 3 === 0 ? 'sono' : null, waveAll && i % 2 === 0)}${petSVG(v.id)}<span class="nm">${v.nome}</span></button>`;
   }).join('') + (isConc ? `<button class="crowd-v jurada" data-act="sheet" data-kind="concurso" id="talk-lis" style="left:36%;bottom:3%;--dx:0cqw;--dur:10s" aria-label="Falar com Madame Lis, a jurada">${state.concursos[c.day] ? '' : '<span class="chat" aria-hidden="true">!</span>'}${figureSVG(JURADA)}<span class="nm">Madame Lis</span></button>` : '');
   const F = FESTAS[c.season.id];
   const ready = vs.filter((v) => festaMatch(v, F)).length;
@@ -2326,9 +2713,10 @@ function renderVila() {
   const next = VILLAGERS.filter((v) => v.need && bestHearts() < v.need).sort((a, b) => a.need - b.need)[0];
   const nextRow = next ? `<div class="mor soon"><span class="q" aria-hidden="true">?</span><span><b>Casa vazia</b><br><small>Alguém se muda pra vila quando você juntar ${next.need} ♥.</small></span></div>` : '';
   $('p-vila').innerHTML = `
-    <div class="scene-col"><div class="scene-box">${pracaSceneSVG()}${weatherFX(c)}<div class="vit-field">${vit}</div>${lifeFX('vila', c)}${crowd}${meSpot('me-praca')}${nav('vila')}</div></div>
+    <div class="scene-col"><div class="scene-box">${pracaSceneSVG()}${casamentoHoje() || (state.casamento && state.casamento.dia === c.day) ? ARCO : ''}${weatherFX(c)}<div class="vit-field">${vit}</div>${lifeFX('vila', c)}${crowd}${meSpot('me-praca')}${nav('vila')}</div></div>
     <aside class="pnl" aria-labelledby="h-vila">
       <h2 class="pnl-title" id="h-vila">Praça</h2>
+      ${casamentoHoje() || (state.casamento && state.casamento.fase === 3 && state.casamento.dia === c.day) ? `<div class="festa on"><b>💒 Hoje é o casamento da Lua e da Nina!</b><p>A praça está toda enfeitada de flores.</p><button class="primary" data-act="sheet" data-kind="casamento" id="casorio-btn" style="align-self:flex-start">${state.casamento.fase >= 3 ? 'Ver de novo' : 'Ir à cerimônia'}</button></div>` : state.casamento && state.casamento.fase === 1 ? `<div class="festa"><b>💍 Casamento à vista!</b><p>A Lua e a Nina vão se casar. Faltam ${3 - state.casamento.got} de 3 encomendas do casamento.</p></div>` : ''}
       ${concBox}
       ${festaBox}
       <div class="festa${state.capas[seasonIdx()] && state.capas[seasonIdx()].ok ? ' on' : ''}"><b>📰 Revista Moda da Capital</b><p>${state.capas[seasonIdx()] ? (state.capas[seasonIdx()].ok ? 'Sua peça é capa desta estação!' : 'Você já tentou nesta estação. Tem tema novo na próxima!') : `Tema da estação: ${revistaTema(seasonIdx()).map((c) => c.txt).join(' e ')}.`}</p><button class="btn" data-act="sheet" data-kind="revista" id="rev-open" style="align-self:flex-start">${state.capas[seasonIdx()] ? 'Ver a revista' : 'Enviar uma peça'}</button></div>
@@ -2350,7 +2738,7 @@ function renderAll() {
 const DAY_MS = 480000, SEASON_DAYS = 5, OLD_DAY_MS = 180000;
 
 function hintBox(o) {
-  if (o.kind === 'remendo') return '';
+  if (o.kind === 'remendo' || o.kind === 'reforma') return '';
   const list = hintList(o);
   const shown = list.slice(0, o.hints || 0);
   const price = hintPrice(), left = HINTS_FREE - hintToday().used;
@@ -2488,9 +2876,16 @@ const VTALK = {
   helena: ['As crianças pediram aula sobre cores. Adivinha de quem eu falei?', 'Corrigir prova cansa. Costurar parece tão relaxante.', 'Xadrez me lembra caderno quadriculado. Adoro.'],
   mel: ['Prova esse bolo de fubá! Tá quentinho.', 'Avental cor-de-rosa é a marca da confeitaria.', 'Bolinhas parecem confeito, né? Por isso eu amo.'],
   nina: ['Entreguei 42 cartas hoje. Recorde!', 'Roupa pra pedalar tem que ser confortável e chamar atenção.', 'Listras ficam lindas em movimento.'],
+  rita: ['Bicicleta boa é igual roupa boa: bem costurada… quer dizer, bem parafusada!', 'Cabelo raspado é prático. E fresquinho no verão!', 'Se precisar de qualquer conserto, me chama.'],
   zeze: ['Esse cachecol aqui eu tricotei em 1987.', 'Menina, você tem mãos de fada.', 'Quando eu era moça, florzinha era a estampa mais pedida da vila.'],
 };
 const SEASON_LINES = { primavera: 'A primavera chegou! A vila tá toda florida.', verao: 'Esse calor pede roupa leve, né?', outono: 'Gosto do outono. As folhas parecem tecido ferrugem.', inverno: 'Brr, que frio! Um cachecol cairia bem.' };
+function petLine(v) {
+  const P = PETS[v.id];
+  if (!P) return '';
+  const w = state.petWear && state.petWear[v.id];
+  return w ? `${P.nome} não tira ${ACCS[w.tipo].g === 'f' ? 'a' : 'o'} ${ACCS[w.tipo].nome.toLowerCase()} ${w.cor} por nada!` : `Esse é ${P.tipo === 'gata' || P.tipo === 'coelha' || P.tipo === 'galinha' ? 'a' : 'o'} ${P.nome}, ${P.quem.replace(' dela', '')}. Diz oi!`;
+}
 function talkLine(v) {
   const c = clock();
   const pool = [...VTALK[v.id], SEASON_LINES[c.season.id]];
@@ -2506,6 +2901,7 @@ function talkTo(vid) {
   if (state.talked[vid] !== c.day) {
     state.talked[vid] = c.day;
     gainHeart(vid, 1);
+    taskEv('conversar');
     toast(`Conversa boa! +1 ♥ com ${v.nome}`);
   }
   const si = nextStory(vid);
@@ -2522,12 +2918,12 @@ function giftTo(i) {
   if (!a || state.gifted[v.id] === c.day) return;
   state.box.splice(i, 1);
   state.selAcc = null;
-  state.outfits[v.id] = state.outfits[v.id] || {};
-  state.outfits[v.id].acc = a;
+  wearAcc(v.id, a);
   const fav = v.cores.includes(baseOf(a.cor));
   gainHeart(v.id, fav ? 2 : 1);
   state.gifted[v.id] = c.day;
-  toast(fav ? `${v.nome} amou! É uma cor favorita dela. +2 ♥` : `${v.nome} agradeceu o presente. +1 ♥`);
+  taskEv('presente');
+  toast(fav ? `${v.nome} ficou toda vermelhinha de alegria! É uma cor favorita dela. +2 ♥` : `${v.nome} agradeceu o presente. +1 ♥`);
   save();
   renderAll();
 }
@@ -2539,8 +2935,9 @@ function renderTalk(s) {
   const gifts = state.box.length
     ? state.box.map((x, i) => `<button class="piece" data-act="gift" data-i="${i}" id="gift-${i}" ${done ? 'disabled' : ''}>${accSVG(x.tipo, x.cor)}${ACCS[x.tipo].nome}<span class="price">${x.cor}</span></button>`).join('')
     : `<p class="help" style="margin:0;grid-column:1/-1">A caixinha está vazia. Faça acessórios na aba Retalhos do ateliê.</p>`;
-  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, 'feliz')}</div>
-      <div class="talk-txt"><p class="quote">${talkLine(v)}</p><p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
+  const line = talkLine(v);
+  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, talkMood(v, line), true)}${petSVG(v.id)}</div>
+      <div class="talk-txt"><p class="quote">${line}</p>${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
     <p class="label">Dar um presente${done ? ' · ela já ganhou um hoje' : ' · um por dia'}</p><div class="box">${gifts}</div>`;
 }
 
@@ -2588,11 +2985,51 @@ function renderLoja() {
     <p class="label">Jogo</p><div class="deliver-row">
       <button class="btn" data-act="sfx-toggle" id="sfx-t" aria-pressed="${SND.sfx}">Sons: ${SND.sfx ? 'ligados' : 'desligados'}</button>
       <button class="btn" data-act="music" id="music-t" aria-pressed="${SND.music}">Música: ${SND.music ? 'ligada' : 'desligada'}</button>
+      <button class="btn" data-act="amb-toggle" id="amb-t" aria-pressed="${SND.amb}">Sons do ambiente: ${SND.amb ? 'ligados' : 'desligados'}</button>
       <button class="btn" data-act="sheet" data-kind="criar" id="me-edit">Mudar costureira</button>
+      <button class="btn" data-act="sheet" data-kind="etiqueta" id="etq-open">🏷️ Etiqueta da marca</button>
       <button class="btn" data-act="sheet" data-kind="backup" id="backup-open">Backup do progresso</button>
       <button class="btn" data-act="reset" id="reset">Recomeçar do zero</button></div>`;
 }
 
+/* Novelo strolls around the house: the fabric pile, the scrap box, under the table, his bed at home, the garden */
+const NOV_SPOTS = ['pilha', 'caixa', 'chao', 'pilha', 'casa', 'jardim', 'caixa', 'casa', 'pilha', 'jardim'];
+const NOV_AT = { pilha: [0, 0], caixa: [-110, -4], chao: [-138, 13] };
+const NOV_ONDE = { pilha: 'dormindo nos rolos de tecido do ateliê', caixa: 'em cima da caixa de retalhos', chao: 'debaixo da mesa do ateliê', casa: 'na caminha dele, lá em casa', jardim: 'tomando sol no jardim' };
+function novSpot(now = gnow()) {
+  const c = clock(now);
+  const temCama = state.casa && state.casa.moveis.includes('caminha-gato');
+  if (c.part === 'noite') return temCama ? 'casa' : 'pilha';
+  let sp = NOV_SPOTS[Math.floor(now / 100000) % NOV_SPOTS.length];
+  if (sp === 'casa' && !temCama) sp = 'chao';
+  if (sp === 'jardim' && c.rain) sp = 'caixa';
+  return sp;
+}
+function novSVG(dx, dy) {
+  const cat = state.cat || {};
+  const fur = '#E39A4A', furD = '#B8722E';
+  const catArt = cat.awake
+    ? `<rect x="266" y="58" width="12" height="13" fill="${fur}"/><rect x="265" y="49" width="12" height="10" fill="${fur}"/><rect x="265" y="47" width="3" height="3" fill="${fur}"/><rect x="274" y="47" width="3" height="3" fill="${fur}"/><rect x="268" y="52" width="2" height="2" fill="#4E8540"/><rect x="272" y="52" width="2" height="2" fill="#4E8540"/><rect x="270" y="55" width="2" height="1" fill="#C8463D"/><rect x="267" y="61" width="3" height="10" fill="${furD}"/><g class="tail"><rect x="278" y="56" width="3" height="14" fill="${fur}"/><rect x="279" y="54" width="3" height="3" fill="${furD}"/></g>`
+    : `<rect x="262" y="64" width="22" height="7" fill="${fur}"/><rect x="280" y="60" width="9" height="8" fill="${fur}"/><rect x="280" y="58" width="2" height="2" fill="${fur}"/><rect x="287" y="58" width="2" height="2" fill="${fur}"/><rect x="282" y="63" width="2" height="1" fill="${furD}"/><rect x="285" y="63" width="2" height="1" fill="${furD}"/><rect x="266" y="64" width="3" height="7" fill="${furD}"/><rect x="272" y="64" width="3" height="7" fill="${furD}"/><g class="tail"><rect x="258" y="67" width="6" height="3" fill="${fur}"/></g><text x="291" y="56" class="zzz">z</text><text x="296" y="50" class="zzz z2">z</text>`;
+  let o = '';
+  if (cat.acc) {
+    const ac = hexOf(cat.acc.cor), dk = shade(ac, -0.3), t = cat.acc.tipo;
+    const hx = cat.awake ? 272 : 284, hy = cat.awake ? 45 : 56;
+    if (t === 'laco') o += `<rect x="${hx}" y="${hy}" width="2" height="3" fill="${ac}"/><rect x="${hx + 2}" y="${hy + 1}" width="1" height="1" fill="${dk}"/><rect x="${hx + 3}" y="${hy}" width="2" height="3" fill="${ac}"/>`;
+    if (t === 'tiara') o += `<rect x="${hx - 6}" y="${hy + 2}" width="10" height="1" fill="${ac}"/><rect x="${hx - 2}" y="${hy + 1}" width="2" height="1" fill="${dk}"/>`;
+    if (t === 'presilha') o += `<rect x="${hx}" y="${hy + 1}" width="4" height="1" fill="${ac}"/>`;
+    const nx = cat.awake ? 268 : 280, ny = cat.awake ? 58 : 64;
+    if (t === 'lencinho') o += `<rect x="${nx}" y="${ny}" width="7" height="2" fill="${ac}"/><rect x="${nx + 2}" y="${ny + 2}" width="3" height="2" fill="${ac}"/><rect x="${nx + 3}" y="${ny + 4}" width="1" height="1" fill="${dk}"/>`;
+    if (t === 'gravatinha') o += `<rect x="${nx + 1}" y="${ny}" width="2" height="3" fill="${ac}"/><rect x="${nx + 3}" y="${ny + 1}" width="1" height="1" fill="${dk}"/><rect x="${nx + 4}" y="${ny}" width="2" height="3" fill="${ac}"/>`;
+    if (t === 'colar' || t === 'pulseira') o += [0, 2, 4, 6].map((d) => `<rect x="${nx + d}" y="${ny + (d === 2 || d === 4 ? 1 : 0)}" width="1" height="1" fill="${ac}"/>`).join('');
+    if (t === 'capinha') o += cat.awake ? `<rect x="265" y="58" width="14" height="6" fill="${ac}"/><rect x="265" y="63" width="14" height="1" fill="${dk}"/>` : `<rect x="262" y="63" width="20" height="4" fill="${ac}"/><rect x="262" y="66" width="20" height="1" fill="${dk}"/>`;
+    if (t === 'broche' || t === 'fuxico') o += `<rect x="${cat.awake ? 268 : 271}" y="${cat.awake ? 60 : 65}" width="3" height="3" fill="${ac}"/><rect x="${cat.awake ? 269 : 272}" y="${cat.awake ? 61 : 66}" width="1" height="1" fill="${dk}"/>`;
+  }
+
+  const yc = hexOf((clothKeys('cloth')[0]) || 'rosa') || '#E58FA6';
+  const yarn = cat.awake ? `<g class="yarn"><rect x="249" y="66" width="6" height="5" fill="${yc}"/><rect x="250" y="65" width="4" height="7" fill="${yc}"/><rect x="250" y="67" width="4" height="1" fill="${shade(yc, -0.25)}"/><rect x="251" y="69" width="3" height="1" fill="${shade(yc, -0.25)}"/><path d="M249 70 Q244 72 240 70" stroke="${yc}" stroke-width=".8" fill="none"/></g>` : '';
+  return `<g transform="translate(${dx} ${dy})"><g data-act="cat" id="cat" class="cat" role="button" tabindex="0" aria-label="Novelo, o gatinho">${catArt}${o}<rect x="256" y="44" width="40" height="30" fill="transparent"/></g>${yarn}</g>`;
+}
 function catEvent(now) {
   const c = clock(now);
   const cat = state.cat;
@@ -2607,6 +3044,8 @@ function catEvent(now) {
 }
 function petCat() {
   const cat = state.cat;
+  taskEv('novelo');
+  if (novSpot() === 'jardim' && cat.awake) { toast('O Novelo rolou na grama quentinha e miou pra você.'); return; }
   toast(cat.awake ? pick(['O Novelo ronronou e se esfregou na sua mão.', 'O Novelo deu uma cabeçadinha carinhosa.', 'O Novelo rolou de barriga pra cima.']) : 'O Novelo abriu um olho, bocejou e voltou a dormir.');
 }
 function clockIcon(ck) {
@@ -2641,6 +3080,7 @@ function passBy() {
     const before = bestHearts();
     state.vitrine[best.i] = null;
     state.coins += pay;
+    taskEv('vitrine');
     state.hearts[v.id] = (state.hearts[v.id] || 0) + 1;
     state.best = Math.max(before, totalHearts());
     checkUnlocks(before, state.best);
@@ -2660,8 +3100,67 @@ const BORDADOS = {
   lua: { nome: 'Lua', g: ['..###..', '.##....', '##.....', '##.....', '##.....', '.##....', '..###..'].join('') },
 };
 const BOTOES = { madeira: { nome: 'Madeira', preco: 0, c: '#9E6E48' }, madreperola: { nome: 'Madrepérola', preco: 3, c: '#F3EFE6' }, flor: { nome: 'Florzinha', preco: 5, c: '#F2A7C6' } };
-const VBOTAO = { bia: 'flor', tito: 'madeira', cida: 'madreperola', joaquim: 'madeira', lua: 'flor', helena: 'madreperola', mel: 'flor', nina: 'madeira', zeze: 'madreperola' };
-const VCONTRASTE = { bia: true, lua: true, nina: true, mel: true };
+const VBOTAO = { rita: 'madeira', bia: 'flor', tito: 'madeira', cida: 'madreperola', joaquim: 'madeira', lua: 'flor', helena: 'madreperola', mel: 'flor', nina: 'madeira', zeze: 'madreperola' };
+const VCONTRASTE = { rita: true, bia: true, lua: true, nina: true, mel: true };
+const GOLAS = { nenhuma: { nome: 'Sem gola', preco: 0 }, bebe: { nome: 'Gola bebê', preco: 2 }, babado: { nome: 'Babado', preco: 3 }, marinheiro: { nome: 'Marinheiro', preco: 4 } };
+const BOLSOS = { nenhum: { nome: 'Sem bolso', preco: 0 }, chapado: { nome: 'Bolso chapado', preco: 1 }, coracao: { nome: 'Bolso coração', preco: 3 } };
+const VGOLA = { bia: 'babado', tito: 'marinheiro', cida: 'bebe', joaquim: 'marinheiro', lua: 'babado', helena: 'bebe', mel: 'babado', nina: 'marinheiro', zeze: 'bebe', rita: 'marinheiro', vitoria: 'bebe' };
+const VBOLSO = { bia: 'coracao', tito: 'chapado', cida: 'chapado', joaquim: 'chapado', lua: 'coracao', helena: 'chapado', mel: 'coracao', nina: 'chapado', zeze: 'coracao', rita: 'chapado' };
+/* Where the neckline and hem sit, read straight from the pattern outline */
+const BOX = new Map();
+function moldeBox(m) {
+  if (BOX.has(m.d)) return BOX.get(m.d);
+  const n = (m.d.split(' M')[0].match(/-?\d+(\.\d+)?/g) || []).map(Number);
+  const ys = n.filter((x, i) => i % 2 === 1);
+  const nk = m.d.match(/[QL]50 (\d+(\.\d+)?)/);
+  const b = { y0: Math.min(...ys), y1: Math.max(...ys), neck: nk ? +nk[1] - 2 : null };
+  BOX.set(m.d, b);
+  return b;
+}
+const temGola = (peca) => ['vestido', 'camisa', 'casaco', 'macacao'].includes(peca);
+const temBolso = (peca) => !['chapeu', 'cachecol', 'trico', 'patch'].includes(peca);
+function golaBolsoMarkup(m, peca, fin, zs) {
+  let r = '';
+  const bx = moldeBox(m);
+  const c0 = zs && zs[0] && zs[0].cor ? hexOf(zs[0].cor) : CRU, c1 = zs && zs[1] && zs[1].cor ? hexOf(zs[1].cor) : c0;
+  const st = 'stroke="rgba(40,28,45,.55)" stroke-width=".6"';
+  if (fin.gola && fin.gola !== 'nenhuma' && temGola(peca) && bx.neck) {
+    const y = bx.neck;
+    if (fin.gola === 'bebe') r += `<ellipse cx="44.5" cy="${y + 1}" rx="6" ry="3.6" fill="#F6F0E6" ${st}/><ellipse cx="55.5" cy="${y + 1}" rx="6" ry="3.6" fill="#F6F0E6" ${st}/>`;
+    if (fin.gola === 'babado') r += [38, 42.5, 47, 51.5, 56, 60.5].map((x, i) => `<circle cx="${x + 1}" cy="${y + 1.5 - Math.abs(i - 2.5) * 0.8}" r="2.6" fill="#F6F0E6" ${st}/>`).join('');
+    if (fin.gola === 'marinheiro') r += `<path d="M37 ${y - 2} L63 ${y - 2} L61 ${y + 9} L50 ${y + 3} L39 ${y + 9} Z" fill="#23395F" ${st}/><path d="M39 ${y + 6} L50 ${y + 0.5} L61 ${y + 6}" fill="none" stroke="#F6F0E6" stroke-width="1"/><path d="M48 ${y + 3} L50 ${y + 7} L52 ${y + 3} Z" fill="#C8463D"/>`;
+  }
+  if (fin.bolso && fin.bolso !== 'nenhum' && temBolso(peca)) {
+    const y = bx.y0 + (bx.y1 - bx.y0) * 0.62, pc = shade(c1, -0.12);
+    if (fin.bolso === 'chapado') r += `<rect x="54" y="${y}" width="10" height="9" rx="1" fill="${pc}" ${st}/><path d="M54 ${y + 2.4} H64" stroke="${shade(pc, -0.25)}" stroke-width=".6" stroke-dasharray="1 1"/>`;
+    if (fin.bolso === 'coracao') r += `<path d="M59 ${y + 9} L53.5 ${y + 3.5} Q53.5 ${y} 56.3 ${y} Q58 ${y} 59 ${y + 2} Q60 ${y} 61.7 ${y} Q64.5 ${y} 64.5 ${y + 3.5} Z" fill="${shade(c1, 0.25)}" ${st}/>`;
+  }
+  return r;
+}
+/* The house label sewn inside the neckline */
+const ET_ICOS = { flor: 'M1 0h1v1h-1zM3 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM2 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM1 4h1v1h-1zM3 4h1v1h-1z', coracao: 'M1 0h1v1h-1zM3 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM2 4h1v1h-1z', estrela: 'M2 0h1v1h-1zM1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM1 4h1v1h-1zM3 4h1v1h-1z', agulha: 'M4 0h1v1h-1zM3 1h1v1h-1zM2 2h1v1h-1zM1 3h1v1h-1zM0 4h1v1h-1z', botao: 'M1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1z' };
+const ET_CORES = ['#8A3F6B', '#23395F', '#3A3040', '#5E9A4E', '#C8463D', '#E8B931'];
+function etiquetaMarkup(m) {
+  const E = state && state.etiqueta;
+  if (!E) return '';
+  const bx = moldeBox(m), y = bx.y1 - 11;
+  return `<g class="etq"><rect x="35" y="${y}" width="9" height="5" rx=".6" fill="${E.cor}" stroke="#F6F0E6" stroke-width=".4"/><path transform="translate(37.5 ${y + 0.5}) scale(.8)" d="${ET_ICOS[E.ico] || ET_ICOS.flor}" fill="#F6F0E6"/></g>`;
+}
+const MARCA_NIVEIS = [[0, 'Marca nova', 0], [10, 'Conhecida na vila', 1], [25, 'Famosa na região', 2], [50, 'Grife da capital', 3]];
+const marcaNivel = () => MARCA_NIVEIS.filter(([n]) => (state.marca || 0) >= n).pop();
+function renderEtiqueta(s) {
+  const E = state.etiqueta || { nome: '', cor: ET_CORES[0], ico: 'flor' };
+  if (s.nome == null) { s.nome = E.nome || ''; s.cor = E.cor; s.ico = E.ico; }
+  const [, nivel, bonus] = marcaNivel();
+  const prox = MARCA_NIVEIS.find(([n]) => n > (state.marca || 0));
+  $('gen-title').textContent = 'Etiqueta da sua marca';
+  $('gen-body').innerHTML = `<div class="etq-wrap"><div class="etq-big" style="background:${s.cor}"><svg viewBox="0 0 5 5" width="34" height="34" shape-rendering="crispEdges"><path d="${ET_ICOS[s.ico]}" fill="#F6F0E6"/></svg><b>${(s.nome || 'Sua marca').replace(/[<>&]/g, '')}</b><small>feito à mão</small></div>
+    <div class="etq-opts"><p class="label">Nome da marca</p><input id="et-nome" maxlength="16" value="${(s.nome || '').replace(/"/g, '&quot;')}" placeholder="Ex.: Ateliê da Amanda" autocomplete="off">
+    <p class="label">Cor</p><div class="sws">${ET_CORES.map((c) => `<button class="swb${s.cor === c ? ' on' : ''}" data-act="et-cor" data-v="${c}" style="background:${c}" aria-label="Cor ${c}" aria-pressed="${s.cor === c}"></button>`).join('')}</div>
+    <p class="label">Símbolo</p><div class="pats">${Object.keys(ET_ICOS).map((k) => `<button class="pat" data-act="et-ico" data-v="${k}" aria-pressed="${s.ico === k}"><svg viewBox="-.5 -.5 6 6" width="18" height="18" shape-rendering="crispEdges"><path d="${ET_ICOS[k]}" fill="currentColor"/></svg>${{ flor: 'Flor', coracao: 'Coração', estrela: 'Estrela', agulha: 'Agulha', botao: 'Botão' }[k]}</button>`).join('')}</div>
+    <button class="primary" data-act="et-save" id="et-save">Costurar essa etiqueta nas peças</button>
+    <p class="help">⭐ ${nivel}: ${state.marca || 0} peças com etiqueta entregues.${bonus ? ` Cada entrega rende +${bonus} moeda${bonus > 1 ? 's' : ''} de fama.` : ''}${prox ? ` Faltam ${prox[0] - (state.marca || 0)} pra "${prox[1]}".` : ''}</p></div></div>`;
+}
 /* Topstitching in the chosen thread and two buttons down the front */
 function finMarkup(fin, zs) {
   if (!fin) return '';
@@ -2720,7 +3219,7 @@ function finishBordado(s) {
 }
 
 /* ---------- histórias de amizade ---------- */
-const STORY_SEED = { bia: 'girassol', tito: 'anil', cida: 'camomila', joaquim: 'papoula', lua: 'lavanda', helena: 'anil', mel: 'hibisco', nina: 'hortela', zeze: 'iris' };
+const STORY_SEED = { rita: 'girassol', bia: 'girassol', tito: 'anil', cida: 'camomila', joaquim: 'papoula', lua: 'lavanda', helena: 'anil', mel: 'hibisco', nina: 'hortela', zeze: 'iris' };
 const STORY_REV = { mel: 'avental', joaquim: 'macacao', zeze: 'casaco' };
 const STORIES = {
   bia: [['Bia te chama pra praça no fim da tarde. "Fiz uma música sobre o ateliê! Quer ouvir?"', 'Ela toca três acordes meio tortos e ri. "Ainda não tem letra… mas tem o barulhinho da máquina de costura."'],
@@ -2739,6 +3238,8 @@ const STORIES = {
     ['"Quero que a confeitaria tenha aventais iguais, com a cara da vila."', 'Ela te dá uma revista de cozinha com uma receita de bolo grudada na capa.']],
   nina: [['Nina freia a bicicleta na sua porta. "Tem carta pra você! É de uma cliente de outra vila elogiando seu trabalho."', 'Dentro, umas sementes de presente.'],
     ['"Pedalei até a cidade e vi vitrines enormes. Nenhuma tinha a alma da sua."', 'Ela te dá uma revista que pegou na banca da estação.']],
+  rita: [['Rita aparece com a caixa de ferramentas. "Seu rádio do ateliê tava chiando, né? Dei um jeitinho!"', 'Agora ele toca até modinha antiga. Ela ainda deixa umas sementes de girassol que ganhou na feira.'],
+    ['"Sabia que eu restauro bicicletas velhas? Cada uma ganha uma cor nova… igual seus tecidos!"', 'Ela te dá uma revista que achou no meio das peças de uma bicicleta antiga.']],
   zeze: [['Vó Zezé te ensina um ponto de tricô antigo. "Devagar e sempre, menina. A pressa embola a linha."', 'Ela te dá sementes de íris que guardava numa lata de biscoito.'],
     ['"Guardei essa revista desde 1987. Os casaquinhos ainda estão na moda, pode acreditar."', '']],
 };
@@ -2766,7 +3267,7 @@ function renderHistoria(s) {
   const v = villager(s.vid);
   $('gen-title').textContent = `Uma história com ${v.nome}`;
   const [a, b] = STORIES[s.vid][s.i];
-  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, 'feliz')}</div><div class="talk-txt"><p class="quote">${a}</p>${b ? `<p class="quote">${b}</p>` : ''}<p class="sub">🎁 ${s.reward}</p></div></div>
+  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, 'feliz', true)}</div><div class="talk-txt"><p class="quote">${a}</p>${b ? `<p class="quote">${b}</p>` : ''}<p class="sub">🎁 ${s.reward}</p></div></div>
     <button class="primary" data-act="close-sheet" style="align-self:flex-start">Que lindo!</button>`;
 }
 
@@ -2778,6 +3279,8 @@ const CONQ = [
   { id: 'cores40', nome: 'Arco-íris inteiro', desc: 'Descobrir 40 cores', premio: 100, ok: () => state.discovered.length >= 40 },
   { id: 'entregas10', nome: 'Freguesia fiel', desc: 'Entregar 10 pedidos', premio: 20, ok: () => state.served >= 10 },
   { id: 'entregas50', nome: 'Ateliê famoso', desc: 'Entregar 50 pedidos', premio: 60, ok: () => state.served >= 50 },
+  { id: 'tarefas', nome: 'Dia produtivo', desc: 'Fazer todas as tarefas de um dia', premio: 20, ok: () => (state.stats.diasTarefas || 0) >= 1 },
+  { id: 'casamento', nome: 'Madrinha da vila', desc: 'Vestir as noivas do casamento da vila', premio: 50, ok: () => !!(state.casamento && state.casamento.fase >= 3) },
   { id: 'perfeita10', nome: 'Agulha de ouro', desc: 'Fazer 10 costuras perfeitas', premio: 30, ok: () => state.stats.perfeitas >= 10 },
   { id: 'bordado', nome: 'Bordadeira', desc: 'Fazer um bordado perfeito', premio: 25, ok: () => state.stats.bordados >= 1 },
   { id: 'estampa', nome: 'Estilista', desc: 'Criar uma estampa sua', premio: 15, ok: () => state.myPats.length >= 1 },
@@ -2790,6 +3293,129 @@ const CONQ = [
   { id: 'casa-cheia', nome: 'Casa de revista', desc: 'Ter todos os móveis da casa', premio: 100, ok: () => state.casa.moveis.length >= MOVEIS.length },
   { id: 'rico', nome: 'Cofrinho cheio', desc: 'Juntar 500 moedas', premio: 50, ok: () => state.coins >= 500 },
 ];
+/* Three small tasks each day, with a bonus for finishing all of them */
+const TAREFAS = {
+  conversar: { txt: 'Conversar com 3 moradoras', n: 3, ico: '💬' },
+  entregar: { txt: 'Entregar 2 encomendas', n: 2, ico: '📦' },
+  colher: { txt: 'Colher 4 flores no jardim', n: 4, ico: '🌼' },
+  tingir: { txt: 'Tingir 1 tecido', n: 1, ico: '🫕' },
+  costurar: { txt: 'Costurar 2 peças ou acessórios', n: 2, ico: '🧵' },
+  presente: { txt: 'Dar um presente pra alguém', n: 1, ico: '🎁' },
+  mata: { txt: 'Achar 2 corantes na mata', n: 2, ico: '🌿' },
+  novelo: { txt: 'Fazer carinho no Novelo', n: 1, ico: '🐈' },
+  vitrine: { txt: 'Vender 1 peça na vitrine', n: 1, ico: '🪟' },
+  perfeita: { txt: 'Fazer uma costura perfeita', n: 1, ico: '⭐' },
+};
+function tarefasHoje() {
+  const d = clock().day;
+  if (!state.tarefas || state.tarefas.day !== d) {
+    const ks = Object.keys(TAREFAS), out = [];
+    let r = d * 9301 + 49297;
+    while (out.length < 3) { r = (r * 9301 + 49297) % 233280; const k = ks[r % ks.length]; if (!out.includes(k)) out.push(k); }
+    state.tarefas = { day: d, list: out.map((id) => ({ id, n: 0 })), bonus: false };
+  }
+  return state.tarefas;
+}
+function taskEv(id, n = 1) {
+  if (!state) return;
+  const T = tarefasHoje();
+  const t = T.list.find((x) => x.id === id);
+  if (!t || t.n >= TAREFAS[id].n) return;
+  t.n = Math.min(TAREFAS[id].n, t.n + n);
+  if (t.n < TAREFAS[id].n) return;
+  state.coins += 15;
+  setTimeout(() => toast(`📋 Tarefa feita: ${TAREFAS[id].txt}! +15 moedas`), 700);
+  if (!T.bonus && T.list.every((x) => x.n >= TAREFAS[x.id].n)) {
+    T.bonus = true; state.coins += 30;
+    state.stats.diasTarefas = (state.stats.diasTarefas || 0) + 1;
+    setTimeout(() => { toast('📋 Todas as tarefas do dia! Bônus de +30 moedas'); sfx('chime'); }, 1700);
+  }
+}
+const woolKeys = () => clothKeys('cloth').filter((k) => tecOf(k) === 'lã');
+function tricoNeed(s) {
+  const M = moldeOf('trico', s.molde), need = {};
+  if (s.c0) need[s.c0] = M.m * MCOLS;
+  if (s.c1 && s.c1 !== s.c0) need[s.c1] = Math.ceil(MCOLS / 2);
+  return need;
+}
+const TRICO_ROWS = 8, TRICO_MS = 16000;
+function renderTrico(s) {
+  const w = woolKeys();
+  if (!s.step) { s.step = 'escolher'; s.molde = 'touca'; s.c0 = w[0] || null; s.c1 = w[1] || w[0] || null; }
+  $('gen-title').textContent = 'Tricô';
+  const zs = [{ cor: s.c0, padrao: 'liso' }, { cor: s.c1 || s.c0, padrao: 'liso' }];
+  if (s.step === 'escolher') {
+    if (!w.length) { $('gen-body').innerHTML = `<p class="help">Pra tricotar você precisa de lã tingida. ${unlocked(TECIDOS['lã']) ? 'Compre lã crua na loja de tecidos e tinja no tacho: a cor sai na lã!' : `A lã aparece quando você juntar ${TECIDOS['lã'].need} ♥.`}</p>`; return; }
+    const need = tricoNeed(s), falta = Object.entries(need).find(([k, n]) => (state.cloth[k] || 0) < n);
+    const full = state.rack.length >= rackMax();
+    const tiles = PIECES.trico.moldes.map((M) => `<button class="piece" data-act="tc-molde" data-v="${M.id}" id="tc-${M.id}" aria-pressed="${s.molde === M.id}">${pieceSVG('trico', M.id, zs)}${M.nome}<span class="price">${M.m} m de lã</span></button>`).join('');
+    const sw = (z) => w.map((k) => `<button class="fold" data-act="tc-cor" data-z="${z}" data-v="${k}" aria-pressed="${(z ? s.c1 : s.c0) === k}">${foldSVG(hexOf(k), bandsOf(k))}<b>${k.replace(' de lã', '')}</b><span>${fmtM(state.cloth[k])} m</span></button>`).join('');
+    $('gen-body').innerHTML = `<p class="help">Tricô é com lã: escolha o que tricotar e as cores. ${['outono', 'inverno'].includes(clock().season.id) ? 'No frio, todo mundo quer peça de lã!' : 'No outono e no inverno as moradoras pedem mais.'}</p>
+      <div class="moldes">${tiles}</div>
+      <p class="label">Lã principal</p><div class="folds">${sw(0)}</div>
+      <p class="label">Lã do detalhe (punho, pompom, franja)</p><div class="folds">${sw(1)}</div>
+      <button class="primary" data-act="tc-start" id="tc-start" ${!falta && !full ? '' : 'disabled'} style="align-self:flex-start">${full ? 'Arara cheia' : falta ? `Falta lã ${falta[0].replace(' de lã', '')}` : 'Começar a tricotar 🧶'}</button>`;
+    return;
+  }
+  const art = pieceSVG('trico', s.molde, zs, moldeOf('trico', s.molde).nome);
+  if (s.step === 'fim') {
+    $('gen-body').innerHTML = `<div class="tc-stage">${art}</div><p class="sub" style="text-align:center"><span class="stars">${starStr(s.stars)}</span> ${['', 'Ficou meio frouxinho, mas é de coração.', 'Ficou quentinho e bonito!', 'Pontos perfeitos, parece de loja!'][s.stars]}</p><button class="primary" data-act="close-sheet" style="align-self:center">Pendurar na arara</button>`;
+    return;
+  }
+  const rev = 100 - (s.rows / TRICO_ROWS) * 100;
+  $('gen-body').innerHTML = `<p class="help">Toque em “Laçada!” quando a agulha passar pela parte verde. ${s.rows} de ${TRICO_ROWS} carreiras${s.miss ? ` · ${s.miss} ponto${s.miss > 1 ? 's' : ''} perdido${s.miss > 1 ? 's' : ''}` : ''}.</p>
+    <div class="rm-timer"><i id="tc-time"></i></div>
+    <div class="tc-stage"><div class="tc-ghost">${art}</div><div class="tc-grow" style="clip-path:inset(${rev}% 0 0 0)">${art}</div></div>
+    <div class="tc-bar"><span class="tc-zone"></span><span class="tc-mark" id="tc-mark">🪡</span></div>
+    <button class="primary tc-tap" data-act="tc-tap" id="tc-tap">Laçada!</button>`;
+}
+function finishTrico(s) {
+  if (s.step !== 'tricotar') return;
+  const ratio = Math.max(0, s.rows - s.miss * 0.5) / TRICO_ROWS;
+  s.stars = s.rows < TRICO_ROWS ? 1 : ratio >= 0.9 ? 3 : ratio >= 0.6 ? 2 : 1;
+  s.step = 'fim';
+  state.rack.push({ peca: 'trico', molde: s.molde, z: [{ cor: s.c0, padrao: 'liso' }, { cor: s.c1 || s.c0, padrao: 'liso' }], tam: 'M', stars: s.stars, defeito: s.stars === 1 });
+  state.selRack = state.rack.length - 1; state.sub = 'arara';
+  state.stats.pecas = (state.stats.pecas || 0) + 1;
+  taskEv('costurar'); if (s.stars === 3) { taskEv('perfeita'); state.stats.perfeitas += 1; }
+  sfx(s.stars === 3 ? 'chime' : s.stars === 1 ? 'sad' : 'coin');
+  save(); renderAll(); renderSheet();
+}
+/* Patchwork: square scraps sewn into a cushion (2×2) or a quilt (3×3) */
+function patchRegra(cells, n) {
+  const g = cells.slice(0, n * n);
+  if (g.some((k) => !k)) return null;
+  const A = g[0], B = g[1];
+  if (A !== B && g.every((k, i) => k === ((Math.floor(i / n) + (i % n)) % 2 ? B : A))) return 'xadrez';
+  if (n === 3 && g[4] !== A && g.every((k, i) => i === 4 || k === A)) return 'moldura';
+  const rowsU = [...Array(n)].map((_, r) => g.slice(r * n, r * n + n));
+  if (rowsU.every((r) => r.every((k) => k === r[0])) && rowsU.every((r, i) => !i || r[0] !== rowsU[i - 1][0])) return 'listras';
+  return 'livre';
+}
+const REGRAS = { xadrez: 'Xadrez', moldura: 'Moldura', listras: 'Listras', livre: 'Desenho livre' };
+function renderPatch(s) {
+  if (!s.n) { s.n = 2; s.cells = Array(9).fill(null); s.cor = clothKeys('scraps')[0] || null; }
+  const n = s.n, used = {};
+  s.cells.slice(0, n * n).forEach((k) => { if (k) used[k] = (used[k] || 0) + 1; });
+  const sc = clothKeys('scraps');
+  $('gen-title').textContent = 'Patchwork';
+  if (s.done) { $('gen-body').innerHTML = `<div class="tc-stage">${pieceSVG('patch', n === 2 ? 'almofada' : 'colcha', [{ cor: s.cells[0], padrao: 'liso', grid: s.cells.slice(0, n * n) }, { cor: s.cells[0], padrao: 'liso' }])}</div><p class="sub" style="text-align:center">${REGRAS[s.done]}! Foi pra arara.</p><button class="primary" data-act="close-sheet" style="align-self:center">Que lindo!</button>`; return; }
+  const regra = patchRegra(s.cells, n);
+  const full = state.rack.length >= rackMax();
+  const grid = s.cells.slice(0, n * n).map((k, i) => `<button class="pw-cell" data-act="pw-cell" data-i="${i}" id="pw-${i}" style="background:${k ? hexOf(k) : 'transparent'}" aria-label="Quadrado ${i + 1}${k ? ': ' + k : ''}"></button>`).join('');
+  const pal = sc.map((k) => `<button class="fold" data-act="pw-cor" data-v="${k}" id="pwc-${k.replace(/\s/g, '_')}" aria-pressed="${s.cor === k}">${foldSVG(hexOf(k), bandsOf(k))}<b>${k}</b><span>${state.scraps[k] - (used[k] || 0)}</span></button>`).join('');
+  $('gen-body').innerHTML = `<div class="pw-wrap"><div><div class="pats"><button class="pat" data-act="pw-tam" data-v="2" aria-pressed="${n === 2}">Almofada 2×2</button><button class="pat" data-act="pw-tam" data-v="3" aria-pressed="${n === 3}">Colcha 3×3</button></div>
+    <div class="pw-grid" style="grid-template-columns:repeat(${n},1fr)">${grid}</div>
+    <p class="sub">${regra ? `Desenho: ${REGRAS[regra]}${regra !== 'livre' ? ' ✨' : ''}` : 'Preencha todos os quadrados'}</p>
+    <button class="primary" data-act="pw-done" id="pw-done" ${regra && !full ? '' : 'disabled'}>${full ? 'Arara cheia' : 'Costurar os quadrados'}</button></div>
+    <div><p class="help">Cada quadrado gasta 1 retalho. Escolha a cor e toque nos quadrados. Xadrez, listras e moldura valem mais!</p><div class="folds">${pal || '<p class="help">Sem retalhos. Corte peças na mesa pra juntar.</p>'}</div></div></div>`;
+}
+function renderTarefas() {
+  const T = tarefasHoje();
+  $('gen-title').textContent = `Tarefas do dia ${T.day}`;
+  $('gen-body').innerHTML = `<div class="shop-list">${T.list.map((x) => { const D = TAREFAS[x.id], ok = x.n >= D.n; return `<div class="shop-item conq${ok ? ' got' : ''}"><span class="medal" aria-hidden="true">${ok ? '✅' : D.ico}</span><div><b>${D.txt}</b><div class="tbar"><span style="width:${(x.n / D.n) * 100}%"></span></div></div><span class="owned">${ok ? 'Feito!' : `${x.n} de ${D.n}`}</span></div>`; }).join('')}</div>
+    <p class="help">Cada tarefa vale 15 moedas. Fazendo as três, você ganha mais 30 de bônus. Amanhã tem tarefas novas!</p>${T.bonus ? '<p class="sub">🎉 Você fez tudo hoje!</p>' : ''}`;
+}
 function checkConq() {
   if (!state || !state.conq) return;
   CONQ.forEach((c) => {
@@ -2864,6 +3490,7 @@ function casaSceneSVG() {
   if (own('manequim')) { const mc = movelVar('manequim'); s += `<rect x="184" y="126" width="3" height="22" fill="#5E4B3C"/><rect x="176" y="148" width="20" height="3" fill="#5E4B3C"/><rect x="174" y="92" width="24" height="36" fill="${mc}"/><rect x="180" y="86" width="12" height="6" fill="${mc}"/><rect x="184" y="82" width="4" height="4" fill="#5E4B3C"/>`; }
   if (own('abajur')) s += `<rect x="204" y="128" width="18" height="22" fill="#8B6A50"/><rect x="211" y="112" width="3" height="16" fill="#5E4B3C"/><rect x="203" y="100" width="20" height="12" fill="${movelVar('abajur')}"/>${ck.part === 'noite' ? '<ellipse cx="213" cy="112" rx="30" ry="20" fill="#F7E3A3" opacity=".25"/>' : ''}`;
   if (own('cama')) { const cw = movelVar('cama'); s += `<rect x="228" y="100" width="8" height="50" fill="${cw}"/><rect x="236" y="120" width="52" height="22" fill="#F6F0E6"/><rect x="238" y="114" width="16" height="8" fill="#FFFFFF"/><rect x="250" y="120" width="40" height="24" fill="${colcha}"/><rect x="250" y="120" width="40" height="3" fill="${shade(colcha, 0.25)}"/><rect x="284" y="112" width="6" height="38" fill="${cw}"/>`; }
+  if (novSpot() === 'casa') s += novSVG(-161, 97);
   return bgSVG(s + veil(ck), 'A casa da costureira');
 }
 /* Friends with lots of affection drop by, comment on the house and bring a little gift */
@@ -2905,11 +3532,11 @@ function openVisita(vid) {
 function renderVisita(s) {
   const v = villager(s.vid);
   $('gen-title').textContent = `${v.nome} veio te visitar`;
-  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, 'feliz')}</div><div class="talk-txt">${visitTalk(v).map((t) => `<p class="quote">${t}</p>`).join('')}<p class="sub">🎁 Ela trouxe ${s.gift} · +1 ♥</p></div></div>
+  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, 'risada', true)}</div><div class="talk-txt">${visitTalk(v).map((t) => `<p class="quote">${t}</p>`).join('')}<p class="sub">🎁 Ela trouxe ${s.gift} · +1 ♥</p></div></div>
     <button class="primary" data-act="close-sheet" style="align-self:flex-start">Volta sempre!</button>`;
 }
 /* ---------- capa da revista ---------- */
-const VITORIA = { id: 'vitoria', nome: 'Srta. Vitória', quem: 'cliente da capital', pele: '#F1CDB1', cabelo: '#2B211C', estilo: 'curto', roupa: '#B3264F', fav: 'liso', need: 99999, cores: ['vinho', 'marinho', 'grafite'],
+const VITORIA = { corpo: { alt: 'alta', larg: 'fina' }, joia: { brinco: 'perola', colar: '#F6F0E6' }, id: 'vitoria', nome: 'Srta. Vitória', quem: 'cliente da capital', pele: '#F1CDB1', cabelo: '#2B211C', estilo: 'curto', roupa: '#B3264F', fav: 'liso', need: 99999, cores: ['vinho', 'marinho', 'grafite'],
   rosto: { olho: '#2A2230', batom: '#B3264F', sobr: 'arco', pinta: true }, base: { saia: '#2E2A33', meia: '#2E2A33', sapato: '#B3264F', gola: '#F3EFE6' }, tam: 'M', exigente: true, sig: '', fora: true };
 VILLAGERS.push(VITORIA);
 const seasonIdx = (ck = clock()) => Math.floor((ck.day - 1) / SEASON_DAYS);
@@ -2945,7 +3572,7 @@ function enviarRevista(i) {
   if (ok) sparkle($('capa'), 20);
 }
 /* ---------- aprendiz ---------- */
-const FLORA = { id: 'flora', nome: 'Flora', quem: 'sua aprendiz', pele: '#E9C2A0', cabelo: '#5B3A26', estilo: 'chiquinhas', roupa: '#9CC48E', fav: 'liso', cores: [],
+const FLORA = { corpo: { alt: 'baixa', larg: 'fina' }, joia: { presilha: '#F7D35E' }, id: 'flora', nome: 'Flora', quem: 'sua aprendiz', pele: '#E9C2A0', cabelo: '#5B3A26', estilo: 'chiquinhas', roupa: '#9CC48E', fav: 'liso', cores: [],
   rosto: { olho: '#3E7A4E', sardas: true, batom: '#E58FA6', sobr: 'arco' }, base: { saia: '#6E5235', meia: '#F3EFE6', sapato: '#C8463D' } };
 const aprLevel = () => { const x = (state.aprendiz || {}).xp || 0; return x >= 15 ? 3 : x >= 8 ? 2 : x >= 3 ? 1 : 0; };
 const APR_NEXT = [3, 8, 15];
@@ -2968,7 +3595,7 @@ function aprPassar() {
   const req = needs(b);
   if (req.some((x) => (state.cloth[x.cor] || 0) < x.min + 1)) { toast('Flora precisa de um pouquinho mais de tecido (ela ainda corta com sobra).'); return; }
   req.forEach((x) => { state.cloth[x.cor] -= x.min + 1; });
-  const fin = { linha: b.linha || null, botao: b.botao || 'madeira' };
+  const fin = { linha: b.linha || null, botao: b.botao || 'madeira', gola: temGola(b.peca) ? b.gola || 'nenhuma' : 'nenhuma', bolso: temBolso(b.peca) ? b.bolso || 'nenhum' : 'nenhum', etq: !!state.etiqueta };
   A.job = { peca: b.peca, molde: b.molde, z: b.z.map((z) => ({ ...z })), tam: b.tam || 'M', fin, done: gnow() + (5 - aprLevel()) * 60000 };
   ui.sheet = null; renderSheet();
   sfx('chime'); toast('Flora pegou a tesoura, toda animada!');
@@ -2979,7 +3606,7 @@ function renderAprendiz() {
   const next = APR_NEXT[l];
   const job = A.job ? `<p class="quote">Tô costurando ${moldeOf(A.job.peca, A.job.molde).nome.toLowerCase()}! Falta uns ${Math.max(1, Math.ceil((A.job.done - gnow()) / 60000))} min.</p>` : '';
   const fala = l === 0 ? 'Posso ficar olhando você costurar? Prometo que aprendo rapidinho!' : l === 1 ? 'Já sei fazer umas peças simples! Monta o molde na mesa e me passa.' : l === 2 ? 'Tô pegando o jeito! Minhas costuras tão ficando bonitas.' : 'Aprendi com a melhor! Pode deixar comigo.';
-  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(FLORA, 'feliz')}</div><div class="talk-txt"><p class="quote">${fala}</p>${job}
+  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(FLORA, 'feliz', true)}</div><div class="talk-txt"><p class="quote">${fala}</p>${job}
     <p class="sub">Nível ${l} de 3 · ${next ? `${A.xp} de ${next} lições` : 'aprendiz formada!'}</p>
     <div class="xp"><i style="width:${next ? Math.min(100, (A.xp / next) * 100) : 100}%"></i></div>
     <p class="help">Cada peça que você costura é uma lição (costura perfeita vale 2). ${l >= 1 ? 'Na cartela de tecidos, toque em "Pedir pra Flora" e ela costura enquanto você faz outras coisas.' : 'Com 3 lições ela já começa a costurar sozinha.'}</p></div></div>`;
@@ -3120,6 +3747,7 @@ function gardenSceneSVG() {
   if (sid === 'verao') s += `<rect x="240" y="150" width="2" height="40" fill="#4E8540"/><rect x="234" y="142" width="14" height="10" fill="#F7D35E"/><rect x="238" y="145" width="6" height="5" fill="#6E4A30"/><rect x="242" y="164" width="6" height="3" fill="#5E9A4E"/>`;
   if (sid === 'inverno') s += `<rect x="232" y="174" width="16" height="16" fill="#FFFFFF"/><rect x="235" y="164" width="10" height="10" fill="#FFFFFF"/><rect x="238" y="167" width="1" height="1" fill="#2E2A33"/><rect x="241" y="167" width="1" height="1" fill="#2E2A33"/><rect x="239" y="169" width="3" height="1" fill="#E07B2E"/><rect x="234" y="173" width="12" height="2" fill="#C8463D"/><rect x="244" y="175" width="2" height="5" fill="#C8463D"/>`;
   if (sid === 'primavera') s += `<rect x="232" y="182" width="16" height="8" fill="#B4563A"/>${[0, 1, 2, 3].map((i) => `<rect x="${233 + i * 4}" y="${176 + (i % 2) * 2}" width="3" height="3" fill="${['#F2A7C6', '#F7D35E', '#B79AD6', '#E58FA6'][i]}"/>`).join('')}`;
+  if (novSpot() === 'jardim') s += novSVG(-73, 89);
   return bgSVG(s + veil(ck) + rainBits(ck), 'O jardim');
 }
 
@@ -3186,23 +3814,12 @@ function sceneSVG() {
   state.rack.slice(0, 4).forEach((r, i) => { const x = 211 + i * 5; o += `<rect x="${x + 1}" y="22" width="1" height="3" fill="#3A3040"/><rect x="${x}" y="25" width="4" height="9" fill="${hexOf(r.z[0].cor)}"/><rect x="${x}" y="34" width="4" height="9" fill="${hexOf(r.z[1].cor)}"/>`; });
   const pile = rolls[0] ? hexOf(rolls[0]) : CRU;
   o += `<rect x="252" y="76" width="44" height="6" fill="${pile}"/><rect x="256" y="71" width="36" height="5" fill="${rolls[1] ? hexOf(rolls[1]) : '#E9DFC9'}"/>`;
-  const cat = state.cat || {};
-  const fur = '#E39A4A', furD = '#B8722E';
-  const catArt = cat.awake
-    ? `<rect x="266" y="58" width="12" height="13" fill="${fur}"/><rect x="265" y="49" width="12" height="10" fill="${fur}"/><rect x="265" y="47" width="3" height="3" fill="${fur}"/><rect x="274" y="47" width="3" height="3" fill="${fur}"/><rect x="268" y="52" width="2" height="2" fill="#4E8540"/><rect x="272" y="52" width="2" height="2" fill="#4E8540"/><rect x="270" y="55" width="2" height="1" fill="#C8463D"/><rect x="267" y="61" width="3" height="10" fill="${furD}"/><g class="tail"><rect x="278" y="56" width="3" height="14" fill="${fur}"/><rect x="279" y="54" width="3" height="3" fill="${furD}"/></g>`
-    : `<rect x="262" y="64" width="22" height="7" fill="${fur}"/><rect x="280" y="60" width="9" height="8" fill="${fur}"/><rect x="280" y="58" width="2" height="2" fill="${fur}"/><rect x="287" y="58" width="2" height="2" fill="${fur}"/><rect x="282" y="63" width="2" height="1" fill="${furD}"/><rect x="285" y="63" width="2" height="1" fill="${furD}"/><rect x="266" y="64" width="3" height="7" fill="${furD}"/><rect x="272" y="64" width="3" height="7" fill="${furD}"/><g class="tail"><rect x="258" y="67" width="6" height="3" fill="${fur}"/></g><text x="291" y="56" class="zzz">z</text><text x="296" y="50" class="zzz z2">z</text>`;
-  if (cat.acc) {
-    const ac = hexOf(cat.acc.cor), dk = shade(ac, -0.3), t = cat.acc.tipo;
-    const hx = cat.awake ? 272 : 284, hy = cat.awake ? 45 : 56;
-    if (t === 'laco') o += `<rect x="${hx}" y="${hy}" width="2" height="3" fill="${ac}"/><rect x="${hx + 2}" y="${hy + 1}" width="1" height="1" fill="${dk}"/><rect x="${hx + 3}" y="${hy}" width="2" height="3" fill="${ac}"/>`;
-    if (t === 'tiara') o += `<rect x="${hx - 6}" y="${hy + 2}" width="10" height="1" fill="${ac}"/><rect x="${hx - 2}" y="${hy + 1}" width="2" height="1" fill="${dk}"/>`;
-    if (t === 'broche' || t === 'fuxico') o += `<rect x="${cat.awake ? 268 : 271}" y="${cat.awake ? 60 : 65}" width="3" height="3" fill="${ac}"/><rect x="${cat.awake ? 269 : 272}" y="${cat.awake ? 61 : 66}" width="1" height="1" fill="${dk}"/>`;
-  }
-  o += `<g data-act="cat" id="cat" class="cat" role="button" tabindex="0" aria-label="Novelo, o gatinho do ateliê">${catArt}<rect x="256" y="44" width="40" height="30" fill="transparent"/></g>`;
+  const ns = novSpot();
+  if (NOV_AT[ns]) o += novSVG(...NOV_AT[ns]);
   s += `<rect x="234" y="12" width="66" height="48" fill="#8B6A50"/><rect x="236" y="14" width="62" height="44" fill="#C9A06A"/>`;
   state.orders.filter((x) => !x.result).slice(0, 4).forEach((x, i) => {
     const nx = 240 + (i % 2) * 30, ny = 17 + Math.floor(i / 2) * 21;
-    const hx = x.riddle ? '#FFFFFF' : hexOf(x.kind === 'acessorio' ? x.acc.cor : x.kind === 'conjunto' ? x.cor : x.kind === 'remendo' ? x.z[0].cor : x.cores[0]);
+    const hx = x.riddle ? '#FFFFFF' : hexOf(x.kind === 'acessorio' ? x.acc.cor : x.kind === 'conjunto' ? x.cor : x.kind === 'remendo' ? x.z[0].cor : x.kind === 'reforma' ? x.depois.z[1].cor : x.cores[0]);
     s += `<rect x="${nx}" y="${ny}" width="24" height="18" fill="#FFF8E6"/><rect x="${nx + 10}" y="${ny - 1}" width="3" height="3" fill="#C8463D"/><rect x="${nx + 3}" y="${ny + 5}" width="9" height="9" fill="${hx}" stroke="#9A8B78" stroke-width=".6"/><rect x="${nx + 14}" y="${ny + 7}" width="7" height="1" fill="#9A8B78"/><rect x="${nx + 14}" y="${ny + 10}" width="6" height="1" fill="#9A8B78"/>`;
   });
   if (state.trofeus) s += `<rect x="84" y="46" width="18" height="4" fill="#8B6A50"/><rect x="89" y="41" width="8" height="5" fill="#C9A640"/><rect x="91" y="35" width="4" height="6" fill="#E8B931"/><rect x="85" y="24" width="16" height="11" fill="#F2C94C"/><rect x="82" y="25" width="3" height="6" fill="#E8B931"/><rect x="101" y="25" width="3" height="6" fill="#E8B931"/><rect x="88" y="26" width="2" height="6" fill="#FFF3B0"/>${state.trofeus > 1 ? `<text x="93" y="58" text-anchor="middle" font-family="Pixelify Sans, monospace" font-size="8" fill="#6E5D48">×${state.trofeus}</text>` : ''}`;
@@ -3268,6 +3885,8 @@ function openSheet(s) {
 }
 function closeSheet() {
   const s = ui.sheet;
+  /* Leaving mid-knit keeps what was knitted so far instead of losing the wool */
+  if (s && s.kind === 'trico' && s.step === 'tricotar') finishTrico(s);
   ui.sheet = null;
   renderSheet();
   if (s && s.kind === 'criar' && !state.me) { state.me = { ...ME_DEFAULT, nome: (s.me.nome || '').trim() || 'Você' }; save(); renderAll(); }
@@ -3294,6 +3913,11 @@ function renderSheet() {
   if (s.kind === 'aprendiz') { renderAprendiz(); return; }
   if (s.kind === 'revista') { renderRevista(s); return; }
   if (s.kind === 'conquistas') { renderConquistas(); return; }
+  if (s.kind === 'tarefas') { renderTarefas(); return; }
+  if (s.kind === 'etiqueta') { renderEtiqueta(s); return; }
+  if (s.kind === 'trico') { renderTrico(s); return; }
+  if (s.kind === 'patch') { renderPatch(s); return; }
+  if (s.kind === 'casamento') { renderCasamento(); return; }
   if (s.kind === 'backup') { renderBackup(s); return; }
   if (s.kind === 'medir') { renderMedir(s); return; }
   if (s.kind === 'pedidos') { renderPedidos(); return; }
@@ -3419,12 +4043,14 @@ function renderCartela() {
   const can = ready && !lacking && !rackFull;
   const label = rackFull ? 'Arara cheia' : !ready ? 'Escolha os tecidos' : lacking ? `Falta tecido ${lacking.cor}` : 'Cortar o tecido';
   $('gen-body').innerHTML = `<div class="cartela">
-    <div class="cart-prev">${pieceSVG(b.peca, b.molde, b.z, 'Prévia da peça', null, null, { linha: b.linha, botao: b.botao || 'madeira' })}
+    <div class="cart-prev">${pieceSVG(b.peca, b.molde, b.z, 'Prévia da peça', null, null, { linha: b.linha, botao: b.botao || 'madeira', gola: b.gola, bolso: b.bolso, etq: !!state.etiqueta })}
       <div class="tams">${['P', 'M', 'G'].map((t) => `<button class="pat tamb" data-act="tam" data-v="${t}" id="tam-${t}" aria-pressed="${b.tam === t}">${t}</button>`).join('')}</div>
       <p class="help">${tamHint}</p>
       <p class="help">${ready ? `Precisa de uns ${req.map((x) => `${fmtM(x.min)} m de ${x.cor}`).join(' e ')}.` : 'Escolha um tecido pra cada parte. Cuidado com as cores e os tons parecidos!'}</p>
       <p class="label">Linha</p><div class="sws"><button class="swb${!b.linha ? ' on' : ''}" data-act="linha" data-v="" style="background:conic-gradient(${b.z[0].cor ? hexOf(b.z[0].cor) : CRU} 0 50%, #fff 0)" aria-label="Linha combinando" aria-pressed="${!b.linha}"></button>${THREADS.map((c) => `<button class="swb${b.linha === c ? ' on' : ''}" data-act="linha" data-v="${c}" style="background:${c}" aria-label="Linha ${c}" aria-pressed="${b.linha === c}"></button>`).join('')}</div>
       <p class="label">Botões</p><div class="pats">${Object.entries(BOTOES).map(([k, B]) => `<button class="pat" data-act="botao" data-v="${k}" id="botao-${k}" aria-pressed="${(b.botao || 'madeira') === k}">${B.nome}${B.preco ? ` · ${B.preco}` : ''}</button>`).join('')}</div>
+      ${temGola(b.peca) ? `<p class="label">Gola</p><div class="pats">${Object.entries(GOLAS).map(([k, G]) => `<button class="pat" data-act="gola" data-v="${k}" id="gola-${k}" aria-pressed="${(b.gola || 'nenhuma') === k}">${G.nome}${G.preco ? ` · ${G.preco}` : ''}</button>`).join('')}</div>` : ''}
+      ${temBolso(b.peca) ? `<p class="label">Bolso</p><div class="pats">${Object.entries(BOLSOS).map(([k, B]) => `<button class="pat" data-act="bolso" data-v="${k}" id="bolso-${k}" aria-pressed="${(b.bolso || 'nenhum') === k}">${B.nome}${B.preco ? ` · ${B.preco}` : ''}</button>`).join('')}</div>` : ''}
       <button class="primary" data-act="open-cut" id="cart-cut" ${can ? '' : 'disabled'}>${label}</button>
       ${state.aprendiz && aprLevel() >= 1 ? `<button class="btn" data-act="apr-passar" id="apr-passar" ${can && !state.aprendiz.job ? '' : 'disabled'}>${state.aprendiz.job ? 'Flora está ocupada' : 'Pedir pra Flora costurar'}</button>` : ''}</div>
     <div class="cart-parts">${parts}</div></div>`;
@@ -3452,9 +4078,9 @@ function renderInv() {
 
 /* ---------- mesa de corte ---------- */
 /* ---------- sons, música e brilhos ---------- */
-const SND = { ctx: null, sfx: true, music: false, timer: null, step: 0 };
-try { const p = JSON.parse(localStorage.getItem('fio-som') || '{}'); SND.sfx = p.sfx !== false; SND.music = !!p.music; } catch (e) {}
-const saveSnd = () => { try { localStorage.setItem('fio-som', JSON.stringify({ sfx: SND.sfx, music: SND.music })); } catch (e) {} };
+const SND = { ctx: null, sfx: true, music: false, amb: true, timer: null, step: 0 };
+try { const p = JSON.parse(localStorage.getItem('fio-som') || '{}'); SND.sfx = p.sfx !== false; SND.music = !!p.music; SND.amb = p.amb !== false; } catch (e) {}
+const saveSnd = () => { try { localStorage.setItem('fio-som', JSON.stringify({ sfx: SND.sfx, music: SND.music, amb: SND.amb })); } catch (e) {} };
 function actx() {
   if (!SND.ctx) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; try { SND.ctx = new C(); } catch (e) { return null; } }
   if (SND.ctx.state === 'suspended') SND.ctx.resume();
@@ -3492,6 +4118,67 @@ function setMusic(on) {
   clearInterval(SND.timer);
   if (on) { actx(); SND.timer = setInterval(musicBeat, 420); }
 }
+/* Ambient sounds made on the fly: birds, river, bubbling pot, clock, village murmur, rain, crickets */
+const AMB = { key: null, nodes: [], next: 0, tick: 0, tock: false, buf: null };
+function ambNoise(c) {
+  if (!AMB.buf) {
+    AMB.buf = c.createBuffer(1, c.sampleRate * 2, c.sampleRate);
+    const d = AMB.buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < d.length; i++) { last = last * 0.6 + (Math.random() * 2 - 1) * 0.4; d[i] = last; }
+  }
+  return AMB.buf;
+}
+function ambStop() {
+  AMB.nodes.forEach((n) => { try { if (n.stop) n.stop(); n.disconnect(); } catch (e) {} });
+  AMB.nodes = []; AMB.key = null;
+}
+function ambBed(type, freq, q, vol) {
+  const c = SND.ctx;
+  const src = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain();
+  src.buffer = ambNoise(c); src.loop = true;
+  fl.type = type; fl.frequency.value = freq; fl.Q.value = q;
+  g.gain.setValueAtTime(0, c.currentTime); g.gain.linearRampToValueAtTime(vol, c.currentTime + 1.5);
+  src.connect(fl); fl.connect(g); g.connect(c.destination); src.start();
+  AMB.nodes.push(src, fl, g);
+}
+function blip(f0, f1, t0, dur, vol, type = 'sine') {
+  const c = SND.ctx, o = c.createOscillator(), g = c.createGain(), t = c.currentTime + t0;
+  o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.01, dur / 3)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+function ambBird(vol) {
+  const base = 2300 + Math.random() * 1400, n = 2 + Math.floor(Math.random() * 3);
+  let t = 0;
+  for (let i = 0; i < n; i++) { blip(base * (1 + (i % 2) * 0.12), base * 1.4, t, 0.07, vol); t += 0.1 + Math.random() * 0.06; }
+}
+function ambTick() {
+  if (!SND.amb || !SND.ctx || document.hidden) { if (AMB.key) ambStop(); return; }
+  const c = SND.ctx;
+  if (c.state !== 'running') return;
+  const ck = clock(), L = state.tab, night = ck.part === 'noite', fora = ['jardim', 'mata', 'vila'].includes(L);
+  const key = `${L}|${ck.rain}|${night}`;
+  if (AMB.key !== key) {
+    ambStop(); AMB.key = key;
+    if (L === 'mata') ambBed('lowpass', 900, 0.5, 0.06);
+    if (L === 'jardim') ambBed('lowpass', 360, 0.4, 0.025);
+    if (L === 'vila' && !night) ambBed('bandpass', 480, 0.9, 0.035);
+    if (ck.rain) ambBed('highpass', 2400, 0.3, fora ? 0.025 : 0.008);
+  }
+  const now = c.currentTime;
+  if ((L === 'casa' || L === 'atelie') && now >= AMB.tick) { AMB.tock = !AMB.tock; blip(AMB.tock ? 1500 : 1800, AMB.tock ? 1400 : 1700, 0, 0.018, 0.012, 'triangle'); AMB.tick = now + 1; }
+  if (now < AMB.next) return;
+  let wait = 1.2;
+  if (L === 'tint') { blip(130 + Math.random() * 150, 300 + Math.random() * 200, 0, 0.07, 0.035); wait = 0.25 + Math.random() * 0.7; }
+  else if (night && L !== 'casa') { [0, 0.06, 0.12].forEach((t) => blip(4300, 4200, t, 0.035, L === 'atelie' ? 0.003 : 0.008)); wait = 0.7 + Math.random() * 1.6; }
+  else if (!ck.rain && L !== 'casa') {
+    if (Math.random() < (L === 'atelie' ? 0.15 : L === 'vila' ? 0.3 : 0.6)) ambBird(L === 'atelie' ? 0.004 : 0.012);
+    wait = 1.4 + Math.random() * 3;
+  }
+  AMB.next = now + wait;
+}
+setInterval(ambTick, 120);
 function sparkle(el, n = 12) {
   if (!el) return;
   const r = el.getBoundingClientRect();
@@ -3527,18 +4214,19 @@ function weatherFX(ck) {
 const ME_OPTS = {
   pele: ['#F1CDB1', '#E9C2A0', '#D6A27C', '#A8724F', '#7A4E35', '#5C3A28'],
   cabelo: ['#2B211C', '#5B3A26', '#B5532F', '#E6C46A', '#CFCAC4', '#4A3566', '#C2407E', '#3AA3A6'],
-  estilo: ['longo', 'franja', 'afro', 'coque', 'trancas', 'curto', 'rabo', 'chiquinhas', 'cacheado'],
+  estilo: ['longo', 'franja', 'afro', 'coque', 'trancas', 'curto', 'rabo', 'chiquinhas', 'cacheado', 'raspado'],
   olho: ['#5A3A2A', '#2A2230', '#3E7A4E', '#3E6FB0', '#9A6A2A', '#6E7480'],
   sapato: ['#5A3F4F', '#C8463D', '#E8B931', '#3E6FB0', '#E58FA6', '#F3EFE6'],
   meia: ['', '#F3EFE6', '#F2A7C6', '#2E2A33', '#B79AD6'],
   enfeite: ['', 'laco', 'flor', 'tiara'],
   roupa: ['#8A3F6B', '#3E6FB0', '#5E9A4E', '#E07B2E', '#E58FA6', '#3B3A40', '#F1DFA6', '#3AA3A6'],
 };
-const ME_DEFAULT = { nome: '', pele: '#D6A27C', cabelo: '#5B3A26', estilo: 'longo', roupa: '#8A3F6B', olho: '#5A3A2A', sapato: '#5A3F4F', meia: '', enfeite: '', sardas: '', oculos: '' };
+const ME_DEFAULT = { nome: '', pele: '#D6A27C', cabelo: '#5B3A26', estilo: 'longo', roupa: '#8A3F6B', olho: '#5A3A2A', sapato: '#5A3F4F', meia: '', enfeite: '', sardas: '', oculos: '', alt: '', larg: '', brinco: 'ouro', cadeira: '', vitiligo: '', auditivo: '', dentes: '' };
 const meV = (m) => {
   const d = { ...ME_DEFAULT, ...(m || state.me || {}) };
   return { id: 'me', nome: d.nome || 'Você', pele: d.pele, cabelo: d.cabelo, estilo: d.estilo, roupa: d.roupa, enfeite: d.enfeite || null, oculos: !!d.oculos,
-    rosto: { olho: d.olho, sardas: !!d.sardas, sobr: 'arco' }, base: { saia: '#56607A', sapato: d.sapato, meia: d.meia || null } };
+    rosto: { olho: d.olho, sardas: !!d.sardas, sobr: 'arco', dentes: !!d.dentes }, base: { saia: '#56607A', sapato: d.sapato, meia: d.meia || null },
+    corpo: { alt: d.alt || null, larg: d.larg || null }, joia: { brinco: d.brinco || 'ouro' }, cadeira: !!d.cadeira, vitiligo: !!d.vitiligo, auditivo: !!d.auditivo };
 };
 const meSpot = (cls, tool = '') => (state.me ? `<div class="me-spot ${cls}" aria-hidden="true">${figureSVG(meV())}${tool}</div>` : '');
 const REGADOR = '<svg class="tool regador" viewBox="0 0 12 9" shape-rendering="crispEdges"><rect x="2" y="3" width="6" height="5" fill="#B87333"/><rect x="2" y="3" width="6" height="1" fill="#D9955A"/><rect x="8" y="4" width="3" height="1" fill="#B87333"/><rect x="11" y="3" width="1" height="2" fill="#B87333"/><rect x="0" y="4" width="2" height="1" fill="#8E5A2A"/><rect x="0" y="4" width="1" height="3" fill="#8E5A2A"/><rect x="3" y="1" width="4" height="1" fill="#8E5A2A"/></svg>';
@@ -3604,6 +4292,10 @@ function renderCriar(s) {
       <p class="label">Roupa</p><div class="sws">${sw('roupa', ME_OPTS.roupa)}</div>
       <p class="label">Sapato</p><div class="sws">${sw('sapato', ME_OPTS.sapato)}</div>
       <p class="label">Meia</p><div class="sws">${ME_OPTS.meia.map((c) => `<button class="swb${(m.meia || '') === c ? ' on' : ''}" data-act="me-opt" data-k="meia" data-v="${c}" style="background:${c || 'repeating-linear-gradient(45deg,#fff 0 3px,#ddd 3px 6px)'}" aria-label="${c ? 'meia ' + c : 'sem meia'}" aria-pressed="${(m.meia || '') === c}"></button>`).join('')}</div>
+      <p class="label">Corpo</p><div class="sws">
+        ${[['alt', 'baixa', 'Baixinha'], ['alt', '', 'Altura média'], ['alt', 'alta', 'Alta'], ['larg', 'fina', 'Magrinha'], ['larg', '', 'Média'], ['larg', 'cheia', 'Cheinha']].map(([k, v2, t]) => `<button class="pat" data-act="me-opt" data-k="${k}" data-v="${v2}" aria-pressed="${(m[k] || '') === v2}">${t}</button>`).join('')}</div>
+      <p class="label">Brincos</p><div class="sws">${[['ouro', 'Bolinha dourada'], ['argola', 'Argola'], ['perola', 'Pérola'], ['flor', 'Florzinha']].map(([k, t]) => `<button class="pat" data-act="me-opt" data-k="brinco" data-v="${k}" aria-pressed="${(m.brinco || 'ouro') === k}">${t}</button>`).join('')}</div>
+      <p class="label">Do seu jeito</p><div class="sws">${[['cadeira', 'Cadeira de rodas'], ['vitiligo', 'Vitiligo'], ['auditivo', 'Aparelho auditivo'], ['dentes', 'Aparelho nos dentes']].map(([k, t]) => `<button class="pat" data-act="me-opt" data-k="${k}" data-v="${m[k] ? '' : '1'}" aria-pressed="${!!m[k]}">${t}</button>`).join('')}</div>
       <p class="label">Detalhes</p><div class="sws">
         ${[['sardas', 'Sardas'], ['oculos', 'Óculos']].map(([k, t]) => `<button class="pat" data-act="me-opt" data-k="${k}" data-v="${m[k] ? '' : '1'}" aria-pressed="${!!m[k]}">${t}</button>`).join('')}
         ${ME_OPTS.enfeite.map((e) => `<button class="pat" data-act="me-opt" data-k="enfeite" data-v="${e}" aria-pressed="${(m.enfeite || '') === e}">${{ '': 'Sem enfeite', laco: 'Laço', flor: 'Florzinha', tiara: 'Tiara' }[e]}</button>`).join('')}</div>
@@ -3655,7 +4347,8 @@ function renderPedidos() {
 }
 
 /* ---------- concurso de moda ---------- */
-const JURADA = { id: 'lis', nome: 'Madame Lis', quem: 'jurada de moda da capital', pele: '#E9C2A0', cabelo: '#1F1A1A', estilo: 'coque', roupa: '#23395F', fav: 'liso', cores: [], sig: 'oculos',
+const JURADA_EXTRA = { corpo: { alt: 'alta' }, joia: { brinco: 'perola', colar: '#F6F0E6' } };
+const JURADA = { ...JURADA_EXTRA, id: 'lis', nome: 'Madame Lis', quem: 'jurada de moda da capital', pele: '#E9C2A0', cabelo: '#1F1A1A', estilo: 'coque', roupa: '#23395F', fav: 'liso', cores: [], sig: 'oculos',
   rosto: { olho: '#2A2230', batom: '#B3264F', sobr: 'arco', pinta: true }, base: { saia: '#2E2A33', meia: '#2E2A33', sapato: '#B3264F', gola: '#F3EFE6' } };
 const CRITS = [
   { id: 'escuro', txt: 'um tom escuro', ok: (it) => it.z.some((z) => parseKey(z.cor).tom === 'escuro') },
@@ -3714,7 +4407,7 @@ function renderConcurso() {
     return;
   }
   const tiles = state.rack.map((x, i) => `<button class="hang" data-act="inscrever" data-i="${i}" id="ins-${i}">${pieceSVG(x.peca, x.molde, x.z, null, x.acc, x.bordado, x.fin)}<span>${moldeOf(x.peca, x.molde).nome}</span><span class="stars">${starStr(x.stars)}</span></button>`).join('');
-  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(JURADA)}</div><div class="talk-txt"><p class="quote">Bom dia! Hoje eu quero ver uma peça com:</p>${list}<p class="help">Escolha uma peça da arara pra inscrever. Só vale uma por concurso.</p></div></div>
+  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(JURADA, null, true)}</div><div class="talk-txt"><p class="quote">Bom dia! Hoje eu quero ver uma peça com:</p>${list}<p class="help">Escolha uma peça da arara pra inscrever. Só vale uma por concurso.</p></div></div>
     <div class="rack">${tiles || '<p class="help" style="grid-column:1/-1">A arara está vazia. Costure algo antes!</p>'}</div>`;
 }
 
@@ -3724,6 +4417,14 @@ function uiFrame(now) {
   if (s && s.kind === 'tingir' && !s.done) {
     s.pos = Math.min(1, Math.pow(Math.max(0, now - s.t0) / 2800, 1.4));
     const m = $('gmark'); if (m) m.style.left = (s.pos * 100) + '%';
+  }
+  if (s && s.kind === 'trico' && s.step === 'tricotar') {
+    const t = (now - s.t0) / Math.max(700, 1150 - s.rows * 50);
+    s.pos = 1 - Math.abs((t % 2) - 1);
+    const m = $('tc-mark'); if (m) m.style.left = (s.pos * 100) + '%';
+    const f = Math.min(1, (now - s.t0) / TRICO_MS);
+    const bar = $('tc-time'); if (bar) bar.style.width = (100 - f * 100) + '%';
+    if (f >= 1) finishTrico(s);
   }
   if (s && s.kind === 'remendo' && s.step === 'costurar') {
     const f = Math.min(1, (now - s.t0) / 9000);
@@ -3917,8 +4618,8 @@ function doCut() {
     if (sobra > 0) state.scraps[st.cor] = (state.scraps[st.cor] || 0) + sobra;
   });
   const b = state.bench;
-  const fin = { linha: b.linha || null, botao: b.botao || 'madeira' };
-  state.coins = Math.max(0, state.coins - BOTOES[fin.botao].preco);
+  const fin = { linha: b.linha || null, botao: b.botao || 'madeira', gola: temGola(b.peca) ? b.gola || 'nenhuma' : 'nenhuma', bolso: temBolso(b.peca) ? b.bolso || 'nenhum' : 'nenhum', etq: !!state.etiqueta };
+  state.coins = Math.max(0, state.coins - BOTOES[fin.botao].preco - GOLAS[fin.gola].preco - BOLSOS[fin.bolso].preco);
   state.sewing = { kind: 'peca', peca: b.peca, molde: b.molde, z: b.z.map((z) => ({ ...z })), tam: b.tam || 'M', fin };
   b.z.forEach((z) => { if (!(state.cloth[z.cor] > 0)) z.cor = null; });
   cut = null;
@@ -3993,6 +4694,12 @@ const ACC_SEAM = {
   tiara: 'M14 78 Q50 6 86 78',
   broche: 'M50 20 A30 30 0 1 1 49.9 20 Z',
   bolsinha: 'M20 40 H80 V86 H20 Z',
+  presilha: 'M20 40 H80 V60 H20 Z',
+  pulseira: 'M50 30 A36 20 0 1 1 49.9 30 Z',
+  colar: 'M18 18 Q50 85 82 18',
+  capinha: 'M22 20 H78 L90 82 Q50 95 10 82 Z',
+  lencinho: 'M14 22 H86 L50 86 Z',
+  gravatinha: 'M50 50 L14 28 V72 Z M50 50 L86 28 V72 Z',
 };
 function makeProfile(seed) {
   let h = 7;
@@ -4105,10 +4812,23 @@ function finishSew() {
   const ratio = Math.max(0, sew.hits - sew.misses * 0.5) / sew.req;
   const stars = ratio >= 0.9 ? 3 : ratio >= 0.55 ? 2 : 1;
   const s = state.sewing;
+  taskEv('costurar');
+  if (stars === 3) taskEv('perfeita');
   if (s.kind === 'acc') {
     state.box.push({ tipo: s.tipo, cor: s.cor, stars });
     state.selAcc = state.box.length - 1;
     state.sub = 'retalhos';
+  } else if (s.kind === 'reforma') {
+    const c = state.orders.find((o) => o.id === s.oid);
+    if (c && !c.result) {
+      const v = villager(c.vid), base = moldeOf(c.depois.peca, c.depois.molde).preco;
+      const r = stars === 3 ? { mood: 'amor', pay: Math.round(base * 0.8) + 6, h: 2, msg: 'Parece peça nova! Nunca imaginei que dava pra fazer isso.' }
+        : stars === 2 ? { mood: 'feliz', pay: Math.round(base * 0.6) + 2, h: 1, msg: 'Ficou ótima! Obrigada por não deixar eu jogar fora.' }
+          : { mood: v.exigente ? 'emburrada' : 'hmm', pay: 4, h: 0, msg: 'Hmm… a costura ficou meio torta. Mas dá pra usar.' };
+      if (r.h >= 1) wear(v.id, { peca: c.depois.peca, molde: c.depois.molde, z: c.depois.z, tam: s.tam, stars });
+      state.focus = c.id; state.sub = 'arara';
+      settle(c, v, r);
+    }
   } else {
     state.rack.push({ peca: s.peca, molde: s.molde, z: s.z, tam: s.tam || 'M', stars, defeito: stars === 1, fin: s.fin });
     state.stats.pecas = (state.stats.pecas || 0) + 1;
@@ -4118,12 +4838,12 @@ function finishSew() {
   }
   state.sewing = null;
   /* Show the way out first, so a drawing error can never trap you on this screen */
-  $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : 'Pendurar na arara';
+  $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : s.kind === 'reforma' ? 'Devolver pra cliente' : 'Pendurar na arara';
   $('sew-skip').hidden = true;
   try { save(); renderAll(); } catch (e) { console.error(e); }
   $('sew-msg').textContent = ['', 'Saiu com defeito… quem é exigente pode recusar.', 'Ficou bonita!', 'Costura perfeita!'][stars];
   $('sew-count').innerHTML = `<span class="stars" aria-label="${stars} de 3 estrelas">${starStr(stars)}</span>`;
-  $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : 'Pendurar na arara';
+  $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : s.kind === 'reforma' ? 'Devolver pra cliente' : 'Pendurar na arara';
   if (stars === 3) { state.stats.perfeitas += 1; sfx('chime'); sparkle($('sew-stage'), 16); } else if (stars === 1) sfx('sad');
 }
 function closeSew() {
@@ -4159,6 +4879,10 @@ function tick() {
   }
   if (lastPart !== ck.part) { lastPart = ck.part; changed = true; }
   if (now >= state.cat.next) { catEvent(now); changed = true; }
+  const nsp = novSpot(now);
+  if (ui.novSpot !== nsp) { if (ui.novSpot) changed = true; ui.novSpot = nsp; }
+  if (!state.casamento && state.served >= 12 && bestHearts() >= 35 && NOIVAS.every((id) => activeVillagers().some((v) => v.id === id))) { casamentoStart(); changed = true; }
+  if (!state.etiqueta && !state.etqDica && state.served >= 4) { state.etqDica = true; toast('🏷️ Que tal criar a etiqueta da sua marca? Tá na Loja.'); changed = true; }
   if (!state.aprendiz && state.served >= 5) { state.aprendiz = { xp: 0, job: null }; toast('Uma mocinha chamada Flora quer ser sua aprendiz! Ela tá no ateliê.'); changed = true; }
   if (aprTick(now)) changed = true;
   if (changed) { save(); renderAll(); return; }
@@ -4223,6 +4947,7 @@ function start(data) {
     state.dayV2 = true;
   }
   document.addEventListener('click', (e) => {
+    if (SND.amb && (!SND.ctx || SND.ctx.state !== 'running')) actx();
     const el = e.target.closest('[data-act]');
     if (el && !el.disabled) act(el);
   });
