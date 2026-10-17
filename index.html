@@ -2068,6 +2068,7 @@ function act(el) {
     else if (plotStage(p, now) === 3) {
       const n = state.up.regador ? 3 : 2;
       state.flowers[p.f] += n; state.plots[i] = null; taskEv('colher', n);
+      if (Math.random() < 0.25) { const k = pick(CKEYS); state.corantes = state.corantes || {}; state.corantes[k] = (state.corantes[k] || 0) + 1; setTimeout(() => toast(`Perto do canteiro você achou ${CORANTES[k].nome.toLowerCase()}! Serve de corante no tacho.`), 900); }
       sparkle(el); sfx('harvest');
       toast(`+${n} ${FLOWERS[p.f].nome.toLowerCase()} na cesta`);
     } else {
@@ -3301,7 +3302,6 @@ const TAREFAS = {
   tingir: { txt: 'Tingir 1 tecido', n: 1, ico: '🫕' },
   costurar: { txt: 'Costurar 2 peças ou acessórios', n: 2, ico: '🧵' },
   presente: { txt: 'Dar um presente pra alguém', n: 1, ico: '🎁' },
-  mata: { txt: 'Achar 2 corantes na mata', n: 2, ico: '🌿' },
   novelo: { txt: 'Fazer carinho no Novelo', n: 1, ico: '🐈' },
   vitrine: { txt: 'Vender 1 peça na vitrine', n: 1, ico: '🪟' },
   perfeita: { txt: 'Fazer uma costura perfeita', n: 1, ico: '⭐' },
@@ -3646,7 +3646,7 @@ function renderMata() {
     <aside class="pnl" aria-labelledby="h-mata">
       <h2 class="pnl-title" id="h-mata">Mata e rio</h2>
       <p class="help">${left ? `Tem ${left} coisinha${left > 1 ? 's' : ''} pra colher hoje. Toque nelas!` : 'Você já colheu tudo hoje. Amanhã aparece mais.'}</p>
-      <p class="help">Corantes da mata vão no tacho <b>sozinhos</b> (pode repetir) e dão cores que nenhuma flor faz. Misturar com flor vira barro!</p>
+      <p class="help">Corantes naturais vão no tacho <b>sozinhos</b> (pode repetir) e dão cores que nenhuma flor faz. Misturar com flor vira barro!</p>
       <div class="group"><p class="label">Sua cestinha</p><div class="folds inv">${inv || '<p class="help">Vazia por enquanto.</p>'}</div></div>
     </aside>`;
 }
@@ -3685,7 +3685,7 @@ function renderCasa() {
 }
 
 /* ---------- lugares, setas e cenários em pixel art (320x200) ---------- */
-const LOCS = [{ id: 'casa', nome: 'Casa' }, { id: 'jardim', nome: 'Jardim' }, { id: 'mata', nome: 'Mata' }, { id: 'tint', nome: 'Tinturaria' }, { id: 'atelie', nome: 'Ateliê' }, { id: 'vila', nome: 'Praça' }];
+const LOCS = [{ id: 'casa', nome: 'Casa' }, { id: 'jardim', nome: 'Jardim' }, { id: 'tint', nome: 'Tinturaria' }, { id: 'atelie', nome: 'Ateliê' }, { id: 'vila', nome: 'Praça' }];
 const ARROW = (dir) => `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor">${dir < 0
   ? '<rect x="1" y="3" width="1" height="2"/><rect x="2" y="2" width="1" height="4"/><rect x="3" y="1" width="1" height="6"/><rect x="4" y="3" width="3" height="2"/>'
   : '<rect x="6" y="3" width="1" height="2"/><rect x="5" y="2" width="1" height="4"/><rect x="4" y="1" width="1" height="6"/><rect x="1" y="3" width="3" height="2"/>'}</svg>`;
@@ -3930,7 +3930,7 @@ function renderSheet() {
       const rec = COLORS[k].natural ? `corante: ${CORANTES[COLORS[k].natural].nome}` : COLORS[k].receita.map((f) => FLOWERS[f].nome).join(' + ') || 'três flores que não combinam';
       return known
         ? `<div class="ink"><span class="sw" style="background:${hexOf(k)}"></span><b>${k}</b>${rec}</div>`
-        : `<div class="ink unknown"><span class="sw"></span><b>?</b>${(state.pistas && state.pistas[k] && state.pistas[k].length) ? `<span class="pista">${state.pistas[k].join(' ')}</span>` : COLORS[k].natural ? 'algo da mata' : ['três flores', 'uma flor', 'duas flores', 'três flores'][COLORS[k].receita.length]}</div>`;
+        : `<div class="ink unknown"><span class="sw"></span><b>?</b>${(state.pistas && state.pistas[k] && state.pistas[k].length) ? `<span class="pista">${state.pistas[k].join(' ')}</span>` : COLORS[k].natural ? 'um corante natural' : ['três flores', 'uma flor', 'duas flores', 'três flores'][COLORS[k].receita.length]}</div>`;
     }).join('');
     $('gen-body').innerHTML = `<p class="help" style="margin:0">Cada flor sozinha dá uma cor. Duas ou três flores diferentes no tacho dão cores novas. O tom (claro, médio, escuro) você escolhe na hora de mexer o tacho.</p><div class="book">${book}</div>`;
     return;
@@ -4062,7 +4062,7 @@ function renderFlor() {
   const msg = sl.length ? `No tacho: ${sl.map((f) => slotNome(f).toLowerCase()).join(' + ')}. Cabem até 3.` : 'Escolha uma flor da cesta. Cabem até 3.';
   const cors = CKEYS.filter((k) => state.corantes[k] > 0).map((k) => `<button class="fold" data-act="putflower" data-f="c:${k}" id="put-c-${k}">${coranteSVG(k)}<b>${CORANTES[k].nome}</b><span>×${state.corantes[k]}</span></button>`).join('');
   $('gen-body').innerHTML = `<p class="help">${msg} Sem flores? Colha no jardim.</p><div class="folds seeds-pop">${tiles}</div>
-    ${cors ? `<p class="label">Corantes da mata · sozinhos dão cores especiais</p><div class="folds seeds-pop">${cors}</div>` : ''}`;
+    ${cors ? `<p class="label">Corantes naturais · sozinhos dão cores especiais</p><div class="folds seeds-pop">${cors}</div>` : ''}`;
 }
 function renderInv() {
   $('gen-title').textContent = 'Inventário';
@@ -4934,6 +4934,7 @@ function start(data) {
   state.corantes = state.corantes || {};
   state.capas = state.capas || {};
   state.tec = state.tec || 'algodão';
+  if (state.tab === 'mata') state.tab = 'jardim';
   state.myPats = state.myPats || [];
   state.stories = state.stories || {};
   state.visits = state.visits || {};
