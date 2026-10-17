@@ -422,6 +422,31 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
 @media (orientation: portrait) and (max-width: 760px) { .rotate { display: flex; } }
 body.portrait-ok .rotate { display: none; }
 
+/* estampa própria, backup, jardim */
+.estampa { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.egrid { --c: min(30px, 7vh); display: grid; grid-template-columns: repeat(6, var(--c)); gap: 3px; background: var(--edge); padding: 3px; border-radius: 6px; }
+.ecell { width: var(--c); height: var(--c); border: 0; padding: 0; background: #F3E9D6; border-radius: 2px; }
+.ecell.on { background: var(--accent); }
+.est-side { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
+.est-prev { width: 72px; height: 72px; }
+.txt.code { font-family: monospace; font-size: 11px; width: 100%; max-width: none; box-sizing: border-box; resize: none; word-break: break-all; }
+.hive { position: absolute; left: 70%; bottom: 40%; width: 4%; height: 7%; background: repeating-linear-gradient(180deg, #E8B931 0 25%, #B98A1E 25% 33%); border-radius: 40% 40% 30% 30%; border: 2px solid #6E4A30; z-index: 2; }
+.fx span.fx-abelha { width: .9cqw; height: .7cqw; background: repeating-linear-gradient(90deg, #F2C94C 0 35%, #2E2A33 35% 55%); border-radius: 50%; animation-name: fxfly; animation-timing-function: ease-in-out; }
+/* bordado, conquistas, casa */
+.bord-wrap { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.bgrid { --c: min(32px, 6.4vh); display: grid; grid-template-columns: repeat(7, var(--c)); gap: 3px; background: #CDB89A; padding: 4px; border-radius: 8px; background-image: radial-gradient(rgba(0,0,0,.08) 1px, transparent 1px); background-size: 5px 5px; }
+.bgrid.small { grid-template-columns: repeat(7, 12px); gap: 2px; padding: 3px; flex: none; }
+.bcell { width: var(--c); height: var(--c); border: 0; padding: 0; border-radius: 4px; background: #F6EEDF; }
+.bgrid.small .bcell { width: 12px; height: 12px; border-radius: 2px; }
+.bcell.alvo { background: color-mix(in srgb, var(--linha) 35%, #F6EEDF); }
+.bcell.on { background: var(--linha); box-shadow: inset 0 0 0 2px rgba(0,0,0,.18); }
+.bgrid.small .bcell.alvo:not(.on) { box-shadow: inset 0 0 0 1px #B23A3A; }
+.hang .bord { font-size: 9px; color: var(--accent); }
+.conq .medal { font-size: 22px; flex: none; }
+.conq:not(.got) { opacity: .65; }
+.me-casa { left: 40%; bottom: 3%; height: 44%; }
+.mq-piece { position: absolute; left: 53%; top: 41%; width: 10.5%; z-index: 2; }
+.mq-piece svg { width: 100%; height: auto; display: block; }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -511,6 +536,7 @@ body.portrait-ok .rotate { display: none; }
 <div class="game" id="game">
   <header class="hud" id="hud"></header>
   <div class="world">
+    <section class="loc" id="p-casa" data-panel="casa"></section>
     <section class="loc" id="p-jardim" data-panel="jardim"></section>
     <section class="loc" id="p-tint" data-panel="tint"></section>
     <section class="loc" id="p-atelie" data-panel="atelie"></section>
@@ -596,6 +622,7 @@ FKEYS.forEach((f) => { COLORS[FLOWERS[f].cor] = { hex: f === 'camomila' ? '#F3EF
   [['anil', 'lavanda', 'camomila'], 'lírio', '#BFC1EE'],
 ].forEach(([r, nome, hex]) => { COLORS[nome] = { hex, receita: r }; });
 COLORS.barro = { hex: '#8A6F57', receita: [], barro: true };
+COLORS['arco-íris'] = { hex: '#E9A9C4', receita: [], especial: true };
 
 /* A fabric key is the color name plus an optional tone: "vinho", "vinho claro", "vinho escuro" */
 const TONS = ['claro', 'medio', 'escuro'];
@@ -627,7 +654,7 @@ const RIDDLES = {
   marrom: 'da cor de chocolate', pastel: 'num tom pastel de algodão', rubi: 'da cor de uma pedra de rubi', 'petróleo': 'da cor do mar em dia de tempestade',
   'pêssego': 'da cor de pêssego maduro', 'lírio': 'da cor de um lírio azulado',
 };
-const bookKeys = () => Object.keys(COLORS).filter((k) => !COLORS[k].barro || state.discovered.includes(k));
+const bookKeys = () => Object.keys(COLORS).filter((k) => !(COLORS[k].barro || COLORS[k].especial) || state.discovered.includes(k));
 
 const INFL = { amarelo: 'amarel', vermelho: 'vermelh', branco: 'branc', roxo: 'rox' };
 const PLURAL = { verde: 'verdes', azul: 'azuis' };
@@ -656,6 +683,7 @@ const MASKS = {
   franja: ['##'],
   triangulo: ['#####', '.###.', '..#..'],
   retangulo: ['###', '###'],
+  mangaLonga: ['##', '##', '##'],
 };
 
 /* Each molde: d = outline (first subpath is the seam the needle follows), det = detail strokes,
@@ -734,6 +762,45 @@ const PIECES = {
       cut: [['copa', 0, 'Topo'], ['retangulo', 0, 'Lateral'], ['aba', 1, 'Aba']] },
   ] },
 };
+/* Pieces from fashion magazines: bought in the shop or given by friends */
+Object.assign(PIECES, {
+  avental: { nome: 'Avental', g: 'm', revista: true, zonas: [{ nome: 'peito', g: 'm' }, { nome: 'saia', g: 'f' }], moldes: [
+    { id: 'avental-peito', nome: 'Avental de cozinha', preco: 16, split: { y: 42 },
+      d: 'M38 16 L62 16 L62 42 L76 46 L80 88 Q50 94 20 88 L24 46 L38 42 Z',
+      det: '<path d="M38 16 Q50 2 62 16"/><path d="M24 46 L10 50"/><path d="M76 46 L90 50"/><path d="M40 62 L60 62 L60 74 L40 74 Z"/>',
+      cut: [['retangulo', 0, 'Peito'], ['saiaReta', 1, 'Saia'], ['tira', 1, 'Laço']] },
+    { id: 'avental-meio', nome: 'Avental de cintura', preco: 12, split: { y: 32 },
+      d: 'M22 26 L78 26 L80 34 L76 80 Q50 86 24 80 L20 34 Z',
+      det: '<path d="M22 28 L8 34"/><path d="M78 28 L92 34"/><path d="M36 50 L50 50 L50 62 L36 62 Z"/><path d="M52 50 L66 50 L66 62 L52 62 Z"/>',
+      cut: [['cos', 0, 'Cós'], ['saiaRodada', 1, 'Avental']] },
+  ] },
+  casaco: { nome: 'Casaco', g: 'm', revista: true, zonas: [{ nome: 'corpo', g: 'm' }, { nome: 'mangas', g: 'f', pl: true }], moldes: [
+    { id: 'cardiga', nome: 'Cardigã', preco: 26, split: { x: [30, 70] },
+      d: 'M36 10 L50 30 L64 10 L84 22 L92 82 L78 84 L70 40 L70 90 L30 90 L30 40 L22 84 L8 82 L16 22 Z',
+      det: '<path d="M50 30 L50 90"/>' + [44, 56, 68, 80].map((y) => `<circle cx="54" cy="${y}" r="1.9" fill="rgba(255,255,255,.85)" stroke="rgba(40,28,45,.4)"/>`).join('') + '<path d="M78 80 L91 78"/><path d="M22 80 L9 78"/>',
+      cut: [['corpo', 0, 'Frente'], ['corpo', 0, 'Costas'], ['mangaLonga', 1, 'Manga'], ['mangaLonga', 1, 'Manga']] },
+    { id: 'jaqueta', nome: 'Jaqueta', preco: 30, split: { x: [30, 70] },
+      d: 'M34 10 L44 8 L50 26 L56 8 L66 10 L86 24 L92 80 L78 82 L70 40 L70 86 L30 86 L30 40 L22 82 L8 80 L14 24 Z',
+      det: '<path d="M44 8 L50 26 L40 30 Z"/><path d="M56 8 L50 26 L60 30 Z"/><path d="M50 26 L50 86"/><path d="M34 52 L44 52"/><path d="M56 52 L66 52"/><path d="M30 76 L70 76"/>',
+      cut: [['corpo', 0, 'Frente'], ['corpo', 0, 'Costas'], ['gola', 0, 'Gola'], ['mangaLonga', 1, 'Manga'], ['mangaLonga', 1, 'Manga']] },
+  ] },
+  macacao: { nome: 'Jardineira', g: 'f', revista: true, zonas: [{ nome: 'peito', g: 'm' }, { nome: 'pernas', g: 'f', pl: true }], moldes: [
+    { id: 'jardineira', nome: 'Jardineira', preco: 26, split: { y: 44 },
+      d: 'M36 14 L64 14 L64 44 L70 46 L72 92 L54 92 L50 62 L46 92 L28 92 L30 46 L36 44 Z',
+      det: '<path d="M36 14 L30 2"/><path d="M64 14 L70 2"/><circle cx="39" cy="18" r="1.9" fill="#E8B931"/><circle cx="61" cy="18" r="1.9" fill="#E8B931"/><path d="M42 24 L58 24 L58 34 L42 34 Z"/>',
+      cut: [['retangulo', 0, 'Peito'], ['saiaReta', 1, 'Perna'], ['saiaReta', 1, 'Perna']] },
+    { id: 'macaquinho', nome: 'Macaquinho', preco: 22, split: { y: 44 },
+      d: 'M36 14 L64 14 L64 44 L72 48 L74 72 L54 72 L50 60 L46 72 L26 72 L28 48 L36 44 Z',
+      det: '<path d="M36 14 L30 2"/><path d="M64 14 L70 2"/><circle cx="39" cy="18" r="1.9" fill="#E8B931"/><circle cx="61" cy="18" r="1.9" fill="#E8B931"/><path d="M28 66 L46 66"/><path d="M54 66 L72 66"/>',
+      cut: [['retangulo', 0, 'Peito'], ['saiaRodada', 1, 'Shorts']] },
+  ] },
+});
+const REVISTAS = [
+  { id: 'avental', nome: 'Revista Cozinha Charmosa', desc: 'Moldes de avental de cozinha e de cintura.', preco: 35 },
+  { id: 'casaco', nome: 'Revista Inverno Aconchegante', desc: 'Moldes de cardigã e jaqueta.', preco: 50 },
+  { id: 'macacao', nome: 'Revista Vida no Campo', desc: 'Moldes de jardineira e macaquinho.', preco: 60 },
+];
+const pieceOpen = (pk) => !PIECES[pk].revista || (state.revistas || []).includes(pk);
 const moldeOf = (peca, id) => PIECES[peca].moldes.find((m) => m.id === id) || PIECES[peca].moldes[0];
 
 const PATTERNS = [
@@ -788,6 +855,12 @@ const OCCASIONS = [
   { txt: 'a festa junina', pecas: ['vestido', 'camisa', 'saia'], est: ['inverno'] },
   { txt: 'viajar pra serra', pecas: ['cachecol', 'chapeu'], est: ['inverno'] },
 ];
+OCCASIONS.push(
+  { txt: 'cozinhar o almoço de domingo', pecas: ['avental'] },
+  { txt: 'o friozinho da noite', pecas: ['casaco', 'cachecol'] },
+  { txt: 'trabalhar na horta', pecas: ['macacao', 'avental', 'chapeu'] },
+  { txt: 'a feira de inverno', pecas: ['casaco', 'macacao'], est: ['outono', 'inverno'] },
+);
 const LINES = [
   'Oi! Queria {what} pra {occ}.',
   'Bom dia! Tô procurando {what} pra {occ}.',
@@ -823,7 +896,7 @@ function fresh() {
     v: 2, coins: 25,
     seeds: { ...zero(), girassol: 2, anil: 2, papoula: 1, camomila: 1 },
     flowers: { ...zero(), girassol: 1, anil: 1 },
-    cru: 3, cloth: { amarelo: 16 }, colsV: true, dayV2: true,
+    cru: 3, cloth: { amarelo: 16 }, colsV: true, dayV2: true, revistas: [], myPats: [], stories: {}, conq: {}, stats: { perfeitas: 0, bordados: 0 }, casa: { moveis: [], manequim: null, colcha: 'rosa' },
     plots: [null, null, null, null, null, null],
     pot: { slots: [] },
     orders: [], focus: null, nextOrder: 0, measured: {}, concursos: {}, trofeus: 0, me: null,
@@ -849,8 +922,10 @@ function migrate(s) {
 function load() {
   try { const raw = localStorage.getItem(SAVE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
 }
+let skipSave = false;
 function save() {
-  if (state) state.gt = gnow();
+  if (skipSave) return;
+  if (state) { state.gt = gnow(); checkConq(); }
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
 }
 
@@ -869,7 +944,9 @@ const villager = (id) => VILLAGERS.find((v) => v.id === id);
 const bestHearts = () => Math.max(state.best || 0, totalHearts());
 const unlocked = (x) => bestHearts() >= x.need;
 const cap = (t) => t[0].toUpperCase() + t.slice(1);
-const foldSVG = (hex) => hex
+const foldSVG = (hex) => hex === '#E9A9C4'
+  ? `<svg viewBox="0 0 44 32" aria-hidden="true"><defs><linearGradient id="rbf" x1="0" y1="0" x2="1" y2="0">${['#E8615A', '#F2A65A', '#F2D45C', '#7CC47A', '#6FA8DC', '#A983D1'].map((c, i) => `<stop offset="${i / 5}" stop-color="${c}"/>`).join('')}</linearGradient></defs><rect x="2" y="17" width="40" height="13" rx="3" fill="url(#rbf)" stroke="rgba(0,0,0,.28)"/><rect x="4" y="10" width="36" height="10" rx="3" fill="url(#rbf)" stroke="rgba(0,0,0,.28)"/><rect x="6" y="3" width="32" height="10" rx="3" fill="url(#rbf)" stroke="rgba(0,0,0,.28)"/></svg>`
+  : hex
   ? `<svg viewBox="0 0 44 32" aria-hidden="true"><rect x="2" y="17" width="40" height="13" rx="3" fill="${hex}" stroke="rgba(0,0,0,.28)"/><rect x="4" y="10" width="36" height="10" rx="3" fill="${hex}" stroke="rgba(0,0,0,.28)"/><rect x="6" y="3" width="32" height="10" rx="3" fill="${hex}" stroke="rgba(0,0,0,.28)"/><path d="M9 6.5 h26" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/></svg>`
   : `<svg viewBox="0 0 44 32" aria-hidden="true"><rect x="2" y="3" width="40" height="27" rx="4" fill="none" stroke="currentColor" stroke-dasharray="3 3" opacity=".5"/></svg>`;
 const flowerOpen = (k) => unlocked(FLOWERS[k]);
@@ -882,7 +959,9 @@ function toast(msg) {
   const el = document.createElement('div');
   el.className = 'toast';
   el.textContent = msg;
-  $('toasts').appendChild(el);
+  const box = $('toasts');
+  box.appendChild(el);
+  while (box.children.length > 3) box.firstElementChild.remove();
   setTimeout(() => el.remove(), 2800);
 }
 
@@ -904,9 +983,19 @@ function flowerSVG(key, stage) {
   return `<svg viewBox="0 0 60 60" aria-hidden="true">${stem(24)}${leaves}${petals}<circle cx="30" cy="20" r="5.5" fill="${f.centro}"/></svg>`;
 }
 
+const RAINBOW = ['#E8615A', '#F2A65A', '#F2D45C', '#7CC47A', '#6FA8DC', '#A983D1'];
+const myPat = (id) => (state.myPats || []).find((p) => p.id === id);
+const allPats = () => [...PATTERNS, ...(state.myPats || []).map((p) => ({ id: p.id, nome: p.nome, need: 0 }))];
 function patternDef(id, padrao, hex) {
   const o = isLight(hex) ? 'rgba(70,45,60,.25)' : 'rgba(255,255,255,.5)';
-  let inner = `<rect width="16" height="16" fill="${hex}"/>`;
+  const rb = hex === COLORS['arco-íris'].hex;
+  const mine = myPat(padrao);
+  const bh = mine ? 3 : 16 / 6;
+  let inner = rb ? RAINBOW.map((c, i) => `<rect y="${i * bh}" width="18" height="${bh}" fill="${c}"/>`).join('') : `<rect width="18" height="18" fill="${hex}"/>`;
+  if (mine) {
+    [...mine.g].forEach((ch, i) => { if (ch === '1') inner += `<rect x="${(i % 6) * 3}" y="${Math.floor(i / 6) * 3}" width="3" height="3" fill="${o}"/>`; });
+    return `<pattern id="${id}" width="18" height="18" patternUnits="userSpaceOnUse">${inner}</pattern>`;
+  }
   if (padrao === 'listras') inner += `<rect y="0" width="16" height="5" fill="${o}"/><rect y="8" width="16" height="5" fill="${o}"/>`;
   if (padrao === 'bolinhas') inner += `<circle cx="4" cy="4" r="2.4" fill="${o}"/><circle cx="12" cy="12" r="2.4" fill="${o}"/>`;
   if (padrao === 'xadrez') inner += `<rect width="8" height="16" fill="${o}"/><rect width="16" height="8" fill="${o}"/>`;
@@ -943,7 +1032,7 @@ function pieceLayers(m, zs, outline) {
   return { defs, body };
 }
 
-function pieceSVG(peca, moldeId, zs, label, acc) {
+function pieceSVG(peca, moldeId, zs, label, acc, bordado) {
   const m = moldeOf(peca, moldeId);
   const aria = label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"';
   const z = zs || [{}, {}];
@@ -952,7 +1041,7 @@ function pieceSVG(peca, moldeId, zs, label, acc) {
   }
   const L = pieceLayers(m, z, true);
   const extra = acc ? `<svg x="60" y="0" width="40" height="40" viewBox="0 0 40 40">${accSVG(acc.tipo, acc.cor, true)}</svg>` : '';
-  return `<svg viewBox="0 0 100 100" ${aria}><defs>${L.defs}</defs>${L.body}${extra}</svg>`;
+  return `<svg viewBox="0 0 100 100" ${aria}><defs>${L.defs}</defs>${L.body}${bordadoMarkup(bordado)}${extra}</svg>`;
 }
 
 function accSVG(tipo, cor, inner) {
@@ -985,6 +1074,9 @@ function wear(vid, item) {
   else if (item.peca === 'saia') { if (o.baixo && o.baixo.peca === 'vestido') o.cima = null; o.baixo = piece; }
   else if (item.peca === 'chapeu') o.chapeu = piece;
   else if (item.peca === 'cachecol') o.cachecol = piece;
+  else if (item.peca === 'avental') o.avental = piece;
+  else if (item.peca === 'casaco') o.casaco = piece;
+  else if (item.peca === 'macacao') { if (o.baixo && o.baixo.peca === 'vestido') o.cima = null; o.baixo = piece; }
   if (item.acc) o.acc = item.acc;
 }
 /* ---------- moradoras em pixel art (grade 16x32) ---------- */
@@ -998,7 +1090,11 @@ function zonePix(z) {
   const base = hexOf(z.cor);
   const alt = isLight(base) ? shade(base, -0.22) : shade(base, 0.35);
   const p = z.padrao || 'liso';
+  const rb = baseOf(z.cor) === 'arco-íris';
+  const mine = myPat(p);
   return (x, y) => {
+    if (rb) return RAINBOW[y % 6];
+    if (mine) return mine.g[(y % 6) * 6 + (x % 6)] === '1' ? alt : base;
     if (p === 'listras') return y % 2 ? alt : base;
     if (p === 'bolinhas') return x % 3 === 1 && y % 3 === 1 ? alt : base;
     if (p === 'xadrez') return ((x >> 1) + (y >> 1)) % 2 ? alt : base;
@@ -1058,7 +1154,12 @@ function drawSprite(v, opt, o) {
   const baixo = o.baixo;
   const skirtC = baixo ? zonePix(baixo.z[1]) : solid('#56607A');
   let hem;
-  if (baixo && baixo.molde === 'longo') { rows([[23, 8, 15], [24, 8, 15], [25, 7, 16], [26, 7, 16], [27, 6, 17], [28, 6, 17], [29, 6, 17], [30, 5, 18], [31, 5, 18], [32, 5, 18], [33, 5, 18]], skirtC); hem = 33; rect(16, 27, 18, 33, dim(skirtC, -0.14)); }
+  if (baixo && baixo.peca === 'macacao') {
+    hem = baixo.molde === 'macaquinho' ? 26 : 31;
+    rect(8, 23, 15, 24, skirtC); rect(8, 25, 11, hem, skirtC); rect(12, 25, 15, hem, skirtC);
+    rect(15, 23, 15, hem, dim(skirtC, -0.14)); rect(11, 25, 11, hem, dim(skirtC, -0.14));
+  }
+  else if (baixo && baixo.molde === 'longo') { rows([[23, 8, 15], [24, 8, 15], [25, 7, 16], [26, 7, 16], [27, 6, 17], [28, 6, 17], [29, 6, 17], [30, 5, 18], [31, 5, 18], [32, 5, 18], [33, 5, 18]], skirtC); hem = 33; rect(16, 27, 18, 33, dim(skirtC, -0.14)); }
   else if (baixo && ['lapis', 'tubinho'].includes(baixo.molde)) { rect(8, 23, 15, 29, skirtC); rect(14, 23, 15, 29, dim(skirtC, -0.14)); hem = 29; }
   else { rows([[23, 8, 15], [24, 7, 16], [25, 7, 16], [26, 6, 17], [27, 6, 17], [28, 5, 18], [29, 5, 18]], skirtC); rect(16, 26, 18, 29, dim(skirtC, -0.14)); hem = 29; }
   rect(0, hem, W - 1, hem, (x, y) => (g[y][x] ? shade(g[y][x], -0.18) : null));
@@ -1076,6 +1177,22 @@ function drawSprite(v, opt, o) {
     rect(5, 17, 6, 19, sl); rect(17, 17, 18, 19, sl); rect(6, 19, 6, 19, dim(sl, -0.14)); rect(18, 17, 18, 19, dim(sl, -0.14));
     if (cima && cima.molde === 'bata') { rect(4, 18, 4, 19, sl); rect(19, 18, 19, 19, sl); }
     if (cima && cima.molde === 'botoes') { [18, 20, 22].forEach((y) => put(11, y, '#F3EFE6')); rows([[16, 9, 10], [16, 13, 14]], '#F3EFE6'); }
+  }
+  if (baixo && baixo.peca === 'macacao') {
+    const pe = zonePix(baixo.z[0]);
+    rect(9, 19, 14, 22, pe); rect(9, 16, 9, 18, pe); rect(14, 16, 14, 18, pe); put(9, 19, '#E8B931'); put(14, 19, '#E8B931');
+  }
+  if (o.avental) {
+    const pe = zonePix(o.avental.z[0]), sa = zonePix(o.avental.z[1]) || pe;
+    if (o.avental.molde !== 'avental-meio') { rect(10, 17, 13, 19, pe); put(9, 16, pe); put(14, 16, pe); }
+    rect(9, 20, 14, 28, sa); rect(14, 20, 14, 28, dim(sa, -0.12)); rect(10, 24, 13, 25, dim(sa, -0.2));
+  }
+  if (o.casaco) {
+    const co = zonePix(o.casaco.z[0]), mg = zonePix(o.casaco.z[1]) || co;
+    rect(5, 17, 6, 24, mg); rect(17, 17, 18, 24, mg); rect(6, 18, 6, 24, dim(mg, -0.14)); rect(18, 17, 18, 24, dim(mg, -0.14));
+    rows([[16, 8, 9], [16, 14, 15]], co); rect(7, 17, 9, 24, co); rect(14, 17, 16, 24, co); rect(15, 17, 16, 24, dim(co, -0.14));
+    if (o.casaco.molde === 'jaqueta') { put(9, 16, dim(co, 0.2)); put(14, 16, dim(co, 0.2)); }
+    else [19, 21, 23].forEach((y) => put(9, y, '#F3EFE6'));
   }
   if (v.sig === 'avental' || v.sig === 'avental-rosa') {
     const ap = v.sig === 'avental' ? '#EDE6D8' : '#F6C3D5';
@@ -1193,7 +1310,7 @@ function plotStage(p, now) {
 }
 function makeableColors() {
   const open = FKEYS.filter(flowerOpen);
-  return Object.keys(COLORS).filter((c) => !COLORS[c].barro && COLORS[c].receita.every((f) => open.includes(f)));
+  return Object.keys(COLORS).filter((c) => !COLORS[c].barro && !COLORS[c].especial && COLORS[c].receita.every((f) => open.includes(f)));
 }
 const maxOrders = () => 3 + (bestHearts() >= 15 ? 1 : 0);
 function curOrder() {
@@ -1217,11 +1334,11 @@ function newOrder() {
       o = { vid: v.id, kind: 'acessorio', acc: { tipo: pick(tipos), cor: scrapCols.length && Math.random() < 0.7 ? pick(scrapCols) : tone(pick(pool)) }, line };
     } else {
       const sid = clock().season.id;
-      const occ = pick(OCCASIONS.map((x, i) => i).filter((i) => !OCCASIONS[i].est || OCCASIONS[i].est.includes(sid)));
+      const occ = pick(OCCASIONS.map((x, i) => i).filter((i) => (!OCCASIONS[i].est || OCCASIONS[i].est.includes(sid)) && OCCASIONS[i].pecas.some(pieceOpen)));
       const cA = tone(pick(pool));
       const two = state.served >= 2 && Math.random() < 0.5;
       const cB = two ? tone(pick(pool.filter((c) => c !== baseOf(cA)))) : cA;
-      o = { vid: v.id, occ, peca: pick(OCCASIONS[occ].pecas), cores: [cA, cB], line };
+      o = { vid: v.id, occ, peca: pick(OCCASIONS[occ].pecas.filter(pieceOpen)), cores: [cA, cB], line };
       if (state.served >= 3 && Math.random() < 0.3) o.extra = { tipo: pick(tipos) };
     }
     const single = o.kind === 'acessorio' || o.cores[0] === o.cores[1];
@@ -1296,6 +1413,10 @@ function deliver() {
     const A = ACCS[item.acc.tipo];
     if (c.extra && item.acc.tipo === c.extra.tipo && r.h >= 1) { r.pay += 5; r.h += 1; r.msg += ` E ${A.g === 'f' ? 'a' : 'o'} ${A.nome.toLowerCase()} ficou um charme!`; }
     else r.pay += 2;
+  }
+  if (item.bordado && r.h >= 1 && item.bordado.q) {
+    r.pay += item.bordado.q === 2 ? 6 : 3;
+    if (item.bordado.q === 2) { r.h += 1; r.msg += ' E esse bordado, que capricho!'; }
   }
   if (r.h >= 1) wear(v.id, item);
   state.rack.splice(state.selRack, 1);
@@ -1383,9 +1504,10 @@ function act(el) {
     const p = state.plots[i];
     if (!p) { openSheet({ kind: 'plant', i }); return; }
     else if (plotStage(p, now) === 3) {
-      state.flowers[p.f] += 2; state.plots[i] = null;
+      const n = state.up.regador ? 3 : 2;
+      state.flowers[p.f] += n; state.plots[i] = null;
       sparkle(el); sfx('harvest');
-      toast(`+2 ${FLOWERS[p.f].nome.toLowerCase()} na cesta`);
+      toast(`+${n} ${FLOWERS[p.f].nome.toLowerCase()} na cesta`);
     } else {
       toast(`${FLOWERS[p.f].nome} ainda crescendo, falta ${secs(p.at + pdur(p) - now)}.`);
     }
@@ -1405,8 +1527,9 @@ function act(el) {
     if (!s || s.kind !== 'tingir' || s.done || !state.pot.slots.length || state.cru < 1) return;
     const pos = s.pos || 0;
     const ti = clamp((pos < 1 / 3 ? 0 : pos < 2 / 3 ? 1 : 2) + toneShift(state.pot.slots), 0, 2);
-    const base = mixOf(state.pot.slots);
-    const key = keyOf(base, TONS[ti]);
+    const rb = rainbowNow() && new Set(state.pot.slots).size === 3;
+    const base = rb ? 'arco-íris' : mixOf(state.pot.slots);
+    const key = rb ? base : keyOf(base, TONS[ti]);
     const m = state.up.tacho && state.cru >= 2 ? 2 : 1;
     state.cru -= m;
     state.cloth[key] = (state.cloth[key] || 0) + m * MCOLS;
@@ -1543,6 +1666,78 @@ function act(el) {
     if (item && acc && !item.acc) { item.acc = acc; state.box.splice(state.selAcc, 1); state.selAcc = null; }
   }
   else if (a === 'hint') { useHint(); }
+  else if (a === 'bordar') { if (state.rack[state.selRack]) { openSheet({ kind: 'bordar', i: state.selRack, step: 'escolher', d: 'coracao', cor: THREADS[0] }); } return; }
+  else if (a === 'bd-design') { ui.sheet.d = el.dataset.v; renderSheet(); return; }
+  else if (a === 'bd-cor') { ui.sheet.cor = el.dataset.v; renderSheet(); return; }
+  else if (a === 'bd-start' || a === 'bd-peek') {
+    const s2 = ui.sheet;
+    if (a === 'bd-start') { s2.step = 'bordar'; s2.cells = '0'.repeat(49); s2.peeked = false; s2.showUntil = performance.now() + 2500; }
+    else { s2.peeked = true; s2.showUntil = performance.now() + 1500; }
+    renderSheet();
+    setTimeout(() => { if (ui.sheet === s2) renderSheet(); }, (a === 'bd-start' ? 2500 : 1500) + 50);
+    return;
+  }
+  else if (a === 'bd-cell') { const s2 = ui.sheet, i = +el.dataset.i; s2.cells = s2.cells.slice(0, i) + (s2.cells[i] === '1' ? '0' : '1') + s2.cells.slice(i + 1); sfx('stitch'); renderSheet(); return; }
+  else if (a === 'bd-done') { finishBordado(ui.sheet); return; }
+  else if (a === 'cat-wear') {
+    const acc = state.box[state.selAcc];
+    if (acc) {
+      if (state.cat.acc) state.box.push(state.cat.acc);
+      state.cat.acc = acc; state.box.splice(state.box.indexOf(acc), 1); state.selAcc = null;
+      sfx('chime'); toast('O Novelo ficou todo pimpão! Agora ele acha mais retalhos.');
+    }
+  }
+  else if (a === 'buy-movel') {
+    const M = MOVEIS.find((m) => m.id === el.dataset.v);
+    if (M && !state.casa.moveis.includes(M.id) && state.coins >= M.preco) { state.coins -= M.preco; state.casa.moveis.push(M.id); sfx('chime'); toast(`${M.nome} em casa!`); }
+  }
+  else if (a === 'mq-on') {
+    const i = +el.dataset.i, it = state.rack[i];
+    if (it) { if (state.casa.manequim) state.rack.push(state.casa.manequim); state.casa.manequim = it; state.rack.splice(state.rack.indexOf(it), 1); state.selRack = null; }
+  }
+  else if (a === 'mq-off') {
+    if (state.casa.manequim && state.rack.length < rackMax()) { state.rack.push(state.casa.manequim); state.casa.manequim = null; }
+    else if (state.casa.manequim) toast('A arara está cheia.');
+  }
+  else if (a === 'colcha') {
+    const list = state.discovered.filter((k) => COLORS[k] && !COLORS[k].barro);
+    state.casa.colcha = list[(list.indexOf(state.casa.colcha) + 1) % list.length] || 'amarelo';
+  }
+  else if (a === 'buy-revista') {
+    const R = REVISTAS.find((r) => r.id === el.dataset.v);
+    if (R && !state.revistas.includes(R.id) && state.coins >= R.preco) { state.coins -= R.preco; state.revistas.push(R.id); sfx('chime'); toast(`${R.nome}: moldes novos na mesa!`); }
+  }
+  else if (a === 'est-cell') { const s2 = ui.sheet, i = +el.dataset.i; s2.grid = s2.grid.slice(0, i) + (s2.grid[i] === '1' ? '0' : '1') + s2.grid.slice(i + 1); sfx('tap'); renderSheet(); return; }
+  else if (a === 'est-slot') { ui.sheet.slot = +el.dataset.i; const p = (state.myPats || [])[ui.sheet.slot]; if (p) ui.sheet.grid = p.g; renderSheet(); return; }
+  else if (a === 'est-clear') { ui.sheet.grid = '0'.repeat(36); renderSheet(); return; }
+  else if (a === 'est-save') {
+    const s2 = ui.sheet;
+    if (!s2.grid.includes('1')) { toast('Pinte pelo menos um quadradinho.'); return; }
+    state.myPats = state.myPats || [];
+    const id = 'meu' + (s2.slot + 1);
+    state.myPats[s2.slot] = { id, nome: `Minha estampa ${s2.slot + 1}`, g: s2.grid };
+    state.myPats = state.myPats.filter(Boolean);
+    SPRITES.clear();
+    sfx('chime'); toast('Estampa salva! Ela aparece na cartela de tecidos.');
+    ui.sheet = null;
+    renderSheet();
+  }
+  else if (a === 'bk-copy') {
+    const t = $('bk-out'); t.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(() => toast('Código copiado!')).catch(() => { document.execCommand('copy'); toast('Código copiado!'); });
+    return;
+  }
+  else if (a === 'bk-load') {
+    const s2 = ui.sheet;
+    let data = null;
+    try { data = JSON.parse(decodeURIComponent(escape(atob(($('bk-in').value || '').trim())))); } catch (e) { data = null; }
+    if (!data || !data.v || !data.hearts) { s2.msg = 'Esse código não parece um backup do Fio & Flor.'; s2.armed = false; renderSheet(); return; }
+    if (!s2.armed) { s2.armed = true; s2.pending = data; renderSheet(); return; }
+    skipSave = true;
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(s2.pending)); } catch (e) {}
+    location.reload();
+    return;
+  }
   else if (a === 'skip') {
     const o = curOrder();
     if (o && !o.result) { state.orders = state.orders.filter((x) => x !== o); state.focus = null; toast('Pedido recusado.'); }
@@ -1576,6 +1771,7 @@ function renderStats() {
     <span class="chip-h">${clockIcon(ck)}Dia ${ck.day} · ${ck.season.nome} · ${ck.part}</span>
     <span class="chip-h"><span class="coin" aria-hidden="true"></span>${state.coins}<small>moedas</small></span>
     <span class="chip-h"><span class="hrt" aria-hidden="true">♥</span>${totalHearts()}<small>carinho</small></span>
+    <button class="snd-btn" data-act="sheet" data-kind="conquistas" id="conq-btn" aria-label="Conquistas" title="Conquistas">🏅</button>
     <button class="snd-btn" data-act="music" id="music-btn" aria-pressed="${SND.music}" aria-label="Música" title="Música">♪</button>
     <button class="shop-btn" data-act="sheet" data-kind="loja" id="open-loja">Loja</button>`;
 }
@@ -1595,6 +1791,7 @@ function renderGarden() {
   $('p-jardim').innerHTML = `
     <div class="scene-col"><div class="scene-box">${gardenSceneSVG()}
       ${weatherFX(ck)}<div class="plots-field" style="grid-template-rows:repeat(${n > 6 ? 3 : 2},1fr)">${plots}</div>
+      ${state.up.colmeia ? `<div class="hive" aria-hidden="true"></div><div class="fx" aria-hidden="true">${[0, 1, 2, 3, 4].map((i) => `<span class="fx-abelha" style="left:${20 + i * 15}%;top:${55 + (i % 3) * 12}%;animation-delay:-${i * 1.3}s;animation-duration:${5 + i}s"></span>`).join('')}</div>` : ''}
       ${meSpot('me-jardim')}${nav('jardim')}</div></div>
     <aside class="pnl" aria-labelledby="h-jardim">
       <h2 class="pnl-title" id="h-jardim">Jardim</h2>
@@ -1641,8 +1838,9 @@ function renderTint() {
       ? `<button class="pslot full" data-act="remove-flower" data-i="${i}" id="pslot-${i}" aria-label="Tirar ${FLOWERS[f].nome} do tacho">${flowerSVG(f, 3)}</button>`
       : `<button class="pslot" data-act="sheet" data-kind="flor" id="pslot-${i}" aria-label="Colocar uma flor no tacho"><span class="plus" aria-hidden="true">+</span></button>`;
   }).join('')}</div>`;
-  let will = 'Toque nos + em cima do tacho pra colocar até 3 flores.';
-  if (preview) will = `Vai sair: <b>${state.discovered.includes(preview) ? preview : 'uma cor nova?'}</b>. O tom você escolhe mexendo o tacho.`;
+  let will = rainbowNow() ? '🌈 Tem arco-íris lá fora! Três flores diferentes no tacho agora dão um tecido arco-íris.' : 'Toque nos + em cima do tacho pra colocar até 3 flores.';
+  if (preview && rainbowNow() && new Set(pot.slots).size === 3) will = 'Vai sair: <b>arco-íris</b> 🌈';
+  else if (preview) will = `Vai sair: <b>${state.discovered.includes(preview) ? preview : 'uma cor nova?'}</b>. O tom você escolhe mexendo o tacho.`;
   const two = state.up.tacho && state.cru >= 2;
   $('p-tint').innerHTML = `
     <div class="scene-col"><div class="scene-box">${tintSceneSVG()}<div class="pot-spot">${potSVG(liquid, pot.slots.length > 0)}</div>${pslots}${meSpot('me-tint')}${nav('tint')}</div></div>
@@ -1703,24 +1901,25 @@ function renderAtelie() {
   let title, content, confirmCard = '';
   if (sub === 'mesa') {
     title = 'Mesa de trabalho';
-    const tiles = Object.keys(PIECES).flatMap((pk) => PIECES[pk].moldes.map((m) => {
+    const tiles = Object.keys(PIECES).filter(pieceOpen).flatMap((pk) => PIECES[pk].moldes.map((m) => {
       const on = b.peca === pk && moldeOf(b.peca, b.molde).id === m.id;
       return `<button class="piece" data-act="pickmolde" data-p="${pk}" data-v="${m.id}" id="molde-${m.id}" aria-pressed="${on}">${pieceSVG(pk, m.id, on ? b.z : null)}${m.nome}<span class="price"><span class="coin" aria-hidden="true"></span>${m.preco}</span></button>`;
     })).join('');
     const rackFull = state.rack.length >= rackMax();
     const m = b.peca ? moldeOf(b.peca, b.molde) : null;
-    content = `<p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>`;
+    content = `<p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
+      <button class="btn" data-act="sheet" data-kind="estampa" id="open-estampa" style="align-self:flex-start">✏️ Criar estampa (${(state.myPats || []).length} de 3)</button>`;
     confirmCard = m ? `<div class="confirm-card">${pieceSVG(b.peca, b.molde, null, 'Molde escolhido')}<div><b>${m.nome}</b><span>${m.cut.length} moldes de papel</span>
       <button class="primary sm" data-act="confirm-molde" id="confirm-molde" ${rackFull ? 'disabled' : ''}>${rackFull ? 'Arara cheia' : 'Confirmar molde'}</button></div></div>` : '';
   } else if (sub === 'arara') {
     title = 'Arara';
     const rack = state.rack.length
-      ? state.rack.map((x, i) => `<button class="hang" data-act="rack" data-i="${i}" id="rack-${i}" aria-pressed="${state.selRack === i}"><span class="tam">${x.tam || 'M'}</span>${pieceSVG(x.peca, x.molde, x.z, null, x.acc)}<span>${moldeOf(x.peca, x.molde).nome}</span><span class="stars" aria-label="${x.stars} de 3 estrelas">${starStr(x.stars)}</span>${x.defeito ? '<span class="defeito">defeito</span>' : ''}</button>`).join('')
+      ? state.rack.map((x, i) => `<button class="hang" data-act="rack" data-i="${i}" id="rack-${i}" aria-pressed="${state.selRack === i}"><span class="tam">${x.tam || 'M'}</span>${pieceSVG(x.peca, x.molde, x.z, null, x.acc, x.bordado)}<span>${moldeOf(x.peca, x.molde).nome}</span><span class="stars" aria-label="${x.stars} de 3 estrelas">${starStr(x.stars)}</span>${x.defeito ? '<span class="defeito">defeito</span>' : ''}${x.bordado ? '<span class="bord">bordado</span>' : ''}</button>`).join('')
       : `<p class="help" style="grid-column:1/-1">Nenhuma peça pronta ainda. Toque na Mesa pra montar uma.</p>`;
     content = `
       <p class="help">${state.rack.length} de ${rackMax()} peças. Toque numa pra entregar, enfeitar ou levar pra vitrine.</p>
       <div class="rack">${rack}</div>
-      <div class="deliver-row">${adornBtn}${sel ? `<button class="btn" data-act="to-vitrine" id="to-vit" ${state.vitrine.includes(null) ? '' : 'disabled'}>Pôr na vitrine (${state.vitrine.filter(Boolean).length} de ${state.vitrine.length})</button>` : ''}</div>`;
+      <div class="deliver-row">${adornBtn}${sel && !sel.bordado ? '<button class="btn" data-act="bordar" id="bordar">🪡 Bordar</button>' : ''}${sel ? `<button class="btn" data-act="to-vitrine" id="to-vit" ${state.vitrine.includes(null) ? '' : 'disabled'}>Pôr na vitrine (${state.vitrine.filter(Boolean).length} de ${state.vitrine.length})</button>` : ''}</div>`;
   } else {
     title = 'Retalhos';
     const scrapCols = clothKeys('scraps');
@@ -1743,7 +1942,7 @@ function renderAtelie() {
       <div class="accs">${accBtns}</div>
       <p class="label">Caixinha · ${state.box.length} de ${BOX_MAX}</p>
       <div class="box">${box}</div>
-      <div class="deliver-row">${adornBtn}</div>`;
+      <div class="deliver-row">${adornBtn}${selA && ['laco', 'tiara', 'broche', 'fuxico'].includes(selA.tipo) ? `<button class="btn" data-act="cat-wear" id="cat-wear">Colocar no Novelo 🐱</button>` : ''}</div>`;
   }
 
   $('p-atelie').innerHTML = `
@@ -1772,6 +1971,7 @@ function renderTabs() {
   const now = gnow();
   const ck = clock();
   const marks = {
+    casa: '',
     jardim: state.plots.filter((p) => plotStage(p, now) === 3).length || '',
     tint: '',
     atelie: state.orders.filter((o) => !o.result).length || '',
@@ -1785,7 +1985,7 @@ function renderVila() {
   const vs = activeVillagers();
   const filled = state.vitrine.filter(Boolean).length;
   const vit = state.vitrine.map((it, i) => (it
-    ? `<button class="mq" data-act="from-vitrine" data-i="${i}" id="vit-${i}" aria-label="Devolver ${moldeOf(it.peca, it.molde).nome} pra arara" title="${moldeOf(it.peca, it.molde).nome} (${it.tam || 'M'}) · toque pra devolver">${pieceSVG(it.peca, it.molde, it.z, null, it.acc)}</button>`
+    ? `<button class="mq" data-act="from-vitrine" data-i="${i}" id="vit-${i}" aria-label="Devolver ${moldeOf(it.peca, it.molde).nome} pra arara" title="${moldeOf(it.peca, it.molde).nome} (${it.tam || 'M'}) · toque pra devolver">${pieceSVG(it.peca, it.molde, it.z, null, it.acc, it.bordado)}</button>`
     : '<span class="mq"></span>')).join('');
   const POS = [[47, 3], [57.5, 3], [68, 3], [78.5, 3], [89, 3], [52, 17], [62.5, 17], [73, 17], [83.5, 17]];
   const isConc = c.dayInSeason === 3;
@@ -1829,7 +2029,7 @@ function renderAll() {
   const focusId = document.activeElement && document.activeElement.id;
   renderStats();
   /* Only the place on screen is drawn; the others are drawn when you walk into them */
-  ({ jardim: renderGarden, tint: renderTint, atelie: renderAtelie, vila: renderVila }[state.tab] || renderAtelie)();
+  ({ casa: renderCasa, jardim: renderGarden, tint: renderTint, atelie: renderAtelie, vila: renderVila }[state.tab] || renderAtelie)();
   renderTabs(); if (ui.sheet) renderSheet();
   if (focusId) { const el = $(focusId); if (el && !el.disabled) el.focus({ preventScroll: true }); }
 }
@@ -1900,6 +2100,9 @@ function useHint() {
 }
 const SEASONS = [{ id: 'primavera', nome: 'Primavera', art: 'a' }, { id: 'verao', nome: 'Verão', art: 'o' }, { id: 'outono', nome: 'Outono', art: 'o' }, { id: 'inverno', nome: 'Inverno', art: 'o' }];
 const FLOWER_EST = { girassol: ['verao'], anil: ['outono', 'inverno'], papoula: ['primavera', 'outono'], camomila: ['primavera', 'inverno'], lavanda: ['inverno', 'primavera'], hibisco: ['verao', 'primavera'], hortela: ['verao'], iris: ['outono', 'inverno'] };
+const isRainDay = (day) => ((day - 1) % SEASON_DAYS) + 1 !== SEASON_DAYS && day > 1 && ((day * 2654435761) >>> 0) % 4 === 0;
+/* The morning after a rainy day, a rainbow shows up */
+const rainbowNow = (ck = clock()) => !ck.rain && ck.part === 'manhã' && isRainDay(ck.day - 1);
 function clock(now = gnow()) {
   const el = Math.max(0, now - state.t0);
   const day = Math.floor(el / DAY_MS) + 1;
@@ -1907,11 +2110,11 @@ function clock(now = gnow()) {
   const si = Math.floor((day - 1) / SEASON_DAYS) % 4;
   const dayInSeason = ((day - 1) % SEASON_DAYS) + 1;
   const festa = dayInSeason === SEASON_DAYS;
-  const rain = !festa && day > 1 && ((day * 2654435761) >>> 0) % 4 === 0;
+  const rain = isRainDay(day);
   return { day, frac, season: SEASONS[si], dayInSeason, festa, rain, part: frac < 0.4 ? 'manhã' : frac < 0.75 ? 'tarde' : 'noite' };
 }
 const inSeason = (k) => FLOWER_EST[k].includes(clock().season.id);
-const growMs = (k) => FLOWERS[k].tempo * (inSeason(k) ? 1 : 2) * (clock().rain ? 0.66 : 1);
+const growMs = (k) => FLOWERS[k].tempo * (inSeason(k) ? 1 : 2) * (clock().rain ? 0.66 : 1) * (state.up.colmeia ? 0.7 : 1);
 const pdur = (p) => p.dur || FLOWERS[p.f].tempo;
 const activeVillagers = () => VILLAGERS.filter((v) => !v.need || bestHearts() >= v.need);
 function gainHeart(vid, n) {
@@ -1934,7 +2137,7 @@ const FESTAS = {
 };
 function festaMatch(v, F) {
   const o = outfitOf(v.id);
-  const zs = [o.cima, o.baixo, o.chapeu, o.cachecol].filter(Boolean).flatMap((p) => p.z);
+  const zs = [o.cima, o.baixo, o.chapeu, o.cachecol, o.avental, o.casaco].filter(Boolean).flatMap((p) => p.z);
   if (o.acc) zs.push({ cor: o.acc.cor });
   return zs.some((z) => (F.cores && F.cores.includes(baseOf(z.cor))) || (F.padrao && z.padrao === F.padrao));
 }
@@ -1992,6 +2195,8 @@ function talkTo(vid) {
     gainHeart(vid, 1);
     toast(`Conversa boa! +1 ♥ com ${v.nome}`);
   }
+  const si = nextStory(vid);
+  if (si >= 0) { openStory(vid, si); return; }
   save();
   renderAll();
   openSheet({ kind: 'talk', vid });
@@ -2032,6 +2237,8 @@ const UPGRADES = [
   { id: 'arara', nome: 'Arara maior', desc: 'Cabem 10 peças prontas.', preco: 40 },
   { id: 'vitrine', nome: 'Vitrine maior', desc: '5 manequins em vez de 3.', preco: 70 },
   { id: 'tesoura', nome: 'Tesoura dourada', desc: 'Sobra 50% mais retalho em cada corte.', preco: 45 },
+  { id: 'colmeia', nome: 'Colmeia', desc: 'Abelhinhas no jardim: as flores crescem 30% mais rápido.', preco: 65 },
+  { id: 'regador', nome: 'Regador de cobre', desc: 'Cada colheita dá 3 flores em vez de 2.', preco: 55 },
   { id: 'maquina', nome: 'Máquina de costura', desc: 'A agulha anda mais devagar e as marquinhas ficam mais fáceis.', preco: 55 },
 ];
 const DECOR = [
@@ -2063,11 +2270,13 @@ function renderLoja() {
   }).join('');
   $('gen-body').innerHTML = `<p class="help" style="margin:0">Você tem ${state.coins} moedas.</p>
     <p class="label">Melhorias</p><div class="shop-list">${ups}</div>
+    <p class="label">Revistas de moda</p><div class="shop-list">${REVISTAS.map((R) => `<div class="shop-item"><div><b>${R.nome}</b><p>${R.desc}</p></div>${state.revistas.includes(R.id) ? '<span class="owned">Na estante</span>' : `<button class="btn" data-act="buy-revista" data-v="${R.id}" id="rev-${R.id}" ${state.coins < R.preco ? 'disabled' : ''}><span class="coin" aria-hidden="true"></span>${R.preco}</button>`}</div>`).join('')}</div>
     <p class="label">Decoração do ateliê</p><div class="shop-list">${decs}</div>
     <p class="label">Jogo</p><div class="deliver-row">
       <button class="btn" data-act="sfx-toggle" id="sfx-t" aria-pressed="${SND.sfx}">Sons: ${SND.sfx ? 'ligados' : 'desligados'}</button>
       <button class="btn" data-act="music" id="music-t" aria-pressed="${SND.music}">Música: ${SND.music ? 'ligada' : 'desligada'}</button>
       <button class="btn" data-act="sheet" data-kind="criar" id="me-edit">Mudar costureira</button>
+      <button class="btn" data-act="sheet" data-kind="backup" id="backup-open">Backup do progresso</button>
       <button class="btn" data-act="reset" id="reset">Recomeçar do zero</button></div>`;
 }
 
@@ -2078,7 +2287,7 @@ function catEvent(now) {
   if (c.part === 'noite') { cat.awake = false; return; }
   if (!cat.awake) { cat.awake = true; return; }
   const cor = pick(state.discovered);
-  const n = 2 + Math.floor(Math.random() * 3);
+  const n = 2 + Math.floor(Math.random() * 3) + (cat.acc ? 2 : 0);
   state.scraps[cor] = (state.scraps[cor] || 0) + n;
   cat.awake = false;
   toast(`O Novelo derrubou um carretel… e achou ${n} retalhos ${cor}!`);
@@ -2110,7 +2319,7 @@ function passBy() {
   const v = pick(free.length ? free : activeVillagers());
   const fits = items.filter((x) => (x.it.tam || 'M') === v.tam);
   if (!fits.length) { state.lastPass = `<b>${v.nome}</b> passou e gostou da vitrine, mas nada era do tamanho dela (${v.tam}).`; return; }
-  const score = (it) => (it.z.some((z) => z.padrao === v.fav) ? 2 : 0) + (it.z.some((z) => v.cores.includes(baseOf(z.cor))) ? 2 : 0) + (it.stars === 3 ? 1 : 0) + (it.acc ? 1 : 0);
+  const score = (it) => (it.z.some((z) => baseOf(z.cor) === 'arco-íris') ? 2 : 0) + (it.z.some((z) => z.padrao === v.fav) ? 2 : 0) + (it.z.some((z) => v.cores.includes(baseOf(z.cor))) ? 2 : 0) + (it.stars === 3 ? 1 : 0) + (it.acc ? 1 : 0);
   const best = fits.map((x) => ({ ...x, s: score(x.it) })).sort((a, b) => b.s - a.s)[0];
   const chance = best.s >= 3 ? 0.9 : best.s === 2 ? 0.6 : best.s === 1 ? 0.3 : 0.1;
   const nome = moldeOf(best.it.peca, best.it.molde).nome.toLowerCase();
@@ -2129,8 +2338,209 @@ function passBy() {
     state.lastPass = `<b>${v.nome}</b> passou, deu uma olhadinha na vitrine e seguiu o caminho.`;
   }
 }
+
+/* ---------- bordado ---------- */
+const BORDADOS = {
+  coracao: { nome: 'Coração', g: ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...', '.......'].join('') },
+  estrela: { nome: 'Estrela', g: ['...#...', '..###..', '#######', '.#####.', '..###..', '.##.##.', '.#...#.'].join('') },
+  flor: { nome: 'Florzinha', g: ['..#.#..', '.#####.', '##.#.##', '.#####.', '..#.#..', '...#...', '..##...'].join('') },
+  lua: { nome: 'Lua', g: ['..###..', '.##....', '##.....', '##.....', '##.....', '.##....', '..###..'].join('') },
+};
+const THREADS = ['#C8463D', '#E8B931', '#3E6FB0', '#5E9A4E', '#F3EFE6', '#2E2A33', '#E58FA6'];
+function bordadoMarkup(b) {
+  if (!b) return '';
+  let r = '';
+  [...BORDADOS[b.d].g].forEach((ch, i) => { if (ch === '#') r += `M${i % 7} ${Math.floor(i / 7)}h1v1h-1z`; });
+  return `<g transform="translate(42.5 36) scale(2.1)"><path d="${r}" fill="${b.cor}" stroke="rgba(40,28,45,.35)" stroke-width=".15"/></g>`;
+}
+function renderBordar(s) {
+  const it = state.rack[s.i];
+  if (!it) { ui.sheet = null; renderSheet(); return; }
+  $('gen-title').textContent = `Bordar · ${moldeOf(it.peca, it.molde).nome}`;
+  if (s.step === 'escolher') {
+    const ds = Object.entries(BORDADOS).map(([k, b]) => `<button class="pat" data-act="bd-design" data-v="${k}" aria-pressed="${s.d === k}"><svg viewBox="-1 -1 9 9" width="22" height="22" shape-rendering="crispEdges">${[...b.g].map((ch, i) => (ch === '#' ? `<rect x="${i % 7}" y="${Math.floor(i / 7)}" width="1" height="1" fill="${s.cor}"/>` : '')).join('')}</svg>${b.nome}</button>`).join('');
+    const ts = THREADS.map((c) => `<button class="swb${s.cor === c ? ' on' : ''}" data-act="bd-cor" data-v="${c}" style="background:${c}" aria-label="Linha ${c}" aria-pressed="${s.cor === c}"></button>`).join('');
+    $('gen-body').innerHTML = `<p class="help">Escolha o desenho e a cor da linha. O desenho aparece rapidinho e depois some: borde de memória! Espiar de novo é permitido, mas aí o bordado não fica perfeito.</p>
+      <p class="label">Desenho</p><div class="pats">${ds}</div><p class="label">Linha</p><div class="sws">${ts}</div>
+      <button class="primary" data-act="bd-start" id="bd-start" style="align-self:flex-start">Começar a bordar</button>`;
+    return;
+  }
+  const alvo = BORDADOS[s.d].g;
+  const showing = s.step === 'bordar' && performance.now() < s.showUntil;
+  if (s.step === 'fim') {
+    const r = s.result;
+    $('gen-body').innerHTML = `<div class="dye-res" id="bd-res"><div class="bgrid small">${[...r.cells].map((ch, i) => `<span class="bcell${ch === '1' ? ' on' : ''}${alvo[i] === '#' ? ' alvo' : ''}" style="--linha:${s.cor}"></span>`).join('')}</div>
+      <div><b>${['Ficou meio torto…', 'Bordado bonito!', 'Bordado perfeito!'][r.q]}</b><p>${r.hits} de ${r.total} pontos certos${r.wrong ? `, ${r.wrong} fora do desenho` : ''}.</p><p class="help">${r.q ? 'Moradoras adoram peças bordadas: pagam mais e ficam felizes.' : 'Ainda assim, ficou com carinho.'}</p></div></div>
+      <button class="primary" data-act="close-sheet" style="align-self:flex-start">Pendurar na arara</button>`;
+    return;
+  }
+  $('gen-body').innerHTML = `<p class="help">${showing ? 'Memorize o desenho…' : 'Toque nos quadradinhos pra bordar.'}</p>
+    <div class="bord-wrap"><div class="bgrid">${[...s.cells].map((ch, i) => `<button class="bcell${ch === '1' ? ' on' : ''}${showing && alvo[i] === '#' ? ' alvo' : ''}" style="--linha:${s.cor}" data-act="bd-cell" data-i="${i}" aria-label="Ponto ${i + 1}"></button>`).join('')}</div>
+    <div class="est-side"><button class="btn" data-act="bd-peek" id="bd-peek" ${showing ? 'disabled' : ''}>👁 Espiar o desenho</button>${s.peeked ? '<p class="help">Você espiou: o máximo agora é "bonito".</p>' : ''}<button class="primary" data-act="bd-done" id="bd-done">Pronto!</button></div></div>`;
+}
+function finishBordado(s) {
+  const alvo = BORDADOS[s.d].g;
+  let hits = 0, wrong = 0, total = 0;
+  [...alvo].forEach((ch, i) => { if (ch === '#') { total++; if (s.cells[i] === '1') hits++; } else if (s.cells[i] === '1') wrong++; });
+  const ratio = (hits - wrong) / total;
+  const q = ratio >= 0.95 && !s.peeked ? 2 : ratio >= 0.7 ? 1 : 0;
+  const it = state.rack[s.i];
+  it.bordado = { d: s.d, cor: s.cor, q };
+  state.stats.bordados += q === 2 ? 1 : 0;
+  s.step = 'fim'; s.result = { hits, wrong, total, q, cells: s.cells };
+  sfx(q === 2 ? 'chime' : q ? 'coin' : 'sad');
+  save(); renderAll();
+  if (q === 2) sparkle($('bd-res'), 16);
+}
+
+/* ---------- histórias de amizade ---------- */
+const STORY_SEED = { bia: 'girassol', tito: 'anil', cida: 'camomila', joaquim: 'papoula', lua: 'lavanda', helena: 'anil', mel: 'hibisco', nina: 'hortela', zeze: 'iris' };
+const STORY_REV = { mel: 'avental', joaquim: 'macacao', zeze: 'casaco' };
+const STORIES = {
+  bia: [['Bia te chama pra praça no fim da tarde. "Fiz uma música sobre o ateliê! Quer ouvir?"', 'Ela toca três acordes meio tortos e ri. "Ainda não tem letra… mas tem o barulhinho da máquina de costura."'],
+    ['"Vou tocar no Luau e queria subir no palco me sentindo eu mesma."', 'Bia te entrega um desenho de roupa feito num guardanapo. "Guarda pra você. Um dia eu visto."']],
+  tito: [['Teca aparece com um balde. "Peguei um peixe dourado e soltei de novo. Ele era da cor daquele seu tecido amarelo!"', 'Ela te dá umas sementes que achou na beira do rio.'],
+    ['"Meu pai era pescador e minha mãe costurava as redes. Acho que é por isso que gosto tanto de te ver costurando."', 'Ela te dá uma revista velha que achou no barco.']],
+  cida: [['Dona Cida chega com um pote de doce de abóbora. "Pra adoçar o dia da costureira mais caprichosa da vila."', 'Junto, umas sementinhas da horta dela.'],
+    ['Ela abre uma caixinha de botões antigos. "Esses vieram do vestido de noiva da minha mãe."', '"Usa numa peça que você achar especial, tá?"']],
+  joaquim: [['Dona Joana te mostra um canteiro novo. "Plantei uma fileira só pra você tingir. Chama de horta das cores!"', 'Ela te dá as primeiras sementes.'],
+    ['"Trabalhar na terra com roupa boa é luxo, minha filha."', '"Toma essa revista que minha neta mandou da cidade. Tem jardineira que é uma beleza."']],
+  lua: [['Lua te mostra uma aquarela da sua loja no pôr do sol. "As cores do seu varal me inspiram!"', 'Ela te dá sementes de lavanda, "pra pintar e pra tingir".'],
+    ['"Descobri que toda cor tem uma irmã mais clara e uma mais escura. Igualzinho gente, né?"', 'Ela te dá uma revista cheia de rabiscos de cor nas margens.']],
+  helena: [['Prof.ª Helena leva a turma pra visitar o ateliê. As crianças ficam de boca aberta com o tacho.', '"Hoje a aula de ciências foi aqui!"'],
+    ['"Os alunos fizeram cartinhas pra você."', 'Uma delas tem um desenho seu com uma tesoura do tamanho de uma árvore.']],
+  mel: [['Mel aparece com um bolo de fubá quentinho. "Troca justa: um pedaço de bolo por um pedaço de conversa."', 'Ela deixa umas sementes de hibisco "pra fazer chá depois".'],
+    ['"Quero que a confeitaria tenha aventais iguais, com a cara da vila."', 'Ela te dá uma revista de cozinha com uma receita de bolo grudada na capa.']],
+  nina: [['Nina freia a bicicleta na sua porta. "Tem carta pra você! É de uma cliente de outra vila elogiando seu trabalho."', 'Dentro, umas sementes de presente.'],
+    ['"Pedalei até a cidade e vi vitrines enormes. Nenhuma tinha a alma da sua."', 'Ela te dá uma revista que pegou na banca da estação.']],
+  zeze: [['Vó Zezé te ensina um ponto de tricô antigo. "Devagar e sempre, menina. A pressa embola a linha."', 'Ela te dá sementes de íris que guardava numa lata de biscoito.'],
+    ['"Guardei essa revista desde 1987. Os casaquinhos ainda estão na moda, pode acreditar."', '']],
+};
+const STORY_NEED = [5, 10];
+function nextStory(vid) {
+  const i = (state.stories[vid] || 0);
+  return i < STORY_NEED.length && (state.hearts[vid] || 0) >= STORY_NEED[i] ? i : -1;
+}
+function openStory(vid, i) {
+  state.stories[vid] = i + 1;
+  let reward;
+  if (i === 0) {
+    const f = STORY_SEED[vid];
+    state.coins += 25; state.seeds[f] = (state.seeds[f] || 0) + 3;
+    reward = `+25 moedas e 3 sementes de ${FLOWERS[f].nome.toLowerCase()}`;
+  } else {
+    const want = STORY_REV[vid] && !state.revistas.includes(STORY_REV[vid]) ? STORY_REV[vid] : (REVISTAS.find((r) => !state.revistas.includes(r.id)) || {}).id;
+    if (want) { state.revistas.push(want); reward = `${REVISTAS.find((r) => r.id === want).nome}: moldes novos na mesa!`; }
+    else { state.coins += 40; reward = '+40 moedas'; }
+  }
+  sfx('chime'); save(); renderAll();
+  openSheet({ kind: 'historia', vid, i, reward });
+}
+function renderHistoria(s) {
+  const v = villager(s.vid);
+  $('gen-title').textContent = `Uma história com ${v.nome}`;
+  const [a, b] = STORIES[s.vid][s.i];
+  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${figureSVG(v, 'feliz')}</div><div class="talk-txt"><p class="quote">${a}</p>${b ? `<p class="quote">${b}</p>` : ''}<p class="sub">🎁 ${s.reward}</p></div></div>
+    <button class="primary" data-act="close-sheet" style="align-self:flex-start">Que lindo!</button>`;
+}
+
+/* ---------- conquistas ---------- */
+const CONQ = [
+  { id: 'cores10', nome: 'Paleta iniciante', desc: 'Descobrir 10 cores', premio: 20, ok: () => state.discovered.length >= 10 },
+  { id: 'cores25', nome: 'Mão de tintureira', desc: 'Descobrir 25 cores', premio: 50, ok: () => state.discovered.length >= 25 },
+  { id: 'cores40', nome: 'Arco-íris inteiro', desc: 'Descobrir 40 cores', premio: 100, ok: () => state.discovered.length >= 40 },
+  { id: 'entregas10', nome: 'Freguesia fiel', desc: 'Entregar 10 pedidos', premio: 20, ok: () => state.served >= 10 },
+  { id: 'entregas50', nome: 'Ateliê famoso', desc: 'Entregar 50 pedidos', premio: 60, ok: () => state.served >= 50 },
+  { id: 'perfeita10', nome: 'Agulha de ouro', desc: 'Fazer 10 costuras perfeitas', premio: 30, ok: () => state.stats.perfeitas >= 10 },
+  { id: 'bordado', nome: 'Bordadeira', desc: 'Fazer um bordado perfeito', premio: 25, ok: () => state.stats.bordados >= 1 },
+  { id: 'estampa', nome: 'Estilista', desc: 'Criar uma estampa sua', premio: 15, ok: () => state.myPats.length >= 1 },
+  { id: 'arco', nome: 'Pote no fim do arco-íris', desc: 'Tingir um tecido arco-íris', premio: 40, ok: () => state.discovered.includes('arco-íris') },
+  { id: 'trofeu', nome: 'Primeiro lugar', desc: 'Ganhar um concurso de moda', premio: 50, ok: () => (state.trofeus || 0) >= 1 },
+  { id: 'amiga', nome: 'Melhores amigas', desc: 'Chegar a 10 ♥ com uma moradora', premio: 30, ok: () => Object.values(state.hearts).some((h) => h >= 10) },
+  { id: 'vila', nome: 'Vila completa', desc: 'Todas as moradoras na vila', premio: 80, ok: () => activeVillagers().length === VILLAGERS.length },
+  { id: 'novelo', nome: 'Gato chique', desc: 'Vestir o Novelo', premio: 10, ok: () => !!state.cat.acc },
+  { id: 'casa', nome: 'Lar doce lar', desc: 'Ter 5 móveis em casa', premio: 40, ok: () => state.casa.moveis.length >= 5 },
+  { id: 'rico', nome: 'Cofrinho cheio', desc: 'Juntar 500 moedas', premio: 50, ok: () => state.coins >= 500 },
+];
+function checkConq() {
+  if (!state || !state.conq) return;
+  CONQ.forEach((c) => {
+    if (!state.conq[c.id] && c.ok()) {
+      state.conq[c.id] = true;
+      state.coins += c.premio;
+      setTimeout(() => toast(`🏅 Conquista: ${c.nome}! +${c.premio} moedas`), 300);
+    }
+  });
+}
+function renderConquistas() {
+  const n = CONQ.filter((c) => state.conq[c.id]).length;
+  $('gen-title').textContent = `Conquistas · ${n} de ${CONQ.length}`;
+  $('gen-body').innerHTML = `<div class="shop-list">${CONQ.map((c) => `<div class="shop-item conq${state.conq[c.id] ? ' got' : ''}"><span class="medal" aria-hidden="true">${state.conq[c.id] ? '🏅' : '🔒'}</span><div><b>${c.nome}</b><p>${c.desc}</p></div><span class="owned">${state.conq[c.id] ? 'Feito!' : `+${c.premio}`}</span></div>`).join('')}</div>`;
+}
+
+/* ---------- casa da costureira ---------- */
+const MOVEIS = [
+  { id: 'cama', nome: 'Caminha de colcha', desc: 'Com colcha da cor que você quiser.', preco: 40 },
+  { id: 'estante', nome: 'Estante de livros', desc: 'Pra guardar as revistas.', preco: 35 },
+  { id: 'poltrona', nome: 'Poltrona', desc: 'Fofinha, pra tricotar.', preco: 45 },
+  { id: 'manequim', nome: 'Manequim', desc: 'Mostra a sua peça favorita.', preco: 30 },
+  { id: 'abajur', nome: 'Abajur', desc: 'Luzinha pra noite.', preco: 18 },
+  { id: 'tapete-casa', nome: 'Tapete redondo', desc: 'De crochê, no meio da sala.', preco: 20 },
+  { id: 'cortina', nome: 'Cortina', desc: 'Rendada, na janela.', preco: 20 },
+  { id: 'quadro-casa', nome: 'Quadro de flores', desc: 'Uma pintura da Lua.', preco: 25 },
+  { id: 'vaso', nome: 'Vaso de flores', desc: 'Flores do seu jardim.', preco: 15 },
+];
+function casaSceneSVG() {
+  const ck = clock();
+  const own = (id) => state.casa.moveis.includes(id);
+  const colcha = hexOf(state.casa.colcha) || '#E58FA6';
+  let s = `<rect width="320" height="150" fill="#F3E3D3"/><rect y="110" width="320" height="40" fill="#E7CDB8"/><rect y="108" width="320" height="2" fill="#C9A98C"/>`;
+  for (let x = 0; x < 320; x += 20) s += `<rect x="${x}" y="0" width="1" height="108" fill="#EAD6C4"/>`;
+  s += `<rect y="150" width="320" height="50" fill="#B98A5E"/>`;
+  for (let y = 158; y < 200; y += 10) s += `<rect y="${y}" width="320" height="1" fill="#A47A52"/>`;
+  s += `<rect x="138" y="28" width="64" height="56" fill="#8B6A50"/><rect x="142" y="32" width="56" height="48" fill="${SKY[ck.part][1]}"/><rect x="142" y="32" width="56" height="20" fill="${SKY[ck.part][0]}"/><rect x="169" y="32" width="2" height="48" fill="#8B6A50"/><rect x="142" y="55" width="56" height="2" fill="#8B6A50"/><rect x="134" y="84" width="72" height="4" fill="#74573F"/>`;
+  if (ck.part === 'noite') s += `<rect x="180" y="38" width="6" height="6" fill="#F4E9B8"/>`;
+  if (own('cortina')) s += `<rect x="128" y="24" width="14" height="66" fill="#F6F0E6"/><rect x="198" y="24" width="14" height="66" fill="#F6F0E6"/><rect x="128" y="22" width="84" height="5" fill="#E58FA6"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${129 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="#E9DCCB"/><rect x="${199 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="#E9DCCB"/>`).join('')}`;
+  s += `<rect x="292" y="70" width="26" height="80" fill="#8B5E3C"/><rect x="296" y="74" width="18" height="30" fill="#9E6E48"/><rect x="296" y="110" width="18" height="34" fill="#9E6E48"/><rect x="295" y="108" width="3" height="3" fill="#E8B931"/>`;
+  if (own('quadro-casa')) s += `<rect x="22" y="22" width="36" height="28" fill="#6E5D48"/><rect x="25" y="25" width="30" height="22" fill="#CBE9F6"/><rect x="25" y="39" width="30" height="8" fill="#7DBA5E"/><rect x="30" y="33" width="4" height="4" fill="#E58FA6"/><rect x="40" y="31" width="4" height="4" fill="#F7D35E"/><rect x="48" y="34" width="4" height="4" fill="#C8463D"/>`;
+  if (own('estante')) {
+    s += `<rect x="12" y="66" width="46" height="84" fill="#8B6A50"/><rect x="15" y="69" width="40" height="78" fill="#6E5235"/>`;
+    [72, 98, 124].forEach((y, r) => { s += `<rect x="15" y="${y + 22}" width="40" height="3" fill="#8B6A50"/>`; for (let i = 0; i < 6; i++) s += `<rect x="${17 + i * 6}" y="${y + 4 + (i % 3)}" width="5" height="${18 - (i % 3)}" fill="${['#C8463D', '#3E6FB0', '#E8B931', '#5E9A4E', '#E58FA6', '#7A4C9E'][(i + r) % 6]}"/>`; });
+  }
+  if (own('vaso')) s += `<rect x="62" y="134" width="12" height="16" fill="#B4563A"/><rect x="60" y="132" width="16" height="3" fill="#C8663F"/><rect x="67" y="122" width="2" height="10" fill="#4E8540"/><rect x="62" y="118" width="5" height="5" fill="#F2A7C6"/><rect x="69" y="116" width="5" height="5" fill="#F7D35E"/><rect x="64" y="112" width="5" height="5" fill="#B79AD6"/>`;
+  if (own('tapete-casa')) s += `<ellipse cx="160" cy="180" rx="62" ry="11" fill="#E58FA6"/><ellipse cx="160" cy="180" rx="46" ry="8" fill="#F2A7C6"/><ellipse cx="160" cy="180" rx="26" ry="4" fill="#E58FA6"/>`;
+  if (own('poltrona')) s += `<rect x="80" y="112" width="40" height="22" fill="#5E9A4E"/><rect x="76" y="124" width="48" height="20" fill="#6FAE5C"/><rect x="74" y="122" width="8" height="24" fill="#4E8540"/><rect x="118" y="122" width="8" height="24" fill="#4E8540"/><rect x="78" y="146" width="4" height="4" fill="#5E4B3C"/><rect x="118" y="146" width="4" height="4" fill="#5E4B3C"/>`;
+  if (own('manequim')) s += `<rect x="184" y="126" width="3" height="22" fill="#5E4B3C"/><rect x="176" y="148" width="20" height="3" fill="#5E4B3C"/><rect x="174" y="92" width="24" height="36" fill="#E8D9C4"/><rect x="180" y="86" width="12" height="6" fill="#E8D9C4"/><rect x="184" y="82" width="4" height="4" fill="#5E4B3C"/>`;
+  if (own('abajur')) s += `<rect x="204" y="128" width="18" height="22" fill="#8B6A50"/><rect x="211" y="112" width="3" height="16" fill="#5E4B3C"/><rect x="203" y="100" width="20" height="12" fill="#F7D35E"/>${ck.part === 'noite' ? '<ellipse cx="213" cy="112" rx="30" ry="20" fill="#F7E3A3" opacity=".25"/>' : ''}`;
+  if (own('cama')) s += `<rect x="228" y="100" width="8" height="50" fill="#8B6A50"/><rect x="236" y="120" width="52" height="22" fill="#F6F0E6"/><rect x="238" y="114" width="16" height="8" fill="#FFFFFF"/><rect x="250" y="120" width="40" height="24" fill="${colcha}"/><rect x="250" y="120" width="40" height="3" fill="${shade(colcha, 0.25)}"/><rect x="284" y="112" width="6" height="38" fill="#8B6A50"/>`;
+  return bgSVG(s + veil(ck), 'A casa da costureira');
+}
+function renderCasa() {
+  const c = state.casa;
+  const mq = c.manequim;
+  const moveis = MOVEIS.map((M) => {
+    const own = c.moveis.includes(M.id);
+    return `<div class="shop-item"><div><b>${M.nome}</b><p>${M.desc}</p></div>${own ? '<span class="owned">Em casa</span>' : `<button class="btn" data-act="buy-movel" data-v="${M.id}" id="mv-${M.id}" ${state.coins < M.preco ? 'disabled' : ''}><span class="coin" aria-hidden="true"></span>${M.preco}</button>`}</div>`;
+  }).join('');
+  const mqBox = c.moveis.includes('manequim')
+    ? `<div class="group"><p class="label">Manequim</p>${mq ? `<div class="deliver-row"><span class="help">Mostrando: ${moldeOf(mq.peca, mq.molde).nome}</span><button class="btn" data-act="mq-off" id="mq-off">Devolver pra arara</button></div>` : ''}
+       <div class="rack">${state.rack.map((x, i) => `<button class="hang" data-act="mq-on" data-i="${i}" id="mq-${i}">${pieceSVG(x.peca, x.molde, x.z, null, x.acc, x.bordado)}<span>${moldeOf(x.peca, x.molde).nome}</span></button>`).join('') || '<p class="help" style="grid-column:1/-1">Nada na arara pra mostrar.</p>'}</div></div>`
+    : '';
+  const colcha = c.moveis.includes('cama') ? `<button class="btn" data-act="colcha" id="colcha">Trocar cor da colcha (${c.colcha})</button>` : '';
+  const mqArt = mq ? `<div class="mq-piece" aria-hidden="true">${pieceSVG(mq.peca, mq.molde, mq.z, null, mq.acc, mq.bordado)}</div>` : '';
+  $('p-casa').innerHTML = `
+    <div class="scene-col"><div class="scene-box">${casaSceneSVG()}${mqArt}${meSpot('me-casa')}${nav('casa')}</div></div>
+    <aside class="pnl" aria-labelledby="h-casa">
+      <h2 class="pnl-title" id="h-casa">Sua casa</h2>
+      <p class="help">Seu cantinho. Compre móveis e mostre suas peças favoritas.</p>
+      <div class="deliver-row">${colcha}<button class="btn" data-act="sheet" data-kind="conquistas" id="conq-casa">🏅 Conquistas</button></div>
+      ${mqBox}
+      <p class="label">Móveis</p><div class="shop-list">${moveis}</div>
+    </aside>`;
+}
+
 /* ---------- lugares, setas e cenários em pixel art (320x200) ---------- */
-const LOCS = [{ id: 'jardim', nome: 'Jardim' }, { id: 'tint', nome: 'Tinturaria' }, { id: 'atelie', nome: 'Ateliê' }, { id: 'vila', nome: 'Praça' }];
+const LOCS = [{ id: 'casa', nome: 'Casa' }, { id: 'jardim', nome: 'Jardim' }, { id: 'tint', nome: 'Tinturaria' }, { id: 'atelie', nome: 'Ateliê' }, { id: 'vila', nome: 'Praça' }];
 const ARROW = (dir) => `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor">${dir < 0
   ? '<rect x="1" y="3" width="1" height="2"/><rect x="2" y="2" width="1" height="4"/><rect x="3" y="1" width="1" height="6"/><rect x="4" y="3" width="3" height="2"/>'
   : '<rect x="6" y="3" width="1" height="2"/><rect x="5" y="2" width="1" height="4"/><rect x="4" y="1" width="1" height="6"/><rect x="1" y="3" width="3" height="2"/>'}</svg>`;
@@ -2158,6 +2568,7 @@ function skyBits(ck, horizon) {
   } else if (!ck.rain) {
     s += `<rect x="${ck.part === 'manhã' ? 34 : 268}" y="${ck.part === 'manhã' ? 14 : 30}" width="14" height="14" fill="${ck.part === 'manhã' ? '#F7D35E' : '#F08A3E'}"/>`;
   }
+  if (rainbowNow(ck)) RAINBOW.forEach((c, i) => { const r = 150 - i * 6; s += `<path d="M${160 - r} ${horizon} A${r} ${r * 0.62} 0 0 1 ${160 + r} ${horizon}" fill="none" stroke="${c}" stroke-width="6" opacity=".55"/>`; });
   const cc = ck.rain ? '#AEB8C6' : ck.part === 'noite' ? '#3A4A7E' : '#FFFFFF';
   const cloud = (x, y) => `<rect x="${x}" y="${y}" width="28" height="6" fill="${cc}"/><rect x="${x + 6}" y="${y - 4}" width="14" height="4" fill="${cc}"/>`;
   s += cloud(90, 22) + cloud(200, 14) + (ck.rain ? cloud(20, 18) + cloud(140, 30) + cloud(262, 26) : '');
@@ -2252,6 +2663,13 @@ function sceneSVG() {
   const catArt = cat.awake
     ? `<rect x="266" y="58" width="12" height="13" fill="${fur}"/><rect x="265" y="49" width="12" height="10" fill="${fur}"/><rect x="265" y="47" width="3" height="3" fill="${fur}"/><rect x="274" y="47" width="3" height="3" fill="${fur}"/><rect x="268" y="52" width="2" height="2" fill="#4E8540"/><rect x="272" y="52" width="2" height="2" fill="#4E8540"/><rect x="270" y="55" width="2" height="1" fill="#C8463D"/><rect x="267" y="61" width="3" height="10" fill="${furD}"/><g class="tail"><rect x="278" y="56" width="3" height="14" fill="${fur}"/><rect x="279" y="54" width="3" height="3" fill="${furD}"/></g>`
     : `<rect x="262" y="64" width="22" height="7" fill="${fur}"/><rect x="280" y="60" width="9" height="8" fill="${fur}"/><rect x="280" y="58" width="2" height="2" fill="${fur}"/><rect x="287" y="58" width="2" height="2" fill="${fur}"/><rect x="282" y="63" width="2" height="1" fill="${furD}"/><rect x="285" y="63" width="2" height="1" fill="${furD}"/><rect x="266" y="64" width="3" height="7" fill="${furD}"/><rect x="272" y="64" width="3" height="7" fill="${furD}"/><g class="tail"><rect x="258" y="67" width="6" height="3" fill="${fur}"/></g><text x="291" y="56" class="zzz">z</text><text x="296" y="50" class="zzz z2">z</text>`;
+  if (cat.acc) {
+    const ac = hexOf(cat.acc.cor), dk = shade(ac, -0.3), t = cat.acc.tipo;
+    const hx = cat.awake ? 272 : 284, hy = cat.awake ? 45 : 56;
+    if (t === 'laco') o += `<rect x="${hx}" y="${hy}" width="2" height="3" fill="${ac}"/><rect x="${hx + 2}" y="${hy + 1}" width="1" height="1" fill="${dk}"/><rect x="${hx + 3}" y="${hy}" width="2" height="3" fill="${ac}"/>`;
+    if (t === 'tiara') o += `<rect x="${hx - 6}" y="${hy + 2}" width="10" height="1" fill="${ac}"/><rect x="${hx - 2}" y="${hy + 1}" width="2" height="1" fill="${dk}"/>`;
+    if (t === 'broche' || t === 'fuxico') o += `<rect x="${cat.awake ? 268 : 271}" y="${cat.awake ? 60 : 65}" width="3" height="3" fill="${ac}"/><rect x="${cat.awake ? 269 : 272}" y="${cat.awake ? 61 : 66}" width="1" height="1" fill="${dk}"/>`;
+  }
   o += `<g data-act="cat" id="cat" class="cat" role="button" tabindex="0" aria-label="Novelo, o gatinho do ateliê">${catArt}<rect x="256" y="44" width="40" height="30" fill="transparent"/></g>`;
   s += `<rect x="234" y="12" width="66" height="48" fill="#8B6A50"/><rect x="236" y="14" width="62" height="44" fill="#C9A06A"/>`;
   state.orders.filter((x) => !x.result).slice(0, 4).forEach((x, i) => {
@@ -2334,6 +2752,11 @@ function renderSheet() {
   if (s.kind === 'talk') { renderTalk(s); return; }
   if (s.kind === 'desfile') { renderDesfile(s); return; }
   if (s.kind === 'tingir') { renderTingir(s); return; }
+  if (s.kind === 'estampa') { renderEstampa(s); return; }
+  if (s.kind === 'bordar') { renderBordar(s); return; }
+  if (s.kind === 'historia') { renderHistoria(s); return; }
+  if (s.kind === 'conquistas') { renderConquistas(); return; }
+  if (s.kind === 'backup') { renderBackup(s); return; }
   if (s.kind === 'medir') { renderMedir(s); return; }
   if (s.kind === 'pedidos') { renderPedidos(); return; }
   if (s.kind === 'concurso') { renderConcurso(); return; }
@@ -2355,6 +2778,30 @@ function renderSheet() {
   $('gen-body').innerHTML = `<p class="help" style="margin:0">Escolha a cor do retalho pro acessório.</p><div class="folds">${tiles || '<p class="help">Sem retalhos.</p>'}</div>`;
 }
 
+/* Pattern editor: a 6x6 grid you paint, saved in one of 3 slots */
+function renderEstampa(s) {
+  s.grid = s.grid || '000000011110010010010010011110000000';
+  if (s.slot == null) s.slot = Math.min((state.myPats || []).length, 2);
+  $('gen-title').textContent = 'Criar estampa';
+  const cells = [...s.grid].map((ch, i) => `<button class="ecell${ch === '1' ? ' on' : ''}" data-act="est-cell" data-i="${i}" aria-label="Quadradinho ${i + 1}" aria-pressed="${ch === '1'}"></button>`).join('');
+  const slots = [0, 1, 2].map((i) => { const p = (state.myPats || [])[i]; return `<button class="pat" data-act="est-slot" data-i="${i}" aria-pressed="${s.slot === i}">${p ? patSwatch(p.id, '#8A3F6B') : ''}${p ? p.nome : `Espaço ${i + 1} vazio`}</button>`; }).join('');
+  const prev = `<svg viewBox="0 0 54 54" class="est-prev" aria-label="Prévia da estampa"><defs><pattern id="estp" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#8A3F6B"/>${[...s.grid].map((ch, i) => (ch === '1' ? `<rect x="${(i % 6) * 3}" y="${Math.floor(i / 6) * 3}" width="3" height="3" fill="rgba(255,255,255,.55)"/>` : '')).join('')}</pattern></defs><rect width="54" height="54" rx="6" fill="url(#estp)"/></svg>`;
+  $('gen-body').innerHTML = `<p class="help">Toque nos quadradinhos pra pintar. O desenho se repete pelo tecido todo.</p>
+    <div class="estampa"><div class="egrid">${cells}</div><div class="est-side">${prev}<p class="label">Salvar em</p><div class="pats">${slots}</div>
+    <div class="deliver-row"><button class="btn" data-act="est-clear">Limpar</button><button class="primary" data-act="est-save" id="est-save">Salvar estampa</button></div></div></div>`;
+}
+/* Backup: the save as a code you can copy and paste back later */
+function renderBackup(s) {
+  $('gen-title').textContent = 'Backup do progresso';
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  $('gen-body').innerHTML = `<p class="help">Copie esse código e guarde num lugar seguro (no bloco de notas, por exemplo). Pra voltar o progresso, cole ele aqui embaixo.</p>
+    <textarea class="txt code" id="bk-out" readonly rows="3">${code}</textarea>
+    <div class="deliver-row"><button class="primary" data-act="bk-copy" id="bk-copy">Copiar código</button></div>
+    <p class="label">Colar um backup</p>
+    <textarea class="txt code" id="bk-in" rows="3" placeholder="Cole o código aqui"></textarea>
+    <div class="deliver-row"><button class="btn" data-act="bk-load" id="bk-load">${s.armed ? 'Tem certeza? Isso troca o jogo atual. Toque de novo.' : 'Carregar backup'}</button></div>
+    ${s.msg ? `<p class="help">${s.msg}</p>` : ''}`;
+}
 function renderPlant(s) {
   $('gen-title').textContent = 'Plantar no canteiro';
   const tiles = FKEYS.map((k) => {
@@ -2381,7 +2828,7 @@ function renderCartela() {
       const n = state.cloth[k] || 0;
       return `<button class="fold" data-act="zfab" data-z="${zi}" data-v="${k}" id="cf-${zi}-${k.replace(/\s/g, '_')}" aria-pressed="${z.cor === k}" ${n > 0 ? '' : 'disabled'}>${foldSVG(hexOf(k))}<b>${k}</b><span>${fmtM(n)} m</span></button>`;
     }).join('');
-    const pats = PATTERNS.map((p) => {
+    const pats = allPats().map((p) => {
       const ok = unlocked(p);
       return `<button class="pat" data-act="zpad" data-z="${zi}" data-v="${p.id}" id="cp-${zi}-${p.id}" aria-pressed="${z.padrao === p.id}" ${ok ? '' : 'disabled'}>${patSwatch(p.id, z.cor ? hexOf(z.cor) : CRU)}${ok ? p.nome : `${p.nome} · ${p.need}♥`}</button>`;
     }).join('');
@@ -2581,6 +3028,7 @@ const CRITS = [
   { id: 'chapeu', txt: 'um chapéu', grupo: 'peca', ok: (it) => it.peca === 'chapeu' },
   { id: 'perfeita', txt: 'costura perfeita (3 estrelas)', ok: (it) => it.stars === 3 },
   { id: 'enfeite', txt: 'um acessório de enfeite', ok: (it) => !!it.acc },
+  { id: 'bordado', txt: 'um bordado bem feito', ok: (it) => !!(it.bordado && it.bordado.q) },
   { id: 'tres', txt: 'uma cor de 3 flores', need: 11, ok: (it) => it.z.some((z) => (COLORS[baseOf(z.cor)] || { receita: [] }).receita.length === 3) },
 ];
 const concursoDay = (ck) => ck.day - ck.dayInSeason + 3;
@@ -2620,7 +3068,7 @@ function renderConcurso() {
     $('gen-body').innerHTML = `<div class="dye-res" id="conc-res">${figureSVG(JURADA, done.score >= 2 ? 'feliz' : null)}<div><b>${done.lugar}!</b><p>Madame Lis avaliou o seu ${done.nome.toLowerCase()}: ${done.score} de 3 critérios. +${done.pay} moedas${done.score === 3 ? ' e um troféu pro ateliê' : ''}.</p>${list}</div></div>`;
     return;
   }
-  const tiles = state.rack.map((x, i) => `<button class="hang" data-act="inscrever" data-i="${i}" id="ins-${i}">${pieceSVG(x.peca, x.molde, x.z, null, x.acc)}<span>${moldeOf(x.peca, x.molde).nome}</span><span class="stars">${starStr(x.stars)}</span></button>`).join('');
+  const tiles = state.rack.map((x, i) => `<button class="hang" data-act="inscrever" data-i="${i}" id="ins-${i}">${pieceSVG(x.peca, x.molde, x.z, null, x.acc, x.bordado)}<span>${moldeOf(x.peca, x.molde).nome}</span><span class="stars">${starStr(x.stars)}</span></button>`).join('');
   $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${figureSVG(JURADA)}</div><div class="talk-txt"><p class="quote">Bom dia! Hoje eu quero ver uma peça com:</p>${list}<p class="help">Escolha uma peça da arara pra inscrever. Só vale uma por concurso.</p></div></div>
     <div class="rack">${tiles || '<p class="help" style="grid-column:1/-1">A arara está vazia. Costure algo antes!</p>'}</div>`;
 }
@@ -3021,7 +3469,7 @@ function finishSew() {
   $('sew-msg').textContent = ['', 'Saiu com defeito… quem é exigente pode recusar.', 'Ficou bonita!', 'Costura perfeita!'][stars];
   $('sew-count').innerHTML = `<span class="stars" aria-label="${stars} de 3 estrelas">${starStr(stars)}</span>`;
   $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : 'Pendurar na arara';
-  if (stars === 3) { sfx('chime'); sparkle($('sew-stage'), 16); } else if (stars === 1) sfx('sad');
+  if (stars === 3) { state.stats.perfeitas += 1; sfx('chime'); sparkle($('sew-stage'), 16); } else if (stars === 1) sfx('sad');
 }
 function closeSew() {
   sew = null;
@@ -3100,6 +3548,12 @@ function start(data) {
   if (state.focus === undefined) state.focus = null;
   if (state.me === undefined) state.me = null;
   state.nextOrder = state.nextOrder || 0;
+  state.revistas = state.revistas || [];
+  state.myPats = state.myPats || [];
+  state.stories = state.stories || {};
+  state.conq = state.conq || {};
+  state.stats = { perfeitas: 0, bordados: 0, ...(state.stats || {}) };
+  state.casa = { moveis: [], manequim: null, colcha: 'rosa', ...(state.casa || {}) };
   if (!state.dayV2) {
     const el = Math.max(0, gnow() - state.t0);
     state.t0 = gnow() - (Math.floor(el / OLD_DAY_MS) + (el % OLD_DAY_MS) / OLD_DAY_MS) * DAY_MS;
