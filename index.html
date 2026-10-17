@@ -201,8 +201,9 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .shelf-btn, .zone-pick { display: flex; align-items: center; gap: 8px; text-align: left; border: 2px solid var(--edge); background: var(--paper-2); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); padding: 5px 8px; min-width: 0; }
 .shelf-btn:hover, .zone-pick:hover { background: #fff; }
 .shelf-btn svg, .zone-pick svg { width: 38px; height: 28px; flex: none; }
-.shelf-btn span { display: flex; flex-direction: column; font-size: 11px; color: var(--muted); min-width: 0; }
-.shelf-btn b { color: var(--ink); font-size: 13px; }
+.shelf-btn { flex-direction: column; text-align: center; gap: 2px; padding: 6px 6px 5px; }
+.shelf-btn span { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--muted); min-width: 0; max-width: 100%; }
+.shelf-btn b { color: var(--ink); font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .zone-pick { font-size: 13px; }
 .zone-pick .chev { margin-left: auto; color: var(--muted); }
 .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.25); flex: none; }
@@ -1576,7 +1577,7 @@ function renderStats() {
 let lastPlotSig = [];
 const shelfBtns = (sfx) => `<div class="shelf">
   <button class="shelf-btn" data-act="sheet" data-kind="book" id="open-book-${sfx}"><svg viewBox="0 0 44 32" aria-hidden="true"><rect x="6" y="3" width="32" height="26" rx="3" fill="var(--accent)"/><rect x="10" y="3" width="3" height="26" fill="rgba(0,0,0,.18)"/><circle cx="25" cy="14" r="5" fill="#E8B931"/><circle cx="29" cy="19" r="4" fill="#3E6FB0"/><circle cx="21" cy="19" r="4" fill="#C8463D"/></svg><span><b>Caderno</b>${state.discovered.length} de ${bookKeys().length} cores</span></button>
-  <button class="shelf-btn" data-act="sheet" data-kind="inv" id="open-inv-${sfx}"><svg viewBox="0 0 44 32" aria-hidden="true" shape-rendering="crispEdges"><rect x="6" y="8" width="32" height="21" fill="#B07A45"/><rect x="6" y="8" width="32" height="4" fill="#8E5E32"/><rect x="18" y="4" width="8" height="5" fill="#8E5E32"/><rect x="20" y="14" width="4" height="4" fill="#E8B931"/></svg><span><b>Inventário</b>sementes, flores, tecidos</span></button>
+  <button class="shelf-btn" data-act="sheet" data-kind="inv" id="open-inv-${sfx}"><svg viewBox="0 0 44 32" aria-hidden="true" shape-rendering="crispEdges"><rect x="6" y="8" width="32" height="21" fill="#B07A45"/><rect x="6" y="8" width="32" height="4" fill="#8E5E32"/><rect x="18" y="4" width="8" height="5" fill="#8E5E32"/><rect x="20" y="14" width="4" height="4" fill="#E8B931"/></svg><span><b>Inventário</b>sementes e tecidos</span></button>
 </div>`;
 function renderGarden() {
   const now = gnow();
@@ -1756,6 +1757,8 @@ function renderTabs() {
       p.classList.remove('enter-r', 'enter-l');
       void p.offsetWidth;
       p.classList.add(ui.enter);
+      /* Drop the walk-in class once it has played, so redraws don't replay it */
+      setTimeout(() => p.classList.remove('enter-r', 'enter-l'), 600);
       ui.enter = null;
     }
   });
