@@ -134,8 +134,8 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .vit-field .mq { flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; background: transparent; border: 0; padding: 0; }
 .vit-field .mq svg { height: 100%; width: auto; max-width: 100%; }
 .vit-field .mq:hover { filter: drop-shadow(0 0 2px #fff); }
-.crowd-v { position: absolute; transform: translateX(-50%); height: 40%; z-index: 4; background: transparent; border: 0; padding: 0; }
-.crowd-v.back { height: 33%; z-index: 3; }
+.crowd-v { position: absolute; transform: translateX(-50%); height: 36%; z-index: 4; background: transparent; border: 0; padding: 0; }
+.crowd-v.back { height: 29%; z-index: 3; }
 .crowd-v .sprite { height: 100%; width: auto; animation: idle 2.6s steps(1) infinite; }
 .crowd-v:nth-child(2n) .sprite { animation-delay: -1.3s; }
 .crowd-v .chat { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; border: 2px solid var(--edge); border-radius: 8px; padding: 0 5px; font-weight: 800; font-size: 11px; line-height: 14px; }
@@ -462,14 +462,14 @@ body.portrait-ok .rotate { display: none; }
 .me-jardim { left: 2%; bottom: 3%; height: 34%; }
 .me-tint { left: 12%; bottom: 4%; height: 46%; }
 .me-atelie { left: 56.5%; bottom: 2%; height: 44%; }
-.me-praca { left: 22%; bottom: 2%; height: 38%; }
+.me-praca { left: 22%; bottom: 2%; height: 36%; }
 .loc.enter-r .me-spot { animation: mewalkR .5s steps(5) both; }
 .loc.enter-l .me-spot { animation: mewalkL .5s steps(5) both; }
 @keyframes mewalkR { from { transform: translateX(-30cqw); } }
 @keyframes mewalkL { from { transform: translateX(30cqw); } }
 .crowd-v { animation: stroll var(--dur, 10s) ease-in-out infinite alternate; }
 @keyframes stroll { from { transform: translateX(-50%); } to { transform: translateX(calc(-50% + var(--dx, 0px))); } }
-.crowd-v.jurada { height: 44%; z-index: 5; }
+.crowd-v.jurada { height: 38%; z-index: 5; }
 .want-q { position: relative; display: block; }
 .want-q b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-size: clamp(16px, 4cqw, 26px); color: var(--accent); text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
 .bubble .bub-meta { display: block; margin-top: 4px; font-size: .82em; color: var(--muted); font-weight: 800; }
@@ -999,91 +999,124 @@ function spriteSVG(v, opt = {}) {
   return out;
 }
 function drawSprite(v, opt, o) {
-  const W = 16, H = 32;
+  const W = 24, H = 36;
   const g = Array.from({ length: H }, () => Array(W).fill(null));
   const put = (x, y, c) => { if (c && x >= 0 && x < W && y >= 0 && y < H) g[y][x] = typeof c === 'function' ? c(x, y) : c; };
   const rect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) put(x, y, c); };
   const rows = (spec, c) => spec.forEach(([y, x0, x1]) => rect(x0, y, x1, y, c));
-  const ink = '#2E2A33', skin = v.pele, hair = v.cabelo, st = v.estilo;
+  const dim = (c, a) => (typeof c === 'function' ? (x, y) => shade(c(x, y), a) : shade(c, a));
+  const ink = '#2E2A33', skin = v.pele, skinD = shade(skin, -0.16), hair = v.cabelo, st = v.estilo;
+  const hairD = shade(hair, -0.22), hairL = shade(hair, isLight(hair) ? 0.5 : 0.3);
+  const mood = opt.mood;
 
-  if (st === 'longo') rect(3, 4, 12, 15, hair);
-  if (st === 'franja') rect(3, 4, 12, 11, hair);
-  if (st === 'curto') rect(3, 4, 12, 8, hair);
-  if (st === 'afro') rows([[0, 5, 10], [1, 3, 12], [2, 2, 13], [3, 2, 13], [4, 2, 13], [5, 2, 13], [6, 2, 13], [7, 2, 13], [8, 2, 13], [9, 3, 12], [10, 4, 11]], hair);
-  if (st === 'rabo') { rect(12, 4, 13, 12, hair); put(14, 5, hair); }
-  if (st === 'trancas') { rect(3, 6, 3, 14, hair); rect(12, 6, 12, 14, hair); put(3, 15, '#D2557A'); put(12, 15, '#D2557A'); }
-  if (v.sig === 'violao') { rect(14, 8, 14, 15, '#6B4226'); rows([[16, 13, 15], [17, 12, 15], [18, 12, 15], [19, 13, 15], [20, 12, 15], [21, 12, 15], [22, 13, 15]], '#C98A4B'); put(14, 19, '#3A2A1F'); }
+  /* hair behind the head */
+  if (st === 'longo') { rows([[4, 5, 18], [5, 4, 19]], hair); rect(4, 6, 19, 21, hair); rect(4, 15, 5, 21, hairD); rect(18, 15, 19, 21, hairD); rows([[22, 5, 7], [22, 16, 18]], hairD); }
+  if (st === 'franja') { rows([[4, 5, 18]], hair); rect(4, 5, 19, 14, hair); rect(4, 13, 19, 14, hairD); }
+  if (st === 'curto') { rows([[4, 5, 18]], hair); rect(4, 5, 19, 11, hair); }
+  if (st === 'afro') { rows([[0, 8, 15], [1, 5, 18], [2, 4, 19], [3, 3, 20]], hair); rect(2, 4, 21, 13, hair); rows([[14, 3, 20], [15, 4, 19], [16, 6, 17]], hairD); }
+  if (st === 'coque') { rows([[0, 10, 13], [1, 9, 14], [2, 9, 14]], hair); rows([[2, 10, 13]], hairL); rect(5, 4, 18, 10, hair); }
+  if (st === 'rabo') { rect(5, 4, 18, 10, hair); rows([[4, 19, 20], [5, 19, 21], [6, 19, 21], [7, 19, 21], [8, 19, 21], [9, 19, 21], [10, 19, 21], [11, 19, 21], [12, 19, 20], [13, 19, 20], [14, 19, 20], [15, 20, 20]], hair); rect(21, 6, 21, 11, hairD); put(19, 4, '#D2557A'); put(19, 5, '#D2557A'); }
+  if (st === 'trancas') {
+    rect(5, 4, 18, 10, hair);
+    for (let y = 10; y <= 21; y++) { const c = y % 2 ? hair : hairD; put(4, y, c); put(5, y, c); put(18, y, c); put(19, y, c); }
+    rows([[22, 4, 5], [22, 18, 19]], '#D2557A');
+  }
+  if (v.sig === 'violao') { rect(20, 10, 20, 21, '#6B4226'); rect(19, 9, 21, 9, '#4E3020'); rows([[22, 18, 22], [23, 17, 23], [24, 17, 23], [25, 18, 22], [26, 17, 23], [27, 17, 23], [28, 18, 22]], '#C98A4B'); rect(19, 25, 21, 25, '#3A2A1F'); rows([[27, 21, 23], [28, 21, 22]], '#A86E36'); }
 
-  rect(6, 25, 6, 29, skin); rect(9, 25, 9, 29, skin);
-  rect(5, 30, 6, 30, ink); rect(9, 30, 10, 30, ink);
-  rect(3, 12, 3, 19, skin); rect(12, 12, 12, 19, skin);
+  /* legs and shoes */
+  rect(9, 30, 10, 33, skin); rect(13, 30, 14, 33, skin); rect(10, 30, 10, 33, skinD); rect(14, 30, 14, 33, skinD);
+  const shoe = '#5A3F4F';
+  rows([[34, 8, 10], [34, 13, 15]], shoe); put(8, 34, shade(shoe, 0.3)); put(13, 34, shade(shoe, 0.3));
 
+  /* arms */
+  rect(5, 17, 6, 24, skin); rect(17, 17, 18, 24, skin); rect(6, 18, 6, 24, skinD); rect(18, 18, 18, 24, skinD);
+  rows([[25, 5, 6], [25, 17, 18]], skin);
+
+  /* skirt */
   const baixo = o.baixo;
-  const skirtC = baixo ? zonePix(baixo.z[1]) : solid('#5B6475');
-  if (baixo && baixo.molde === 'longo') rows([[19, 5, 10], [20, 5, 10], [21, 4, 11], [22, 4, 11], [23, 4, 11], [24, 3, 12], [25, 3, 12], [26, 3, 12], [27, 2, 13], [28, 2, 13], [29, 2, 13]], skirtC);
-  else if (baixo && ['lapis', 'tubinho'].includes(baixo.molde)) rect(5, 19, 10, 24, skirtC);
-  else rows([[19, 5, 10], [20, 5, 10], [21, 4, 11], [22, 4, 11], [23, 3, 12], [24, 3, 12]], skirtC);
-  if (baixo && baixo.molde === 'plissada') for (let x = 4; x <= 11; x += 2) put(x, 24, shade(hexOf(baixo.z[1].cor), -0.25));
-  if (baixo && baixo.peca === 'saia') rect(5, 19, 10, 19, zonePix(baixo.z[0]));
+  const skirtC = baixo ? zonePix(baixo.z[1]) : solid('#56607A');
+  let hem;
+  if (baixo && baixo.molde === 'longo') { rows([[23, 8, 15], [24, 8, 15], [25, 7, 16], [26, 7, 16], [27, 6, 17], [28, 6, 17], [29, 6, 17], [30, 5, 18], [31, 5, 18], [32, 5, 18], [33, 5, 18]], skirtC); hem = 33; rect(16, 27, 18, 33, dim(skirtC, -0.14)); }
+  else if (baixo && ['lapis', 'tubinho'].includes(baixo.molde)) { rect(8, 23, 15, 29, skirtC); rect(14, 23, 15, 29, dim(skirtC, -0.14)); hem = 29; }
+  else { rows([[23, 8, 15], [24, 7, 16], [25, 7, 16], [26, 6, 17], [27, 6, 17], [28, 5, 18], [29, 5, 18]], skirtC); rect(16, 26, 18, 29, dim(skirtC, -0.14)); hem = 29; }
+  rect(0, hem, W - 1, hem, (x, y) => (g[y][x] ? shade(g[y][x], -0.18) : null));
+  if (baixo && baixo.molde === 'plissada') for (let x = 6; x <= 17; x += 2) rect(x, 26, x, 28, shade(hexOf(baixo.z[1].cor), -0.25));
+  if (baixo && baixo.peca === 'saia') rect(8, 23, 15, 23, zonePix(baixo.z[0]));
 
+  /* top */
   const cima = o.cima;
   const topC = (cima && zonePix(cima.z[0])) || solid(v.roupa);
-  rows([[12, 4, 11], [13, 4, 11], [14, 5, 10], [15, 5, 10], [16, 5, 10], [17, 5, 10], [18, 5, 10]], topC);
+  rows([[16, 8, 15], [17, 7, 16], [18, 7, 16], [19, 8, 15], [20, 8, 15], [21, 8, 15], [22, 8, 15]], topC);
+  rect(15, 17, 16, 22, dim(topC, -0.14));
+  rows([[16, 10, 13]], dim(topC, 0.18));
   if (!cima || cima.peca === 'camisa') {
     const sl = cima ? zonePix(cima.z[1]) : topC;
-    rect(3, 12, 3, 14, sl); rect(12, 12, 12, 14, sl);
-    if (cima && cima.molde === 'bata') { put(2, 13, sl); put(13, 13, sl); }
-    if (cima && cima.molde === 'botoes') { put(7, 14, '#F3EFE6'); put(7, 16, '#F3EFE6'); put(6, 12, '#F3EFE6'); put(9, 12, '#F3EFE6'); }
+    rect(5, 17, 6, 19, sl); rect(17, 17, 18, 19, sl); rect(6, 19, 6, 19, dim(sl, -0.14)); rect(18, 17, 18, 19, dim(sl, -0.14));
+    if (cima && cima.molde === 'bata') { rect(4, 18, 4, 19, sl); rect(19, 18, 19, 19, sl); }
+    if (cima && cima.molde === 'botoes') { [18, 20, 22].forEach((y) => put(11, y, '#F3EFE6')); rows([[16, 9, 10], [16, 13, 14]], '#F3EFE6'); }
   }
   if (v.sig === 'avental' || v.sig === 'avental-rosa') {
     const ap = v.sig === 'avental' ? '#EDE6D8' : '#F6C3D5';
-    rect(6, 15, 9, 22, ap); rect(7, 17, 8, 18, shade(ap, -0.15));
+    rect(9, 19, 14, 28, ap); rect(14, 19, 14, 28, shade(ap, -0.1)); rect(10, 24, 13, 25, shade(ap, -0.18));
   }
 
-  rect(7, 11, 8, 11, skin);
-  rows([[3, 5, 10], [4, 4, 11], [5, 4, 11], [6, 4, 11], [7, 4, 11], [8, 4, 11], [9, 4, 11], [10, 5, 10]], skin);
-  put(3, 8, '#E8B931'); put(12, 8, '#E8B931');
+  /* neck and head */
+  rect(10, 15, 13, 15, skinD);
+  rows([[3, 8, 15], [4, 6, 17], [5, 5, 18], [6, 5, 18], [7, 5, 18], [8, 5, 18], [9, 5, 18], [10, 5, 18], [11, 5, 18], [12, 5, 18], [13, 6, 17], [14, 7, 16]], skin);
+  rows([[13, 16, 17], [14, 15, 16]], skinD);
+  put(4, 10, skin); put(4, 11, skin); put(19, 10, skin); put(19, 11, skinD);
+  put(4, 12, '#E8B931'); put(19, 12, '#E8B931');
+
+  /* front hair */
+  rows([[3, 7, 16], [4, 6, 17], [5, 5, 18]], hair);
   const fronts = {
-    longo: [[2, 5, 10], [3, 4, 11], [4, 4, 5], [4, 10, 11], [5, 4, 4], [5, 11, 11], [6, 4, 4], [6, 11, 11]],
-    franja: [[2, 4, 11], [3, 4, 11], [4, 4, 11], [5, 4, 4], [5, 11, 11]],
-    afro: [[3, 4, 11], [4, 4, 5], [4, 10, 11]],
-    coque: [[0, 6, 9], [1, 6, 9], [2, 5, 10], [3, 4, 11], [4, 4, 4], [4, 11, 11]],
-    trancas: [[2, 5, 10], [3, 4, 11], [4, 4, 5], [4, 10, 11], [5, 4, 4], [5, 11, 11]],
-    curto: [[2, 5, 10], [3, 4, 11], [4, 4, 6], [4, 11, 11], [5, 4, 4], [5, 11, 11]],
-    rabo: [[2, 5, 10], [3, 4, 11], [4, 4, 5], [4, 10, 11]],
+    longo: [[6, 5, 10], [6, 13, 18], [7, 5, 8], [7, 15, 18], [8, 5, 6], [8, 17, 18], [9, 5, 5], [9, 18, 18]],
+    franja: [[6, 5, 18], [7, 5, 18], [8, 5, 6], [8, 8, 9], [8, 11, 12], [8, 14, 15], [8, 17, 18]],
+    afro: [[6, 5, 7], [6, 16, 18], [7, 5, 5], [7, 18, 18]],
+    coque: [[6, 5, 8], [6, 15, 18], [7, 5, 5], [7, 18, 18]],
+    trancas: [[6, 5, 10], [6, 13, 18], [7, 5, 8], [7, 15, 18], [8, 5, 6], [8, 17, 18]],
+    curto: [[6, 5, 15], [7, 5, 11], [7, 17, 18], [8, 5, 7], [8, 18, 18], [9, 5, 5]],
+    rabo: [[6, 5, 9], [6, 14, 18], [7, 5, 7], [7, 16, 18], [8, 5, 5], [8, 18, 18]],
   }[st] || [];
   rows(fronts, hair);
-  const hi = shade(hair, isLight(hair) ? 0.45 : 0.25);
-  if (g[2][6] === hair) { put(6, 2, hi); put(7, 2, hi); }
-  if (st === 'rabo') put(12, 4, '#D2557A');
+  if (st === 'afro') rows([[3, 4, 19], [4, 3, 20], [5, 3, 20]], hair);
+  rows([[4, 10, 12], [5, 8, 9]], hairL);
+  if (st === 'franja' || st === 'curto') rows([[7, 13, 14]], hairL);
+  if (st === 'rabo') put(18, 5, '#D2557A');
 
-  put(5, 9, '#F09AA0'); put(10, 9, '#F09AA0');
-  const mood = opt.mood;
-  if (mood === 'feliz' || mood === 'amor') rect(6, 9, 9, 9, '#9C4652');
-  else rect(7, 9, 8, 9, mood === 'triste' ? ink : '#9C4652');
-  if (mood === 'triste') { put(5, 6, shade(skin, -0.4)); put(10, 6, shade(skin, -0.4)); }
-  if (v.sig === 'oculos') { [5, 7, 8, 10].forEach((x) => put(x, 7, '#6E5D48')); rect(5, 6, 7, 6, '#6E5D48'); rect(8, 6, 10, 6, '#6E5D48'); }
+  /* face */
+  rows([[12, 6, 7], [12, 16, 17]], '#F4A0A4');
+  if (mood === 'feliz' || mood === 'amor') rows([[13, 10, 10], [13, 13, 13], [14, 11, 12]], '#9C4652');
+  else if (mood === 'triste') rows([[13, 11, 12], [14, 10, 10], [14, 13, 13]], ink);
+  else if (mood === 'hmm') rows([[13, 11, 13]], '#9C4652');
+  else rows([[13, 11, 12]], '#9C4652');
+  if (mood === 'triste') { put(7, 8, shade(skin, -0.4)); put(16, 8, shade(skin, -0.4)); }
 
+  /* hats and signature items */
   if (o.chapeu) {
     const copa = zonePix(o.chapeu.z[0]), aba = zonePix(o.chapeu.z[1]) || copa;
-    if (o.chapeu.molde === 'boina') { rows([[0, 5, 10], [1, 3, 12], [2, 3, 12]], copa); rect(4, 3, 11, 3, aba); }
-    else { rows([[0, 6, 9], [1, 5, 10], [2, 5, 10]], copa); rect(o.chapeu.molde === 'aba' ? 1 : 3, 3, o.chapeu.molde === 'aba' ? 14 : 12, 3, aba); }
-  } else if (v.sig === 'chapeu-pesca') { rows([[0, 6, 9], [1, 5, 10], [2, 5, 10]], '#7A7234'); rect(3, 3, 12, 3, '#66602C'); }
-  else if (v.sig === 'bone') { rows([[1, 5, 10], [2, 4, 11]], '#3AA3A6'); rect(9, 3, 13, 3, '#2A7F82'); }
-
+    if (o.chapeu.molde === 'boina') { rows([[0, 8, 15], [1, 6, 18], [2, 5, 18], [3, 5, 18]], copa); rect(6, 4, 17, 4, aba); put(11, 0, aba); }
+    else { rows([[0, 8, 15], [1, 7, 16], [2, 7, 16], [3, 7, 16]], copa); rect(o.chapeu.molde === 'aba' ? 2 : 4, 4, o.chapeu.molde === 'aba' ? 21 : 19, 4, aba); rect(7, 3, 16, 3, dim(copa, -0.2)); }
+  } else if (v.sig === 'chapeu-pesca') { rows([[0, 8, 15], [1, 7, 16], [2, 7, 16], [3, 7, 16]], '#7A7234'); rect(5, 4, 18, 4, '#66602C'); put(14, 1, '#C8463D'); }
+  else if (v.sig === 'bone') { rows([[1, 7, 16], [2, 6, 17], [3, 6, 17]], '#3AA3A6'); rect(13, 4, 21, 4, '#2A7F82'); put(11, 1, '#F3EFE6'); }
+  if (v.sig === 'oculos') {
+    const fr = '#6E5D48';
+    rows([[8, 7, 10], [8, 13, 16], [12, 7, 10], [12, 13, 16], [9, 11, 12]], fr);
+    for (let y = 9; y <= 11; y++) { put(7, y, fr); put(10, y, fr); put(13, y, fr); put(16, y, fr); }
+  }
   if (o.cachecol) {
     const a = zonePix(o.cachecol.z[0]), b2 = zonePix(o.cachecol.z[1]) || a;
-    if (o.cachecol.molde === 'lenco') rows([[11, 5, 10], [12, 6, 9], [13, 7, 8]], a);
-    else { rect(5, 11, 10, 12, a); rect(9, 13, 10, 16, a); rect(9, 17, 10, 17, b2); }
+    if (o.cachecol.molde === 'lenco') rows([[15, 8, 15], [16, 9, 14], [17, 10, 13], [18, 11, 12]], a);
+    else { rect(8, 15, 15, 16, a); rect(8, 16, 15, 16, dim(a, -0.15)); rect(13, 17, 14, 21, a); rect(13, 22, 14, 22, b2); }
   }
   if (o.acc) {
     const ac = hexOf(o.acc.cor), dk = shade(ac, -0.3), t = o.acc.tipo;
-    if (t === 'laco') { put(10, 1, ac); put(10, 2, ac); put(11, 2, dk); put(12, 1, ac); put(12, 2, ac); }
-    if (t === 'tiara' && !o.chapeu) rect(4, 2, 11, 2, ac);
-    if (t === 'broche' || t === 'fuxico') { put(9, 14, ac); put(10, 14, dk); }
-    if (t === 'bolsinha') { rect(13, 13, 13, 18, '#5E4B3C'); rect(13, 19, 15, 21, ac); put(14, 20, dk); }
+    if (t === 'laco') { rows([[1, 14, 14], [1, 18, 18], [2, 14, 15], [2, 17, 18], [3, 14, 14], [3, 18, 18]], ac); put(16, 2, dk); }
+    if (t === 'tiara' && !o.chapeu) { rect(6, 4, 17, 4, ac); [8, 11, 14].forEach((x) => put(x, 4, dk)); put(11, 3, ac); put(12, 3, ac); }
+    if (t === 'broche' || t === 'fuxico') { rows([[18, 13, 14], [19, 13, 14]], ac); put(14, 19, dk); }
+    if (t === 'bolsinha') { rect(19, 17, 19, 23, '#5E4B3C'); rows([[24, 18, 21], [25, 18, 21], [26, 18, 21]], ac); rect(18, 26, 21, 26, dk); put(20, 25, '#E8B931'); }
   }
-  if (v.sig === 'pincel') { rect(13, 16, 13, 19, '#7A4A1F'); put(13, 15, '#E58FA6'); }
+  if (v.sig === 'pincel') { rect(19, 21, 19, 26, '#7A4A1F'); put(19, 20, '#E58FA6'); put(19, 19, '#E58FA6'); }
 
   const filled = (x, y) => y >= 0 && y < H && x >= 0 && x < W && g[y][x];
   /* One path per color keeps each sprite to a handful of elements */
@@ -1105,11 +1138,14 @@ function drawSprite(v, opt, o) {
     }
   }
   byColor.forEach((d, c) => { s += `<path fill="${c}" d="${d}"/>`; });
-  const eyes = mood === 'feliz'
-    ? `<rect x="6" y="7" width="1" height=".5" fill="${ink}"/><rect x="9" y="7" width="1" height=".5" fill="${ink}"/>`
-    : `<rect x="6" y="7" width="1" height="1" fill="${mood === 'amor' ? '#D2557A' : ink}"/><rect x="9" y="7" width="1" height="1" fill="${mood === 'amor' ? '#D2557A' : ink}"/>`;
-  const vb = opt.crop ? '1.5 -0.5 13 13' : '-1 -1 18 34';
-  return `<svg class="sprite${opt.crop ? ' av' : ''}" viewBox="${vb}" shape-rendering="crispEdges" role="img" aria-label="${v.nome}">${s}<g class="eyes" style="animation-delay:-${(v.id.length * 0.9) % 5}s">${eyes}</g></svg>`;
+  /* Big eyes with a shine; happy eyes curve up, love eyes are pink hearts */
+  const iris = mood === 'amor' ? '#D2557A' : '#3A2A3F';
+  const eye = (x) => (mood === 'feliz'
+    ? `<path fill="${ink}" d="M${x - 1} 10h1v1h-1zM${x} 9h2v1h-2zM${x + 2} 10h1v1h-1z"/>`
+    : `<path fill="${iris}" d="M${x} 9h2v3h-2z"/><path fill="${mood === 'amor' ? '#F2A7C6' : '#7A5C8E'}" d="M${x + 1} 11h1v1h-1z"/><path fill="#FFFFFF" d="M${x} 9h1v1h-1z"/>`);
+  const lash = mood === 'feliz' ? '' : `<path fill="${ink}" d="M8 8h2v.6h-2zM14 8h2v.6h-2z"/>`;
+  const vb = opt.crop ? '2.5 -0.5 19 19' : '-1 -1 26 38';
+  return `<svg class="sprite${opt.crop ? ' av' : ''}" viewBox="${vb}" shape-rendering="crispEdges" role="img" aria-label="${v.nome}">${s}<g class="eyes" style="animation-delay:-${(v.id.length * 0.9) % 5}s">${eye(8)}${eye(14)}${lash}</g></svg>`;
 }
 const avatarSVG = (v, mood) => spriteSVG(v, { mood, crop: true });
 const figureSVG = (v, mood) => spriteSVG(v, { mood });
@@ -1717,7 +1753,7 @@ function renderVila() {
   const vit = state.vitrine.map((it, i) => (it
     ? `<button class="mq" data-act="from-vitrine" data-i="${i}" id="vit-${i}" aria-label="Devolver ${moldeOf(it.peca, it.molde).nome} pra arara" title="${moldeOf(it.peca, it.molde).nome} (${it.tam || 'M'}) · toque pra devolver">${pieceSVG(it.peca, it.molde, it.z, null, it.acc)}</button>`
     : '<span class="mq"></span>')).join('');
-  const POS = [[48, 3], [57, 3], [66, 3], [75, 3], [84, 3], [52.5, 16], [61.5, 16], [70.5, 16], [79.5, 16]];
+  const POS = [[47, 3], [57.5, 3], [68, 3], [78.5, 3], [89, 3], [52, 17], [62.5, 17], [73, 17], [83.5, 17]];
   const isConc = c.dayInSeason === 3;
   const crowd = vs.map((v, i) => ({ v, i, p: POS[i % POS.length] })).sort((a, b) => b.p[1] - a.p[1]).map(({ v, i, p }) => {
     const novo = state.talked[v.id] !== c.day;
