@@ -1619,12 +1619,11 @@ function renderAtelie() {
     const v = villager(c.vid);
     const r = c.result;
     const favKnown = (state.hearts[v.id] || 0) >= 3 && !accOrder;
-    const left = c.due - clock().day;
     const needsMeasure = !accOrder && !state.measured[v.id];
     const inner = r
       ? `${r.msg}<span class="bub-res">+${r.pay} moedas${r.h ? ` · ${r.h > 0 ? '+' : '−'}${Math.abs(r.h)} ♥` : ''}</span>`
       : `${requestText(c)}${favKnown ? `<span class="bub-note">Ela adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}.</span>` : ''}
-         <span class="bub-meta">${left <= 0 ? 'Entrega hoje!' : `Prazo: ${left} ${left === 1 ? 'dia' : 'dias'}`}${!accOrder ? ` · ${needsMeasure ? 'tamanho ?' : 'veste ' + v.tam}` : ''}</span>
+         ${!accOrder ? `<span class="bub-meta">${needsMeasure ? 'Tamanho ?' : 'Veste ' + v.tam}</span>` : ''}
          <span class="bub-actions">${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : ''}<button class="linkish" data-act="skip" id="skip">Recusar pedido</button></span>`;
     cust = `<div class="cust-spot">${figureSVG(v, r ? r.mood : null)}</div><div class="talkbox">${r ? '' : `<div class="want-tag" role="img" aria-label="O que ela quer">${wantIcon(c)}</div>`}<div class="bubble">${inner}</div></div>`;
   }
@@ -2420,19 +2419,17 @@ function renderMedir(s) {
     <div class="row"><span class="cut-status">${s.msg || ''}</span><button class="primary" data-act="medir" id="medir-btn">Medir!</button></div>`;
 }
 function renderPedidos() {
-  const day = clock().day;
   const open = state.orders.filter((o) => !o.result);
   $('gen-title').textContent = `Mural de pedidos · ${open.length} de ${maxOrders()}`;
   const cur = curOrder();
   const cards = open.map((o) => {
     const v = villager(o.vid);
-    const left = o.due - day;
     return `<div class="ord${cur && cur.id === o.id ? ' on' : ''}">${avatarSVG(v)}
-      <div class="ord-txt"><b>${v.nome}</b> <span class="${left <= 0 ? 'late' : 'due'}">${left <= 0 ? 'entrega hoje!' : `faltam ${left} ${left === 1 ? 'dia' : 'dias'}`}</span><p>${requestText(o)}</p></div>
+      <div class="ord-txt"><b>${v.nome}</b><p>${requestText(o)}</p></div>
       <span class="want-tag">${wantIcon(o)}</span>
       <button class="btn" data-act="focus" data-v="${o.id}" id="foc-${o.id}" ${cur && cur.id === o.id ? 'disabled' : ''}>${cur && cur.id === o.id ? 'No balcão' : 'Chamar'}</button></div>`;
   }).join('');
-  $('gen-body').innerHTML = `<p class="help">Cada pedido tem prazo. Se passar do dia, a moradora desiste e fica chateada. Chame uma pro balcão pra ver o pedido e entregar.</p>
+  $('gen-body').innerHTML = `<p class="help">Sem pressa: os pedidos esperam você. Chame uma moradora pro balcão pra ver o pedido e entregar.</p>
     <div class="ords">${cards || '<p class="empty">Nenhum pedido no mural agora. Logo chega mais.</p>'}</div>`;
 }
 
@@ -2841,7 +2838,7 @@ function sewFrame(now) {
     if (m.st === 0 && len > m.at + tol) { m.st = -1; markStyle(i, 'var(--line)'); }
   });
   if (len > 0 && $('sew-msg').textContent === 'Prepare a agulha…') $('sew-msg').textContent = '';
-  if (len >= sew.total) { finishSew(); return; }
+  if (now - sew.t0 - SEW_LEAD >= sew.dur || len >= sew.total - 0.01) { finishSew(); return; }
   requestAnimationFrame(sewFrame);
 }
 function stitch() {
@@ -2908,14 +2905,6 @@ function tick() {
   const before = state.orders.length;
   state.orders = state.orders.filter((o) => !(o.result && now >= o.leaveAt));
   if (state.orders.length !== before) changed = true;
-  state.orders.filter((o) => !o.result && ck.day > o.due).forEach((o) => {
-    const v = villager(o.vid);
-    state.hearts[v.id] = Math.max(0, (state.hearts[v.id] || 0) - 1);
-    state.orders = state.orders.filter((x) => x !== o);
-    toast(`${v.nome} cansou de esperar e desistiu do pedido. −1 de carinho.`);
-    sfx('sad');
-    changed = true;
-  });
   if (state.orders.filter((o) => !o.result).length < maxOrders() && now >= state.nextOrder) {
     const o = newOrder();
     state.orders.push(o);
