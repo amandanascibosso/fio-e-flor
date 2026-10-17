@@ -518,6 +518,7 @@ body.portrait-ok .rotate { display: none; }
       <div id="sew-stage"></div>
       <div class="sew-status"><span id="sew-count"></span><span id="sew-msg" aria-live="polite"></span></div>
       <button class="primary" id="sew-btn">Dar ponto</button>
+      <button class="linkish" id="sew-skip" style="align-self:center">Terminar agora</button>
     </div>
   </div>
 
@@ -2849,6 +2850,7 @@ function openSew() {
   $('thread').style.strokeDasharray = `0 ${total}`;
   sew = { path, total, marks, t0: performance.now(), hits: 0, misses: 0, req: marks.reduce((t, m) => t + m.need, 0), done: false, dur: (isAcc ? 0.7 : 1) * sewMs(), cum: makeProfile(isAcc ? s.tipo : s.molde) };
   $('sew-btn').textContent = 'Dar ponto';
+  $('sew-skip').hidden = false;
   $('sew-msg').textContent = 'Prepare a agulha…';
   updateSewCount();
   $('sew-btn').focus({ preventScroll: true });
@@ -2902,6 +2904,7 @@ function stitch() {
   updateSewCount();
 }
 function finishSew() {
+  if (!sew || sew.done || !state.sewing) { if (sew) sew.done = true; return; }
   sew.done = true;
   const ratio = Math.max(0, sew.hits - sew.misses * 0.5) / sew.req;
   const stars = ratio >= 0.9 ? 3 : ratio >= 0.55 ? 2 : 1;
@@ -2916,8 +2919,10 @@ function finishSew() {
     state.sub = 'arara';
   }
   state.sewing = null;
-  save();
-  renderAll();
+  /* Show the way out first, so a drawing error can never trap you on this screen */
+  $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : 'Pendurar na arara';
+  $('sew-skip').hidden = true;
+  try { save(); renderAll(); } catch (e) { console.error(e); }
   $('sew-msg').textContent = ['', 'Saiu com defeito… quem é exigente pode recusar.', 'Ficou bonita!', 'Costura perfeita!'][stars];
   $('sew-count').innerHTML = `<span class="stars" aria-label="${stars} de 3 estrelas">${starStr(stars)}</span>`;
   $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : 'Pendurar na arara';
@@ -3005,6 +3010,7 @@ function start(data) {
     if (el && !el.disabled) act(el);
   });
   $('sew-btn').addEventListener('click', stitch);
+  $('sew-skip').addEventListener('click', () => { if (sew && !sew.done) finishSew(); else closeSew(); });
   $('sew-stage').addEventListener('pointerdown', (e) => { e.preventDefault(); stitch(); });
   bindCut();
   try { if (localStorage.getItem('fio-portrait-ok')) document.body.classList.add('portrait-ok'); } catch (e) {}
@@ -3059,6 +3065,15 @@ window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
+<script>
+if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  /* When a new version of the game arrives, reload once so it shows up right away */
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((r) => r.update()).catch(() => {}));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) navigator.serviceWorker.getRegistration().then((r) => r && r.update()).catch(() => {}); });
+}
+</script>
 </body>
 </html>
