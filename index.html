@@ -987,8 +987,18 @@ function zonePix(z) {
     return base;
   };
 }
+const SPRITES = new Map();
 function spriteSVG(v, opt = {}) {
   const o = outfitOf(v.id);
+  const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, opt.mood || null, !!opt.crop, o]);
+  const hit = SPRITES.get(key);
+  if (hit) return hit;
+  if (SPRITES.size > 400) SPRITES.clear();
+  const out = drawSprite(v, opt, o);
+  SPRITES.set(key, out);
+  return out;
+}
+function drawSprite(v, opt, o) {
   const W = 16, H = 32;
   const g = Array.from({ length: H }, () => Array(W).fill(null));
   const put = (x, y, c) => { if (c && x >= 0 && x < W && y >= 0 && y < H) g[y][x] = typeof c === 'function' ? c(x, y) : c; };
@@ -1076,11 +1086,13 @@ function spriteSVG(v, opt = {}) {
   if (v.sig === 'pincel') { rect(13, 16, 13, 19, '#7A4A1F'); put(13, 15, '#E58FA6'); }
 
   const filled = (x, y) => y >= 0 && y < H && x >= 0 && x < W && g[y][x];
+  /* One path per color keeps each sprite to a handful of elements */
   let out = '';
   for (let y = -1; y <= H; y++) for (let x = -1; x <= W; x++) {
-    if (!filled(x, y) && (filled(x - 1, y) || filled(x + 1, y) || filled(x, y - 1) || filled(x, y + 1))) out += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+    if (!filled(x, y) && (filled(x - 1, y) || filled(x + 1, y) || filled(x, y - 1) || filled(x, y + 1))) out += `M${x} ${y}h1v1h-1z`;
   }
-  let s = `<g fill="#3A3040" opacity=".9">${out}</g>`;
+  let s = `<path fill="#3A3040" opacity=".9" d="${out}"/>`;
+  const byColor = new Map();
   for (let y = 0; y < H; y++) {
     let x = 0;
     while (x < W) {
@@ -1088,10 +1100,11 @@ function spriteSVG(v, opt = {}) {
       if (!c) { x++; continue; }
       let e = x;
       while (e + 1 < W && g[y][e + 1] === c) e++;
-      s += `<rect x="${x}" y="${y}" width="${e - x + 1}" height="1" fill="${c}"/>`;
+      byColor.set(c, (byColor.get(c) || '') + `M${x} ${y}h${e - x + 1}v1h-${e - x + 1}z`);
       x = e + 1;
     }
   }
+  byColor.forEach((d, c) => { s += `<path fill="${c}" d="${d}"/>`; });
   const eyes = mood === 'feliz'
     ? `<rect x="6" y="7" width="1" height=".5" fill="${ink}"/><rect x="9" y="7" width="1" height=".5" fill="${ink}"/>`
     : `<rect x="6" y="7" width="1" height="1" fill="${mood === 'amor' ? '#D2557A' : ink}"/><rect x="9" y="7" width="1" height="1" fill="${mood === 'amor' ? '#D2557A' : ink}"/>`;
@@ -1745,7 +1758,10 @@ function renderVila() {
 
 function renderAll() {
   const focusId = document.activeElement && document.activeElement.id;
-  renderStats(); renderGarden(); renderTint(); renderAtelie(); renderVila(); renderTabs(); if (ui.sheet) renderSheet();
+  renderStats();
+  /* Only the place on screen is drawn; the others are drawn when you walk into them */
+  ({ jardim: renderGarden, tint: renderTint, atelie: renderAtelie, vila: renderVila }[state.tab] || renderAtelie)();
+  renderTabs(); if (ui.sheet) renderSheet();
   if (focusId) { const el = $(focusId); if (el && !el.disabled) el.focus({ preventScroll: true }); }
 }
 
