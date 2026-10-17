@@ -422,6 +422,11 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
 @media (orientation: portrait) and (max-width: 760px) { .rotate { display: flex; } }
 body.portrait-ok .rotate { display: none; }
 
+/* dicas */
+.dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
+.ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
+.balcao-txt .dicas b { font-family: inherit; font-size: inherit; }
+.balcao { align-items: flex-start; }
 /* encomendas, tons, medidas, costureira e efeitos */
 .snd-btn { background: var(--paper); color: var(--ink); border: 2px solid var(--edge); box-shadow: 0 2px 0 #000; border-radius: 8px; width: 32px; height: 30px; font-weight: 800; font-size: 16px; padding: 0; }
 .snd-btn[aria-pressed="false"] { opacity: .5; }
@@ -818,7 +823,7 @@ function fresh() {
     v: 2, coins: 25,
     seeds: { ...zero(), girassol: 2, anil: 2, papoula: 1, camomila: 1 },
     flowers: { ...zero(), girassol: 1, anil: 1 },
-    cru: 3, cloth: { amarelo: 16 }, colsV: true,
+    cru: 3, cloth: { amarelo: 16 }, colsV: true, dayV2: true,
     plots: [null, null, null, null, null, null],
     pot: { slots: [] },
     orders: [], focus: null, nextOrder: 0, measured: {}, concursos: {}, trofeus: 0, me: null,
@@ -1537,6 +1542,7 @@ function act(el) {
     const item = state.rack[state.selRack], acc = state.box[state.selAcc];
     if (item && acc && !item.acc) { item.acc = acc; state.box.splice(state.selAcc, 1); state.selAcc = null; }
   }
+  else if (a === 'hint') { useHint(); }
   else if (a === 'skip') {
     const o = curOrder();
     if (o && !o.result) { state.orders = state.orders.filter((x) => x !== o); state.focus = null; toast('Pedido recusado.'); }
@@ -1688,6 +1694,7 @@ function renderAtelie() {
     const info = [!accOrder ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
     balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>${v.nome} no balcão</b>${info ? `<span class="help">${info}</span>` : ''}
       <div class="deliver-row">${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
+      ${hintBox(c)}
       <button class="linkish" data-act="skip" id="skip">Recusar pedido</button></div></div>`;
   }
   const canAdorn = sel && selA && !sel.acc;
@@ -1828,7 +1835,69 @@ function renderAll() {
 }
 
 /* ---------- dias, estações, festas, conversas, loja e gatinho ---------- */
-const DAY_MS = 180000, SEASON_DAYS = 5;
+const DAY_MS = 480000, SEASON_DAYS = 5, OLD_DAY_MS = 180000;
+
+function hintBox(o) {
+  const list = hintList(o);
+  const shown = list.slice(0, o.hints || 0);
+  const price = hintPrice(), left = HINTS_FREE - hintToday().used;
+  const more = (o.hints || 0) < list.length;
+  const label = !more ? 'Sem mais dicas' : price === 0 ? `💡 Dica · grátis (${left} hoje)` : `💡 Dica · ${price} moedas`;
+  return `${shown.length ? `<ul class="dicas">${shown.map((t) => `<li>${t}</li>`).join('')}</ul>` : ''}
+    <button class="btn" data-act="hint" id="hint" ${more && state.coins >= price ? '' : 'disabled'}>${label}</button>`;
+}
+/* ---------- dicas: 3 grátis por dia, depois custam cada vez mais ---------- */
+const FLOWER_CLUE = {
+  girassol: 'amarela, a flor do sol', anil: 'azul bem escura', papoula: 'vermelha', camomila: 'branquinha com miolo amarelo',
+  lavanda: 'lilás e cheirosa', hibisco: 'rosa-choque', hortela: 'verdinha, que nem bala', iris: 'quase preta',
+};
+const EST_NOME = { primavera: 'na primavera', verao: 'no verão', outono: 'no outono', inverno: 'no inverno' };
+const HINTS_FREE = 3;
+function hintToday() {
+  const day = clock().day;
+  if (!state.hintDay || state.hintDay.day !== day) state.hintDay = { day, used: 0 };
+  return state.hintDay;
+}
+const hintPrice = () => { const h = hintToday(); return h.used < HINTS_FREE ? 0 : 15 + 10 * (h.used - HINTS_FREE); };
+/* The color an order's hints talk about: the first one you haven't discovered yet */
+function hintTarget(o) {
+  const ks = o.kind === 'acessorio' ? [o.acc.cor] : [...new Set(o.cores)];
+  return ks.find((k) => !state.discovered.includes(baseOf(k))) || ks.find((k) => parseKey(k).tom !== 'medio') || ks[0];
+}
+function hintList(o) {
+  const k = o.hintFor || hintTarget(o);
+  const { cor, tom } = parseKey(k);
+  const rec = (COLORS[cor] || { receita: [] }).receita;
+  const nome = o.riddle ? 'essa cor' : `o ${cor}`;
+  const out = [];
+  if (o.riddle) out.push(`"${RIDDLES[cor] || cor}" quer dizer <b>${cor}</b>.`);
+  out.push(rec.length === 1 ? `${cap(nome)} sai de uma flor só.` : `${cap(nome)} leva ${rec.length === 2 ? 'duas' : 'três'} flores diferentes.`);
+  if (rec.length) {
+    const f = rec[0];
+    out.push(`${rec.length === 1 ? 'A flor' : 'Uma das flores'} é ${FLOWER_CLUE[f]} e cresce mais rápido ${FLOWER_EST[f].map((e) => EST_NOME[e]).join(' e ')}.`);
+  }
+  if (tom === 'claro') out.push('Pra sair claro: tire do fogo bem no começo da barrinha, ou repita a flor mais clarinha.');
+  if (tom === 'escuro') out.push('Pra sair escuro: espere o fim da barrinha, ou repita a flor mais escura.');
+  return out;
+}
+function useHint() {
+  const o = curOrder();
+  if (!o || o.result) return;
+  o.hintFor = o.hintFor || hintTarget(o);
+  const list = hintList(o);
+  if ((o.hints || 0) >= list.length) return;
+  const price = hintPrice();
+  if (state.coins < price) { toast(`Essa dica custa ${price} moedas.`); return; }
+  state.coins -= price;
+  hintToday().used += 1;
+  o.hints = (o.hints || 0) + 1;
+  const base = baseOf(o.hintFor);
+  if (!state.discovered.includes(base)) {
+    state.pistas = state.pistas || {};
+    state.pistas[base] = list.slice(o.riddle ? 1 : 0, o.hints).filter((t) => !t.startsWith('Pra sair'));
+  }
+  sfx('chime');
+}
 const SEASONS = [{ id: 'primavera', nome: 'Primavera', art: 'a' }, { id: 'verao', nome: 'Verão', art: 'o' }, { id: 'outono', nome: 'Outono', art: 'o' }, { id: 'inverno', nome: 'Inverno', art: 'o' }];
 const FLOWER_EST = { girassol: ['verao'], anil: ['outono', 'inverno'], papoula: ['primavera', 'outono'], camomila: ['primavera', 'inverno'], lavanda: ['inverno', 'primavera'], hibisco: ['verao', 'primavera'], hortela: ['verao'], iris: ['outono', 'inverno'] };
 function clock(now = gnow()) {
@@ -2276,7 +2345,7 @@ function renderSheet() {
       const rec = COLORS[k].receita.map((f) => FLOWERS[f].nome).join(' + ') || 'três flores que não combinam';
       return known
         ? `<div class="ink"><span class="sw" style="background:${hexOf(k)}"></span><b>${k}</b>${rec}</div>`
-        : `<div class="ink unknown"><span class="sw"></span><b>?</b>${['três flores', 'uma flor', 'duas flores', 'três flores'][COLORS[k].receita.length]}</div>`;
+        : `<div class="ink unknown"><span class="sw"></span><b>?</b>${(state.pistas && state.pistas[k] && state.pistas[k].length) ? `<span class="pista">${state.pistas[k].join(' ')}</span>` : ['três flores', 'uma flor', 'duas flores', 'três flores'][COLORS[k].receita.length]}</div>`;
     }).join('');
     $('gen-body').innerHTML = `<p class="help" style="margin:0">Cada flor sozinha dá uma cor. Duas ou três flores diferentes no tacho dão cores novas. O tom (claro, médio, escuro) você escolhe na hora de mexer o tacho.</p><div class="book">${book}</div>`;
     return;
@@ -3031,6 +3100,11 @@ function start(data) {
   if (state.focus === undefined) state.focus = null;
   if (state.me === undefined) state.me = null;
   state.nextOrder = state.nextOrder || 0;
+  if (!state.dayV2) {
+    const el = Math.max(0, gnow() - state.t0);
+    state.t0 = gnow() - (Math.floor(el / OLD_DAY_MS) + (el % OLD_DAY_MS) / OLD_DAY_MS) * DAY_MS;
+    state.dayV2 = true;
+  }
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]');
     if (el && !el.disabled) act(el);

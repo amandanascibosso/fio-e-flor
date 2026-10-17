@@ -112,10 +112,17 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 @keyframes bob { 50% { transform: translateY(-2px); } }
 .pot-spot { position: absolute; left: 32%; width: 36%; bottom: 8%; z-index: 2; }
 .pot-spot svg { width: 100%; height: auto; display: block; }
-.cust-spot { position: absolute; left: 12%; bottom: 4%; height: 62%; z-index: 3; }
+.cust-spot { position: absolute; left: 11%; bottom: 3%; height: 56%; z-index: 3; }
 .cust-spot .sprite { height: 100%; width: auto; }
-.bubble { position: absolute; left: 25%; top: 7%; max-width: 44%; background: #fff; border: 2px solid var(--edge); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); padding: 6px 9px; font-size: clamp(10px, 2.5cqw, 14px); font-weight: 700; line-height: 1.3; z-index: 4; }
-.bubble::after { content: ""; position: absolute; left: -8px; bottom: 10px; width: 10px; height: 10px; background: #fff; border-left: 2px solid var(--edge); border-bottom: 2px solid var(--edge); transform: skewY(-35deg); }
+.bubble { position: absolute; left: 25%; top: 7%; max-width: 44%; background: #fff; border: 2px solid var(--edge); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); padding: 6px 9px; font-size: clamp(10px, 2.2cqw, 13px); font-weight: 700; line-height: 1.3; z-index: 4; }
+.bubble::before, .bubble::after { content: ""; position: absolute; top: 12px; width: 0; height: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+.bubble::before { left: -11px; border-right: 10px solid var(--edge); }
+.bubble::after { left: -7px; top: 14px; border-top-width: 5px; border-bottom-width: 5px; border-right: 7px solid #fff; }
+.balcao { display: flex; align-items: center; gap: 10px; background: var(--accent-soft); border: 2px solid var(--accent); border-radius: 10px; padding: 6px 10px 6px 6px; }
+.balcao > .sprite { width: 44px; height: auto; flex: none; background: var(--paper); border-radius: 8px; }
+.balcao-txt { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.balcao-txt b { font-family: var(--font-display); font-size: 15px; }
+.balcao .help { margin: 0; font-size: 12px; }
 .bubble.quiet { color: var(--muted); font-weight: 600; }
 .hot { position: absolute; z-index: 3; background: transparent; border: 2px dashed transparent; border-radius: 6px; padding: 0; }
 .hot:hover, .hot.on { border-color: rgba(255,255,255,.85); }
@@ -194,8 +201,9 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .shelf-btn, .zone-pick { display: flex; align-items: center; gap: 8px; text-align: left; border: 2px solid var(--edge); background: var(--paper-2); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); padding: 5px 8px; min-width: 0; }
 .shelf-btn:hover, .zone-pick:hover { background: #fff; }
 .shelf-btn svg, .zone-pick svg { width: 38px; height: 28px; flex: none; }
-.shelf-btn span { display: flex; flex-direction: column; font-size: 11px; color: var(--muted); min-width: 0; }
-.shelf-btn b { color: var(--ink); font-size: 13px; }
+.shelf-btn { flex-direction: column; text-align: center; gap: 2px; padding: 6px 6px 5px; }
+.shelf-btn span { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--muted); min-width: 0; max-width: 100%; }
+.shelf-btn b { color: var(--ink); font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .zone-pick { font-size: 13px; }
 .zone-pick .chev { margin-left: auto; color: var(--muted); }
 .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.25); flex: none; }
@@ -356,8 +364,9 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
 @media (max-width: 560px) { .cartela { grid-template-columns: 1fr; } .cart-prev { position: static; flex-direction: row; align-items: center; } .cart-prev svg { width: 90px; } }
 
 
-.talkbox { position: absolute; left: 25%; top: 3%; max-width: 40%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; z-index: 4; }
-.talkbox .bubble { position: relative; left: auto; top: auto; max-width: none; }
+.talkbox { position: absolute; left: 25%; top: 3%; max-width: 58%; display: flex; flex-direction: row; align-items: flex-start; gap: 4px; z-index: 4; }
+.talkbox .bubble { position: relative; left: auto; top: auto; max-width: none; flex: 0 1 auto; min-width: 0; }
+.talkbox .want-tag { flex: none; }
 .want-tag { background: #fff; border: 2px solid var(--edge); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); padding: 2px 6px; display: flex; align-items: center; }
 .want-tag svg { width: clamp(28px, 7cqw, 46px); height: clamp(28px, 7cqw, 46px); display: block; }
 .confirm-card { position: absolute; right: 2%; bottom: 3%; width: 32%; z-index: 5; display: flex; align-items: center; gap: 6px; background: var(--paper); border: 3px solid var(--edge); border-radius: 10px; box-shadow: 0 3px 0 var(--edge); padding: 4px 8px 4px 4px; }
@@ -390,6 +399,13 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
   .arrow svg { width: 18px; height: 18px; }
 }
 
+/* Lying phone: the scene takes the full height next to the panel, so both frames line up */
+@media (orientation: landscape) {
+  .loc { justify-content: center; }
+  .scene-col { flex: none; height: 100%; aspect-ratio: 16 / 10; max-width: calc(100% - 268px); }
+  .pnl { min-width: 260px; }
+}
+
 /* Standing phone: the turn screen shows first; if the player stays upright, scene sits above the panel */
 @media (orientation: portrait) {
   body { overflow: auto; align-items: flex-start; }
@@ -406,6 +422,11 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
 @media (orientation: portrait) and (max-width: 760px) { .rotate { display: flex; } }
 body.portrait-ok .rotate { display: none; }
 
+/* dicas */
+.dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
+.ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
+.balcao-txt .dicas b { font-family: inherit; font-size: inherit; }
+.balcao { align-items: flex-start; }
 /* encomendas, tons, medidas, costureira e efeitos */
 .snd-btn { background: var(--paper); color: var(--ink); border: 2px solid var(--edge); box-shadow: 0 2px 0 #000; border-radius: 8px; width: 32px; height: 30px; font-weight: 800; font-size: 16px; padding: 0; }
 .snd-btn[aria-pressed="false"] { opacity: .5; }
@@ -518,6 +539,7 @@ body.portrait-ok .rotate { display: none; }
       <div id="sew-stage"></div>
       <div class="sew-status"><span id="sew-count"></span><span id="sew-msg" aria-live="polite"></span></div>
       <button class="primary" id="sew-btn">Dar ponto</button>
+      <button class="linkish" id="sew-skip" style="align-self:center">Terminar agora</button>
     </div>
   </div>
 
@@ -801,7 +823,7 @@ function fresh() {
     v: 2, coins: 25,
     seeds: { ...zero(), girassol: 2, anil: 2, papoula: 1, camomila: 1 },
     flowers: { ...zero(), girassol: 1, anil: 1 },
-    cru: 3, cloth: { amarelo: 16 }, colsV: true,
+    cru: 3, cloth: { amarelo: 16 }, colsV: true, dayV2: true,
     plots: [null, null, null, null, null, null],
     pot: { slots: [] },
     orders: [], focus: null, nextOrder: 0, measured: {}, concursos: {}, trofeus: 0, me: null,
@@ -1520,6 +1542,7 @@ function act(el) {
     const item = state.rack[state.selRack], acc = state.box[state.selAcc];
     if (item && acc && !item.acc) { item.acc = acc; state.box.splice(state.selAcc, 1); state.selAcc = null; }
   }
+  else if (a === 'hint') { useHint(); }
   else if (a === 'skip') {
     const o = curOrder();
     if (o && !o.result) { state.orders = state.orders.filter((x) => x !== o); state.focus = null; toast('Pedido recusado.'); }
@@ -1560,7 +1583,7 @@ function renderStats() {
 let lastPlotSig = [];
 const shelfBtns = (sfx) => `<div class="shelf">
   <button class="shelf-btn" data-act="sheet" data-kind="book" id="open-book-${sfx}"><svg viewBox="0 0 44 32" aria-hidden="true"><rect x="6" y="3" width="32" height="26" rx="3" fill="var(--accent)"/><rect x="10" y="3" width="3" height="26" fill="rgba(0,0,0,.18)"/><circle cx="25" cy="14" r="5" fill="#E8B931"/><circle cx="29" cy="19" r="4" fill="#3E6FB0"/><circle cx="21" cy="19" r="4" fill="#C8463D"/></svg><span><b>Caderno</b>${state.discovered.length} de ${bookKeys().length} cores</span></button>
-  <button class="shelf-btn" data-act="sheet" data-kind="inv" id="open-inv-${sfx}"><svg viewBox="0 0 44 32" aria-hidden="true" shape-rendering="crispEdges"><rect x="6" y="8" width="32" height="21" fill="#B07A45"/><rect x="6" y="8" width="32" height="4" fill="#8E5E32"/><rect x="18" y="4" width="8" height="5" fill="#8E5E32"/><rect x="20" y="14" width="4" height="4" fill="#E8B931"/></svg><span><b>Inventário</b>sementes, flores, tecidos</span></button>
+  <button class="shelf-btn" data-act="sheet" data-kind="inv" id="open-inv-${sfx}"><svg viewBox="0 0 44 32" aria-hidden="true" shape-rendering="crispEdges"><rect x="6" y="8" width="32" height="21" fill="#B07A45"/><rect x="6" y="8" width="32" height="4" fill="#8E5E32"/><rect x="18" y="4" width="8" height="5" fill="#8E5E32"/><rect x="20" y="14" width="4" height="4" fill="#E8B931"/></svg><span><b>Inventário</b>sementes e tecidos</span></button>
 </div>`;
 function renderGarden() {
   const now = gnow();
@@ -1658,13 +1681,22 @@ function renderAtelie() {
     const needsMeasure = !accOrder && !state.measured[v.id];
     const inner = r
       ? `${r.msg}<span class="bub-res">+${r.pay} moedas${r.h ? ` · ${r.h > 0 ? '+' : '−'}${Math.abs(r.h)} ♥` : ''}</span>`
-      : `${requestText(c)}${favKnown ? `<span class="bub-note">Ela adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}.</span>` : ''}
-         ${!accOrder ? `<span class="bub-meta">${needsMeasure ? 'Tamanho ?' : 'Veste ' + v.tam}</span>` : ''}
-         <span class="bub-actions">${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : ''}<button class="linkish" data-act="skip" id="skip">Recusar pedido</button></span>`;
-    cust = `<div class="cust-spot">${figureSVG(v, r ? r.mood : null)}</div><div class="talkbox">${r ? '' : `<div class="want-tag" role="img" aria-label="O que ela quer">${wantIcon(c)}</div>`}<div class="bubble">${inner}</div></div>`;
+      : requestText(c);
+    cust = `<div class="cust-spot">${figureSVG(v, r ? r.mood : null)}</div><div class="talkbox"><div class="bubble">${inner}</div>${r ? '' : `<div class="want-tag" role="img" aria-label="O que ela quer">${wantIcon(c)}</div>`}</div>`;
   }
   const hot = (k, label, l, t, w, h, extra = '') => `<button class="hot${sub === k ? ' on' : ''}${k === 'retalhos' || k === 'mural' ? ' below' : ''}" data-act="${extra ? 'sheet' : 'subtab'}" ${extra ? `data-kind="${extra}"` : `data-v="${k}"`} id="hot-${k}" style="left:${l}%;top:${t}%;width:${w}%;height:${h}%" aria-label="${label}"><span>${label}</span></button>`;
-  const deliverP = giving ? `<button class="primary" data-act="deliver" id="deliver-p">Entregar ${giving}</button>` : '';
+  /* The counter card on the panel holds the order's buttons, so the speech bubble stays small */
+  let balcao = '';
+  if (waiting) {
+    const v = villager(c.vid);
+    const needsMeasure = !accOrder && !state.measured[v.id];
+    const favKnown = (state.hearts[v.id] || 0) >= 3 && !accOrder;
+    const info = [!accOrder ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
+    balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>${v.nome} no balcão</b>${info ? `<span class="help">${info}</span>` : ''}
+      <div class="deliver-row">${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
+      ${hintBox(c)}
+      <button class="linkish" data-act="skip" id="skip">Recusar pedido</button></div></div>`;
+  }
   const canAdorn = sel && selA && !sel.acc;
   const adornBtn = canAdorn ? `<button class="btn" data-act="adorn" id="adorn">Enfeitar com ${ACCS[selA.tipo].nome.toLowerCase()}</button>` : '';
 
@@ -1688,7 +1720,7 @@ function renderAtelie() {
     content = `
       <p class="help">${state.rack.length} de ${rackMax()} peças. Toque numa pra entregar, enfeitar ou levar pra vitrine.</p>
       <div class="rack">${rack}</div>
-      <div class="deliver-row">${accOrder ? '' : deliverP}${adornBtn}${sel ? `<button class="btn" data-act="to-vitrine" id="to-vit" ${state.vitrine.includes(null) ? '' : 'disabled'}>Pôr na vitrine (${state.vitrine.filter(Boolean).length} de ${state.vitrine.length})</button>` : ''}</div>`;
+      <div class="deliver-row">${adornBtn}${sel ? `<button class="btn" data-act="to-vitrine" id="to-vit" ${state.vitrine.includes(null) ? '' : 'disabled'}>Pôr na vitrine (${state.vitrine.filter(Boolean).length} de ${state.vitrine.length})</button>` : ''}</div>`;
   } else {
     title = 'Retalhos';
     const scrapCols = clothKeys('scraps');
@@ -1711,7 +1743,7 @@ function renderAtelie() {
       <div class="accs">${accBtns}</div>
       <p class="label">Caixinha · ${state.box.length} de ${BOX_MAX}</p>
       <div class="box">${box}</div>
-      <div class="deliver-row">${accOrder ? deliverP : ''}${adornBtn}</div>`;
+      <div class="deliver-row">${adornBtn}</div>`;
   }
 
   $('p-atelie').innerHTML = `
@@ -1720,7 +1752,7 @@ function renderAtelie() {
       ${meSpot('me-atelie')}${confirmCard}${nav('atelie')}</div></div>
     <aside class="pnl" aria-labelledby="h-atelie">
       <h2 class="pnl-title" id="h-atelie">${title}</h2>
-      ${content}
+      ${balcao}${content}
     </aside>`;
 }
 
@@ -1732,6 +1764,8 @@ function renderTabs() {
       p.classList.remove('enter-r', 'enter-l');
       void p.offsetWidth;
       p.classList.add(ui.enter);
+      /* Drop the walk-in class once it has played, so redraws don't replay it */
+      setTimeout(() => p.classList.remove('enter-r', 'enter-l'), 600);
       ui.enter = null;
     }
   });
@@ -1801,7 +1835,69 @@ function renderAll() {
 }
 
 /* ---------- dias, estações, festas, conversas, loja e gatinho ---------- */
-const DAY_MS = 180000, SEASON_DAYS = 5;
+const DAY_MS = 480000, SEASON_DAYS = 5, OLD_DAY_MS = 180000;
+
+function hintBox(o) {
+  const list = hintList(o);
+  const shown = list.slice(0, o.hints || 0);
+  const price = hintPrice(), left = HINTS_FREE - hintToday().used;
+  const more = (o.hints || 0) < list.length;
+  const label = !more ? 'Sem mais dicas' : price === 0 ? `💡 Dica · grátis (${left} hoje)` : `💡 Dica · ${price} moedas`;
+  return `${shown.length ? `<ul class="dicas">${shown.map((t) => `<li>${t}</li>`).join('')}</ul>` : ''}
+    <button class="btn" data-act="hint" id="hint" ${more && state.coins >= price ? '' : 'disabled'}>${label}</button>`;
+}
+/* ---------- dicas: 3 grátis por dia, depois custam cada vez mais ---------- */
+const FLOWER_CLUE = {
+  girassol: 'amarela, a flor do sol', anil: 'azul bem escura', papoula: 'vermelha', camomila: 'branquinha com miolo amarelo',
+  lavanda: 'lilás e cheirosa', hibisco: 'rosa-choque', hortela: 'verdinha, que nem bala', iris: 'quase preta',
+};
+const EST_NOME = { primavera: 'na primavera', verao: 'no verão', outono: 'no outono', inverno: 'no inverno' };
+const HINTS_FREE = 3;
+function hintToday() {
+  const day = clock().day;
+  if (!state.hintDay || state.hintDay.day !== day) state.hintDay = { day, used: 0 };
+  return state.hintDay;
+}
+const hintPrice = () => { const h = hintToday(); return h.used < HINTS_FREE ? 0 : 15 + 10 * (h.used - HINTS_FREE); };
+/* The color an order's hints talk about: the first one you haven't discovered yet */
+function hintTarget(o) {
+  const ks = o.kind === 'acessorio' ? [o.acc.cor] : [...new Set(o.cores)];
+  return ks.find((k) => !state.discovered.includes(baseOf(k))) || ks.find((k) => parseKey(k).tom !== 'medio') || ks[0];
+}
+function hintList(o) {
+  const k = o.hintFor || hintTarget(o);
+  const { cor, tom } = parseKey(k);
+  const rec = (COLORS[cor] || { receita: [] }).receita;
+  const nome = o.riddle ? 'essa cor' : `o ${cor}`;
+  const out = [];
+  if (o.riddle) out.push(`"${RIDDLES[cor] || cor}" quer dizer <b>${cor}</b>.`);
+  out.push(rec.length === 1 ? `${cap(nome)} sai de uma flor só.` : `${cap(nome)} leva ${rec.length === 2 ? 'duas' : 'três'} flores diferentes.`);
+  if (rec.length) {
+    const f = rec[0];
+    out.push(`${rec.length === 1 ? 'A flor' : 'Uma das flores'} é ${FLOWER_CLUE[f]} e cresce mais rápido ${FLOWER_EST[f].map((e) => EST_NOME[e]).join(' e ')}.`);
+  }
+  if (tom === 'claro') out.push('Pra sair claro: tire do fogo bem no começo da barrinha, ou repita a flor mais clarinha.');
+  if (tom === 'escuro') out.push('Pra sair escuro: espere o fim da barrinha, ou repita a flor mais escura.');
+  return out;
+}
+function useHint() {
+  const o = curOrder();
+  if (!o || o.result) return;
+  o.hintFor = o.hintFor || hintTarget(o);
+  const list = hintList(o);
+  if ((o.hints || 0) >= list.length) return;
+  const price = hintPrice();
+  if (state.coins < price) { toast(`Essa dica custa ${price} moedas.`); return; }
+  state.coins -= price;
+  hintToday().used += 1;
+  o.hints = (o.hints || 0) + 1;
+  const base = baseOf(o.hintFor);
+  if (!state.discovered.includes(base)) {
+    state.pistas = state.pistas || {};
+    state.pistas[base] = list.slice(o.riddle ? 1 : 0, o.hints).filter((t) => !t.startsWith('Pra sair'));
+  }
+  sfx('chime');
+}
 const SEASONS = [{ id: 'primavera', nome: 'Primavera', art: 'a' }, { id: 'verao', nome: 'Verão', art: 'o' }, { id: 'outono', nome: 'Outono', art: 'o' }, { id: 'inverno', nome: 'Inverno', art: 'o' }];
 const FLOWER_EST = { girassol: ['verao'], anil: ['outono', 'inverno'], papoula: ['primavera', 'outono'], camomila: ['primavera', 'inverno'], lavanda: ['inverno', 'primavera'], hibisco: ['verao', 'primavera'], hortela: ['verao'], iris: ['outono', 'inverno'] };
 function clock(now = gnow()) {
@@ -2249,7 +2345,7 @@ function renderSheet() {
       const rec = COLORS[k].receita.map((f) => FLOWERS[f].nome).join(' + ') || 'três flores que não combinam';
       return known
         ? `<div class="ink"><span class="sw" style="background:${hexOf(k)}"></span><b>${k}</b>${rec}</div>`
-        : `<div class="ink unknown"><span class="sw"></span><b>?</b>${['três flores', 'uma flor', 'duas flores', 'três flores'][COLORS[k].receita.length]}</div>`;
+        : `<div class="ink unknown"><span class="sw"></span><b>?</b>${(state.pistas && state.pistas[k] && state.pistas[k].length) ? `<span class="pista">${state.pistas[k].join(' ')}</span>` : ['três flores', 'uma flor', 'duas flores', 'três flores'][COLORS[k].receita.length]}</div>`;
     }).join('');
     $('gen-body').innerHTML = `<p class="help" style="margin:0">Cada flor sozinha dá uma cor. Duas ou três flores diferentes no tacho dão cores novas. O tom (claro, médio, escuro) você escolhe na hora de mexer o tacho.</p><div class="book">${book}</div>`;
     return;
@@ -2849,6 +2945,7 @@ function openSew() {
   $('thread').style.strokeDasharray = `0 ${total}`;
   sew = { path, total, marks, t0: performance.now(), hits: 0, misses: 0, req: marks.reduce((t, m) => t + m.need, 0), done: false, dur: (isAcc ? 0.7 : 1) * sewMs(), cum: makeProfile(isAcc ? s.tipo : s.molde) };
   $('sew-btn').textContent = 'Dar ponto';
+  $('sew-skip').hidden = false;
   $('sew-msg').textContent = 'Prepare a agulha…';
   updateSewCount();
   $('sew-btn').focus({ preventScroll: true });
@@ -2902,6 +2999,7 @@ function stitch() {
   updateSewCount();
 }
 function finishSew() {
+  if (!sew || sew.done || !state.sewing) { if (sew) sew.done = true; return; }
   sew.done = true;
   const ratio = Math.max(0, sew.hits - sew.misses * 0.5) / sew.req;
   const stars = ratio >= 0.9 ? 3 : ratio >= 0.55 ? 2 : 1;
@@ -2916,8 +3014,10 @@ function finishSew() {
     state.sub = 'arara';
   }
   state.sewing = null;
-  save();
-  renderAll();
+  /* Show the way out first, so a drawing error can never trap you on this screen */
+  $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : 'Pendurar na arara';
+  $('sew-skip').hidden = true;
+  try { save(); renderAll(); } catch (e) { console.error(e); }
   $('sew-msg').textContent = ['', 'Saiu com defeito… quem é exigente pode recusar.', 'Ficou bonita!', 'Costura perfeita!'][stars];
   $('sew-count').innerHTML = `<span class="stars" aria-label="${stars} de 3 estrelas">${starStr(stars)}</span>`;
   $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : 'Pendurar na arara';
@@ -3000,11 +3100,17 @@ function start(data) {
   if (state.focus === undefined) state.focus = null;
   if (state.me === undefined) state.me = null;
   state.nextOrder = state.nextOrder || 0;
+  if (!state.dayV2) {
+    const el = Math.max(0, gnow() - state.t0);
+    state.t0 = gnow() - (Math.floor(el / OLD_DAY_MS) + (el % OLD_DAY_MS) / OLD_DAY_MS) * DAY_MS;
+    state.dayV2 = true;
+  }
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]');
     if (el && !el.disabled) act(el);
   });
   $('sew-btn').addEventListener('click', stitch);
+  $('sew-skip').addEventListener('click', () => { if (sew && !sew.done) finishSew(); else closeSew(); });
   $('sew-stage').addEventListener('pointerdown', (e) => { e.preventDefault(); stitch(); });
   bindCut();
   try { if (localStorage.getItem('fio-portrait-ok')) document.body.classList.add('portrait-ok'); } catch (e) {}
@@ -3059,6 +3165,15 @@ window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => Promise.resolve().catch(() => {}));</script>
+<script>
+if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  /* When a new version of the game arrives, reload once so it shows up right away */
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((r) => r.update()).catch(() => {}));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) navigator.serviceWorker.getRegistration().then((r) => r && r.update()).catch(() => {}); });
+}
+</script>
 </body>
 </html>
