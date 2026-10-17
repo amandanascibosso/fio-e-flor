@@ -471,6 +471,8 @@ body.portrait-ok .rotate { display: none; }
 .want-conj { display: flex; align-items: center; gap: 4px; font-family: var(--font-display); font-weight: 700; font-size: clamp(14px, 3cqw, 20px); }
 .want-conj .wsw { width: clamp(22px, 5cqw, 34px); height: clamp(22px, 5cqw, 34px); border-radius: 6px; border: 2px solid var(--edge); }
 .crowd-v.visitor { height: 44%; animation: none; transform: translateX(-50%); }
+.locked-m { opacity: .7; }
+.mv-own .pats { margin-top: 6px; }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -933,7 +935,7 @@ function fresh() {
     v: 2, coins: 25,
     seeds: { ...zero(), girassol: 2, anil: 2, papoula: 1, camomila: 1 },
     flowers: { ...zero(), girassol: 1, anil: 1 },
-    cru: 3, cloth: { amarelo: 16 }, colsV: true, dayV2: true, revistas: [], myPats: [], stories: {}, visits: {}, conq: {}, stats: { perfeitas: 0, bordados: 0 }, casa: { moveis: [], manequim: null, colcha: 'rosa' },
+    cru: 3, cloth: { amarelo: 16 }, colsV: true, dayV2: true, revistas: [], myPats: [], stories: {}, visits: {}, conq: {}, stats: { perfeitas: 0, bordados: 0 }, casa: { moveis: [], manequim: null, colcha: 'rosa', var: {}, vars: {} },
     plots: [null, null, null, null, null, null],
     pot: { slots: [] },
     orders: [], focus: null, nextOrder: 0, measured: {}, concursos: {}, trofeus: 0, me: null,
@@ -1795,10 +1797,12 @@ function act(el) {
       sfx('chime'); toast('O Novelo ficou todo pimpão! Agora ele acha mais retalhos.');
     }
   }
-  else if (a === 'buy-movel') {
-    const M = MOVEIS.find((m) => m.id === el.dataset.v);
-    if (M && !state.casa.moveis.includes(M.id) && state.coins >= M.preco) { state.coins -= M.preco; state.casa.moveis.push(M.id); sfx('chime'); toast(`${M.nome} em casa!`); }
+  else if (a === 'mv-buy') {
+    const M = MOVEIS.find((m) => m.id === el.dataset.v), i = +el.dataset.i;
+    const mine = state.casa.vars[M.id] = state.casa.vars[M.id] || [0];
+    if (!mine.includes(i) && state.coins >= M.vars[i][1]) { state.coins -= M.vars[i][1]; mine.push(i); state.casa.var[M.id] = i; sfx('chime'); toast(`${M.nome} ${M.vars[i][0].toLowerCase()} em casa!`); }
   }
+  else if (a === 'mv-use') { state.casa.var[el.dataset.v] = +el.dataset.i; sfx('tap'); }
   else if (a === 'mq-on') {
     const i = +el.dataset.i, it = state.rack[i];
     if (it) { if (state.casa.manequim) state.rack.push(state.casa.manequim); state.casa.manequim = it; state.rack.splice(state.rack.indexOf(it), 1); state.selRack = null; }
@@ -2560,6 +2564,7 @@ function renderHistoria(s) {
 
 /* ---------- conquistas ---------- */
 const CONQ = [
+  { id: 'primeira', nome: 'Primeira peça', desc: 'Costurar a sua primeira peça', premio: 10, ok: () => (state.stats.pecas || 0) >= 1 || state.served >= 1 },
   { id: 'cores10', nome: 'Paleta iniciante', desc: 'Descobrir 10 cores', premio: 20, ok: () => state.discovered.length >= 10 },
   { id: 'cores25', nome: 'Mão de tintureira', desc: 'Descobrir 25 cores', premio: 50, ok: () => state.discovered.length >= 25 },
   { id: 'cores40', nome: 'Arco-íris inteiro', desc: 'Descobrir 40 cores', premio: 100, ok: () => state.discovered.length >= 40 },
@@ -2572,8 +2577,9 @@ const CONQ = [
   { id: 'trofeu', nome: 'Primeiro lugar', desc: 'Ganhar um concurso de moda', premio: 50, ok: () => (state.trofeus || 0) >= 1 },
   { id: 'amiga', nome: 'Melhores amigas', desc: 'Chegar a 10 ♥ com uma moradora', premio: 30, ok: () => Object.values(state.hearts).some((h) => h >= 10) },
   { id: 'vila', nome: 'Vila completa', desc: 'Todas as moradoras na vila', premio: 80, ok: () => activeVillagers().length === VILLAGERS.length },
-  { id: 'novelo', nome: 'Gato chique', desc: 'Vestir o Novelo', premio: 10, ok: () => !!state.cat.acc },
+  { id: 'novelo', nome: 'Gato chique', desc: 'Colocar um acessório no Novelo', premio: 10, ok: () => !!state.cat.acc },
   { id: 'casa', nome: 'Lar doce lar', desc: 'Ter 5 móveis em casa', premio: 40, ok: () => state.casa.moveis.length >= 5 },
+  { id: 'casa-cheia', nome: 'Casa de revista', desc: 'Ter todos os móveis da casa', premio: 100, ok: () => state.casa.moveis.length >= MOVEIS.length },
   { id: 'rico', nome: 'Cofrinho cheio', desc: 'Juntar 500 moedas', premio: 50, ok: () => state.coins >= 500 },
 ];
 function checkConq() {
@@ -2583,27 +2589,42 @@ function checkConq() {
       state.conq[c.id] = true;
       state.coins += c.premio;
       setTimeout(() => toast(`🏅 Conquista: ${c.nome}! +${c.premio} moedas`), 300);
+      const M = MOVEIS.find((m) => m.conq === c.id);
+      if (M && !state.casa.moveis.includes(M.id)) { state.casa.moveis.push(M.id); setTimeout(() => toast(`🏠 Móvel novo em casa: ${M.nome}!`), 900); }
     }
   });
 }
 function renderConquistas() {
   const n = CONQ.filter((c) => state.conq[c.id]).length;
   $('gen-title').textContent = `Conquistas · ${n} de ${CONQ.length}`;
-  $('gen-body').innerHTML = `<div class="shop-list">${CONQ.map((c) => `<div class="shop-item conq${state.conq[c.id] ? ' got' : ''}"><span class="medal" aria-hidden="true">${state.conq[c.id] ? '🏅' : '🔒'}</span><div><b>${c.nome}</b><p>${c.desc}</p></div><span class="owned">${state.conq[c.id] ? 'Feito!' : `+${c.premio}`}</span></div>`).join('')}</div>`;
+  $('gen-body').innerHTML = `<div class="shop-list">${CONQ.map((c) => `<div class="shop-item conq${state.conq[c.id] ? ' got' : ''}"><span class="medal" aria-hidden="true">${state.conq[c.id] ? '🏅' : '🔒'}</span><div><b>${c.nome}</b><p>${c.desc}${MOVEIS.find((m) => m.conq === c.id) ? ` · 🏠 ${MOVEIS.find((m) => m.conq === c.id).nome}` : ''}</p></div><span class="owned">${state.conq[c.id] ? 'Feito!' : `+${c.premio}`}</span></div>`).join('')}</div>`;
 }
 
 /* ---------- casa da costureira ---------- */
+/* Furniture is earned through achievements; once you have a piece, its other styles go on sale */
 const MOVEIS = [
-  { id: 'cama', nome: 'Caminha de colcha', desc: 'Com colcha da cor que você quiser.', preco: 40 },
-  { id: 'estante', nome: 'Estante de livros', desc: 'Pra guardar as revistas.', preco: 35 },
-  { id: 'poltrona', nome: 'Poltrona', desc: 'Fofinha, pra tricotar.', preco: 45 },
-  { id: 'manequim', nome: 'Manequim', desc: 'Mostra a sua peça favorita.', preco: 30 },
-  { id: 'abajur', nome: 'Abajur', desc: 'Luzinha pra noite.', preco: 18 },
-  { id: 'tapete-casa', nome: 'Tapete redondo', desc: 'De crochê, no meio da sala.', preco: 20 },
-  { id: 'cortina', nome: 'Cortina', desc: 'Rendada, na janela.', preco: 20 },
-  { id: 'quadro-casa', nome: 'Quadro de flores', desc: 'Uma pintura da Lua.', preco: 25 },
-  { id: 'vaso', nome: 'Vaso de flores', desc: 'Flores do seu jardim.', preco: 15 },
+  { id: 'manequim', nome: 'Manequim', desc: 'Mostra a sua peça favorita.', conq: 'primeira',
+    vars: [['Bege', 0, '#E8D9C4'], ['Rosa', 20, '#F2C4D4'], ['Preto', 25, '#3B3A40']] },
+  { id: 'poltrona', nome: 'Poltrona', desc: 'Fofinha, pra tricotar.', conq: 'entregas10',
+    vars: [['Verde', 0, ['#5E9A4E', '#6FAE5C', '#4E8540']], ['Rosa', 25, ['#D97A9A', '#E58FA6', '#C2607E']], ['Mostarda', 25, ['#C9A23A', '#E0B84A', '#A88628']], ['Azul', 30, ['#3E6FB0', '#5A8AC8', '#2E5A94']]] },
+  { id: 'quadro-casa', nome: 'Quadro', desc: 'Uma pintura da Lua.', conq: 'cores10',
+    vars: [['Flores', 0, 'flores'], ['A praça', 20, 'praca'], ['O Novelo', 25, 'gato']] },
+  { id: 'cortina', nome: 'Cortina', desc: 'Na janela.', conq: 'estampa',
+    vars: [['Rendada', 0, ['#E58FA6', '#F6F0E6']], ['Céu', 20, ['#3E6FB0', '#CFE3F3']], ['Folhinha', 20, ['#5E9A4E', '#E3F0D8']]] },
+  { id: 'tapete-casa', nome: 'Tapete de crochê', desc: 'No meio da sala.', conq: 'bordado',
+    vars: [['Rosa', 0, ['#E58FA6', '#F2A7C6']], ['Azul', 20, ['#6FA8DC', '#A9CBEA']], ['Amarelo', 20, ['#E8B931', '#F7D35E']]] },
+  { id: 'estante', nome: 'Estante de livros', desc: 'Cheia de revistas de cor.', conq: 'cores25',
+    vars: [['Madeira', 0, ['#8B6A50', '#6E5235']], ['Branca', 25, ['#E8E0D4', '#CFC5B6']], ['Rosa', 30, ['#E2A9BE', '#C98AA2']]] },
+  { id: 'cama', nome: 'Caminha', desc: 'Com colcha da cor que você quiser.', conq: 'amiga',
+    vars: [['Madeira', 0, '#8B6A50'], ['Branca', 25, '#E8E0D4'], ['Rosa', 30, '#E2A9BE']] },
+  { id: 'abajur', nome: 'Abajur', desc: 'Luzinha pra costurar à noite.', conq: 'perfeita10',
+    vars: [['Amarelo', 0, '#F7D35E'], ['Rosa', 15, '#F2A7C6'], ['Verde', 15, '#9CC48E']] },
+  { id: 'caminha-gato', nome: 'Caminha do Novelo', desc: 'Pra quando ele vier visitar.', conq: 'novelo',
+    vars: [['Vermelha', 0, '#C8463D'], ['Azul', 15, '#3E6FB0'], ['Xadrez', 20, 'xadrez']] },
+  { id: 'vaso', nome: 'Vaso de flores', desc: 'Flores do seu jardim.', conq: 'arco',
+    vars: [['Misturadas', 0, ['#F2A7C6', '#F7D35E', '#B79AD6']], ['Girassóis', 15, ['#F7D35E', '#E8B931', '#F7D35E']], ['Lavandas', 15, ['#B79AD6', '#9C7FC4', '#B79AD6']]] },
 ];
+const movelVar = (id) => { const M = MOVEIS.find((m) => m.id === id); return M.vars[(state.casa.var && state.casa.var[id]) || 0][2]; };
 function casaSceneSVG() {
   const ck = clock();
   const own = (id) => state.casa.moveis.includes(id);
@@ -2614,19 +2635,27 @@ function casaSceneSVG() {
   for (let y = 158; y < 200; y += 10) s += `<rect y="${y}" width="320" height="1" fill="#A47A52"/>`;
   s += `<rect x="138" y="28" width="64" height="56" fill="#8B6A50"/><rect x="142" y="32" width="56" height="48" fill="${SKY[ck.part][1]}"/><rect x="142" y="32" width="56" height="20" fill="${SKY[ck.part][0]}"/><rect x="169" y="32" width="2" height="48" fill="#8B6A50"/><rect x="142" y="55" width="56" height="2" fill="#8B6A50"/><rect x="134" y="84" width="72" height="4" fill="#74573F"/>`;
   if (ck.part === 'noite') s += `<rect x="180" y="38" width="6" height="6" fill="#F4E9B8"/>`;
-  if (own('cortina')) s += `<rect x="128" y="24" width="14" height="66" fill="#F6F0E6"/><rect x="198" y="24" width="14" height="66" fill="#F6F0E6"/><rect x="128" y="22" width="84" height="5" fill="#E58FA6"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${129 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="#E9DCCB"/><rect x="${199 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="#E9DCCB"/>`).join('')}`;
+  if (own('cortina')) { const [rod, pano] = movelVar('cortina'); s += `<rect x="128" y="24" width="14" height="66" fill="${pano}"/><rect x="198" y="24" width="14" height="66" fill="${pano}"/><rect x="128" y="22" width="84" height="5" fill="${rod}"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${129 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="${shade(pano, -0.1)}"/><rect x="${199 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="${shade(pano, -0.1)}"/>`).join('')}`; }
   s += `<rect x="292" y="70" width="26" height="80" fill="#8B5E3C"/><rect x="296" y="74" width="18" height="30" fill="#9E6E48"/><rect x="296" y="110" width="18" height="34" fill="#9E6E48"/><rect x="295" y="108" width="3" height="3" fill="#E8B931"/>`;
-  if (own('quadro-casa')) s += `<rect x="22" y="22" width="36" height="28" fill="#6E5D48"/><rect x="25" y="25" width="30" height="22" fill="#CBE9F6"/><rect x="25" y="39" width="30" height="8" fill="#7DBA5E"/><rect x="30" y="33" width="4" height="4" fill="#E58FA6"/><rect x="40" y="31" width="4" height="4" fill="#F7D35E"/><rect x="48" y="34" width="4" height="4" fill="#C8463D"/>`;
-  if (own('estante')) {
-    s += `<rect x="12" y="66" width="46" height="84" fill="#8B6A50"/><rect x="15" y="69" width="40" height="78" fill="#6E5235"/>`;
-    [72, 98, 124].forEach((y, r) => { s += `<rect x="15" y="${y + 22}" width="40" height="3" fill="#8B6A50"/>`; for (let i = 0; i < 6; i++) s += `<rect x="${17 + i * 6}" y="${y + 4 + (i % 3)}" width="5" height="${18 - (i % 3)}" fill="${['#C8463D', '#3E6FB0', '#E8B931', '#5E9A4E', '#E58FA6', '#7A4C9E'][(i + r) % 6]}"/>`; });
+  if (own('quadro-casa')) {
+    const q = movelVar('quadro-casa');
+    s += `<rect x="22" y="22" width="36" height="28" fill="#6E5D48"/><rect x="25" y="25" width="30" height="22" fill="#CBE9F6"/>`;
+    if (q === 'flores') s += `<rect x="25" y="39" width="30" height="8" fill="#7DBA5E"/><rect x="30" y="33" width="4" height="4" fill="#E58FA6"/><rect x="40" y="31" width="4" height="4" fill="#F7D35E"/><rect x="48" y="34" width="4" height="4" fill="#C8463D"/>`;
+    if (q === 'praca') s += `<rect x="25" y="41" width="30" height="6" fill="#D8CDB8"/><rect x="28" y="31" width="9" height="10" fill="#F2C4D4"/><rect x="27" y="29" width="11" height="3" fill="#8A3F6B"/><rect x="41" y="33" width="8" height="8" fill="#8EC3E6"/><rect x="40" y="31" width="10" height="2" fill="#5A8AC8"/>`;
+    if (q === 'gato') s += `<rect x="25" y="41" width="30" height="6" fill="#E9DCCB"/><rect x="33" y="33" width="14" height="9" fill="#E39A4A"/><rect x="44" y="29" width="8" height="7" fill="#E39A4A"/><rect x="44" y="27" width="2" height="2" fill="#E39A4A"/><rect x="50" y="27" width="2" height="2" fill="#E39A4A"/><rect x="47" y="31" width="1" height="1" fill="#2E2A33"/>`;
   }
-  if (own('vaso')) s += `<rect x="62" y="134" width="12" height="16" fill="#B4563A"/><rect x="60" y="132" width="16" height="3" fill="#C8663F"/><rect x="67" y="122" width="2" height="10" fill="#4E8540"/><rect x="62" y="118" width="5" height="5" fill="#F2A7C6"/><rect x="69" y="116" width="5" height="5" fill="#F7D35E"/><rect x="64" y="112" width="5" height="5" fill="#B79AD6"/>`;
-  if (own('tapete-casa')) s += `<ellipse cx="160" cy="180" rx="62" ry="11" fill="#E58FA6"/><ellipse cx="160" cy="180" rx="46" ry="8" fill="#F2A7C6"/><ellipse cx="160" cy="180" rx="26" ry="4" fill="#E58FA6"/>`;
-  if (own('poltrona')) s += `<rect x="80" y="112" width="40" height="22" fill="#5E9A4E"/><rect x="76" y="124" width="48" height="20" fill="#6FAE5C"/><rect x="74" y="122" width="8" height="24" fill="#4E8540"/><rect x="118" y="122" width="8" height="24" fill="#4E8540"/><rect x="78" y="146" width="4" height="4" fill="#5E4B3C"/><rect x="118" y="146" width="4" height="4" fill="#5E4B3C"/>`;
-  if (own('manequim')) s += `<rect x="184" y="126" width="3" height="22" fill="#5E4B3C"/><rect x="176" y="148" width="20" height="3" fill="#5E4B3C"/><rect x="174" y="92" width="24" height="36" fill="#E8D9C4"/><rect x="180" y="86" width="12" height="6" fill="#E8D9C4"/><rect x="184" y="82" width="4" height="4" fill="#5E4B3C"/>`;
-  if (own('abajur')) s += `<rect x="204" y="128" width="18" height="22" fill="#8B6A50"/><rect x="211" y="112" width="3" height="16" fill="#5E4B3C"/><rect x="203" y="100" width="20" height="12" fill="#F7D35E"/>${ck.part === 'noite' ? '<ellipse cx="213" cy="112" rx="30" ry="20" fill="#F7E3A3" opacity=".25"/>' : ''}`;
-  if (own('cama')) s += `<rect x="228" y="100" width="8" height="50" fill="#8B6A50"/><rect x="236" y="120" width="52" height="22" fill="#F6F0E6"/><rect x="238" y="114" width="16" height="8" fill="#FFFFFF"/><rect x="250" y="120" width="40" height="24" fill="${colcha}"/><rect x="250" y="120" width="40" height="3" fill="${shade(colcha, 0.25)}"/><rect x="284" y="112" width="6" height="38" fill="#8B6A50"/>`;
+  if (own('estante')) {
+    const [w1, w2] = movelVar('estante');
+    s += `<rect x="12" y="66" width="46" height="84" fill="${w1}"/><rect x="15" y="69" width="40" height="78" fill="${w2}"/>`;
+    [72, 98, 124].forEach((y, r) => { s += `<rect x="15" y="${y + 22}" width="40" height="3" fill="${w1}"/>`; for (let i = 0; i < 6; i++) s += `<rect x="${17 + i * 6}" y="${y + 4 + (i % 3)}" width="5" height="${18 - (i % 3)}" fill="${['#C8463D', '#3E6FB0', '#E8B931', '#5E9A4E', '#E58FA6', '#7A4C9E'][(i + r) % 6]}"/>`; });
+  }
+  if (own('vaso')) { const fl = movelVar('vaso'); s += `<rect x="62" y="134" width="12" height="16" fill="#B4563A"/><rect x="60" y="132" width="16" height="3" fill="#C8663F"/><rect x="67" y="122" width="2" height="10" fill="#4E8540"/><rect x="62" y="118" width="5" height="5" fill="${fl[0]}"/><rect x="69" y="116" width="5" height="5" fill="${fl[1]}"/><rect x="64" y="112" width="5" height="5" fill="${fl[2]}"/>`; }
+  if (own('tapete-casa')) { const [t1, t2] = movelVar('tapete-casa'); s += `<ellipse cx="160" cy="180" rx="62" ry="11" fill="${t1}"/><ellipse cx="160" cy="180" rx="46" ry="8" fill="${t2}"/><ellipse cx="160" cy="180" rx="26" ry="4" fill="${t1}"/>`; }
+  if (own('poltrona')) { const [p1, p2, p3] = movelVar('poltrona'); s += `<rect x="80" y="112" width="40" height="22" fill="${p1}"/><rect x="76" y="124" width="48" height="20" fill="${p2}"/><rect x="74" y="122" width="8" height="24" fill="${p3}"/><rect x="118" y="122" width="8" height="24" fill="${p3}"/><rect x="78" y="146" width="4" height="4" fill="#5E4B3C"/><rect x="118" y="146" width="4" height="4" fill="#5E4B3C"/>`; }
+  if (own('caminha-gato')) { const cg = movelVar('caminha-gato'); const c1 = cg === 'xadrez' ? '#5E9A4E' : cg; s += `<ellipse cx="112" cy="172" rx="16" ry="6" fill="${shade(c1, -0.2)}"/><ellipse cx="112" cy="170" rx="13" ry="4" fill="${c1}"/>${cg === 'xadrez' ? '<rect x="104" y="168" width="4" height="3" fill="#9CC48E"/><rect x="112" y="168" width="4" height="3" fill="#9CC48E"/>' : ''}<ellipse cx="112" cy="169" rx="9" ry="2.5" fill="#F6F0E6"/><rect x="122" y="164" width="5" height="2" fill="#8EC3E6"/><rect x="127" y="163" width="2" height="4" fill="#8EC3E6"/>`; }
+  if (own('manequim')) { const mc = movelVar('manequim'); s += `<rect x="184" y="126" width="3" height="22" fill="#5E4B3C"/><rect x="176" y="148" width="20" height="3" fill="#5E4B3C"/><rect x="174" y="92" width="24" height="36" fill="${mc}"/><rect x="180" y="86" width="12" height="6" fill="${mc}"/><rect x="184" y="82" width="4" height="4" fill="#5E4B3C"/>`; }
+  if (own('abajur')) s += `<rect x="204" y="128" width="18" height="22" fill="#8B6A50"/><rect x="211" y="112" width="3" height="16" fill="#5E4B3C"/><rect x="203" y="100" width="20" height="12" fill="${movelVar('abajur')}"/>${ck.part === 'noite' ? '<ellipse cx="213" cy="112" rx="30" ry="20" fill="#F7E3A3" opacity=".25"/>' : ''}`;
+  if (own('cama')) { const cw = movelVar('cama'); s += `<rect x="228" y="100" width="8" height="50" fill="${cw}"/><rect x="236" y="120" width="52" height="22" fill="#F6F0E6"/><rect x="238" y="114" width="16" height="8" fill="#FFFFFF"/><rect x="250" y="120" width="40" height="24" fill="${colcha}"/><rect x="250" y="120" width="40" height="3" fill="${shade(colcha, 0.25)}"/><rect x="284" y="112" width="6" height="38" fill="${cw}"/>`; }
   return bgSVG(s + veil(ck), 'A casa da costureira');
 }
 /* Friends with lots of affection drop by, comment on the house and bring a little gift */
@@ -2675,8 +2704,13 @@ function renderCasa() {
   const c = state.casa;
   const mq = c.manequim;
   const moveis = MOVEIS.map((M) => {
-    const own = c.moveis.includes(M.id);
-    return `<div class="shop-item"><div><b>${M.nome}</b><p>${M.desc}</p></div>${own ? '<span class="owned">Em casa</span>' : `<button class="btn" data-act="buy-movel" data-v="${M.id}" id="mv-${M.id}" ${state.coins < M.preco ? 'disabled' : ''}><span class="coin" aria-hidden="true"></span>${M.preco}</button>`}</div>`;
+    const C = CONQ.find((k) => k.id === M.conq);
+    if (!c.moveis.includes(M.id)) return `<div class="shop-item locked-m"><span class="medal" aria-hidden="true">🔒</span><div><b>${M.nome}</b><p>Ganhe com a conquista <b>${C.nome}</b>: ${C.desc[0].toLowerCase() + C.desc.slice(1)}.</p></div></div>`;
+    const cur = c.var[M.id] || 0, mine = c.vars[M.id] || [0];
+    const chips = M.vars.map(([nome, preco], i) => (mine.includes(i)
+      ? `<button class="pat" data-act="mv-use" data-v="${M.id}" data-i="${i}" id="mv-${M.id}-${i}" aria-pressed="${cur === i}">${nome}</button>`
+      : `<button class="pat" data-act="mv-buy" data-v="${M.id}" data-i="${i}" id="mv-${M.id}-${i}" ${state.coins < preco ? 'disabled' : ''}>${nome} · <span class="coin" aria-hidden="true"></span>${preco}</button>`)).join('');
+    return `<div class="shop-item mv-own"><div><b>${M.nome}</b><p>${M.desc}</p><div class="pats">${chips}</div></div></div>`;
   }).join('');
   const mqBox = c.moveis.includes('manequim')
     ? `<div class="group"><p class="label">Manequim</p>${mq ? `<div class="deliver-row"><span class="help">Mostrando: ${moldeOf(mq.peca, mq.molde).nome}</span><button class="btn" data-act="mq-off" id="mq-off">Devolver pra arara</button></div>` : ''}
@@ -2693,10 +2727,10 @@ function renderCasa() {
     <div class="scene-col"><div class="scene-box">${casaSceneSVG()}${mqArt}${visitorArt}${meSpot('me-casa')}${nav('casa')}</div></div>
     <aside class="pnl" aria-labelledby="h-casa">
       <h2 class="pnl-title" id="h-casa">Sua casa</h2>
-      <p class="help">Seu cantinho. Compre móveis e mostre suas peças favoritas.</p>
+      <p class="help">Seu cantinho. Cada conquista traz um móvel novo; depois dá pra comprar outros estilos dele.</p>
       <div class="deliver-row">${colcha}<button class="btn" data-act="sheet" data-kind="conquistas" id="conq-casa">🏅 Conquistas</button></div>
       ${mqBox}
-      <p class="label">Móveis</p><div class="shop-list">${moveis}</div>
+      <p class="label">Móveis · ${c.moveis.length} de ${MOVEIS.length}</p><div class="shop-list">${moveis}</div>
     </aside>`;
 }
 
@@ -3636,6 +3670,7 @@ function finishSew() {
     state.sub = 'retalhos';
   } else {
     state.rack.push({ peca: s.peca, molde: s.molde, z: s.z, tam: s.tam || 'M', stars, defeito: stars === 1 });
+    state.stats.pecas = (state.stats.pecas || 0) + 1;
     state.selRack = state.rack.length - 1;
     state.sub = 'arara';
   }
@@ -3732,7 +3767,8 @@ function start(data) {
   state.visits = state.visits || {};
   state.conq = state.conq || {};
   state.stats = { perfeitas: 0, bordados: 0, ...(state.stats || {}) };
-  state.casa = { moveis: [], manequim: null, colcha: 'rosa', ...(state.casa || {}) };
+  state.casa = { moveis: [], manequim: null, colcha: 'rosa', var: {}, vars: {}, ...(state.casa || {}) };
+  MOVEIS.forEach((M) => { if (state.conq[M.conq] && !state.casa.moveis.includes(M.id)) state.casa.moveis.push(M.id); });
   if (!state.dayV2) {
     const el = Math.max(0, gnow() - state.t0);
     state.t0 = gnow() - (Math.floor(el / OLD_DAY_MS) + (el % OLD_DAY_MS) / OLD_DAY_MS) * DAY_MS;
