@@ -1990,12 +1990,45 @@ function makeableColors() {
   const open = FKEYS.filter(flowerOpen);
   return Object.keys(COLORS).filter((c) => !COLORS[c].barro && !COLORS[c].especial && !COLORS[c].natural && COLORS[c].receita.every((f) => open.includes(f)));
 }
-const maxOrders = () => 3 + (bestHearts() >= 15 ? 1 : 0);
+const maxOrders = () => 1;
+/* Pause before the next order, counted from when the last one was settled */
+const proxPedido = () => { state.nextOrder = gnow() + 20000 + Math.random() * 15000; };
 function curOrder() {
   const os = state.orders;
   return os.find((o) => o.id === state.focus) || os.find((o) => !o.result) || os[0] || null;
 }
+const MOTIVOS = [
+  ['aniversario', 'É pro meu aniversário no sábado!', '{n} foi a mais elogiada da própria festa de aniversário! 🎂'],
+  ['viagem', 'Vou visitar minha irmã na capital e quero chegar chique.', '{n} mandou um postal da capital: "Todo mundo perguntou da minha roupa!"'],
+  ['encontro', 'Tenho um encontro no cinema da vila…', '{n} tá toda sorridente: o encontro foi um sucesso! 💕'],
+  ['entrevista', 'Tenho uma entrevista de trabalho na biblioteca.', '{n} passou na entrevista! Ela jura que a roupa deu sorte.'],
+  ['coral', 'Vou cantar no coral domingo, na pracinha.', '{n} cantou lindamente no coral, e a roupa brilhava no palco. 🎶'],
+  ['piquenique', 'Vai ter piquenique com as amigas no mirante!', '{n} contou que o piquenique foi lindo e ninguém sujou a roupa (quase).'],
+  ['retrato', 'A Lua vai pintar um retrato meu!', 'A Lua terminou o retrato de {n} usando a sua peça. Tá exposto na praça! 🖼️'],
+  ['madrinha', 'Sou madrinha no casamento de uma amiga da cidade vizinha.', '{n} voltou do casamento cheia de histórias e trouxe bem-casados pra você.'],
+  ['feira', 'Vou vender meus quitutes na feira e quero chamar atenção.', '{n} vendeu tudo na feira! Diz que a roupa atraiu a freguesia.'],
+  ['jornal', 'Vou tirar foto pro jornal da vila!', '{n} saiu no jornal da vila com a sua peça na foto! 📰'],
+];
+const motivoDepois = (h) => { const M = MOTIVOS.find((m) => m[0] === h.motivo); const v = villager(h.vid); return M && v ? M[2].replace('{n}', v.nome) : ''; };
+const LIVRE_LINES = ['Me surpreende! Faz uma peça que tenha a minha cara.', 'Confio no seu olho: escolhe a peça, a cor e a estampa.', 'Quero algo que combine comigo… você já me conhece!'];
+const pedidoSig = (o) => ({ vid: o.vid, peca: o.peca || o.kind || (o.acc && o.acc.tipo), cor: o.cores ? baseOf(o.cores[0]) : o.cor || (o.acc && baseOf(o.acc.cor)) || null, motivo: o.motivo || null });
+/* Never the same villager, piece or colour twice in a row */
 function newOrder() {
+  const U = state.ultimo || {};
+  let o;
+  for (let i = 0; i < 12; i++) {
+    o = newOrderRaw();
+    const g = pedidoSig(o);
+    if (state.served === 0 || (g.vid !== U.vid && g.peca !== U.peca && (!g.cor || g.cor !== U.cor))) break;
+  }
+  if ((!o.kind || o.kind === 'livre') && !o.capital && Math.random() < 0.8) {
+    const ops = MOTIVOS.filter((m) => m[0] !== U.motivo && !(m[0] === 'retrato' && o.vid === 'lua'));
+    o.motivo = pick(ops)[0];
+  }
+  state.ultimo = pedidoSig(o);
+  return o;
+}
+function newOrderRaw() {
   const line = Math.floor(Math.random() * LINES.length);
   const tipos = AKEYS.filter((k) => unlocked(ACCS[k]) && !ACCS[k].pet);
   const enfeites = tipos.filter((k) => !ACCS[k].joia);
@@ -2028,6 +2061,8 @@ function newOrder() {
       const tem = clothKeys('cloth').filter((k) => (state.cloth[k] || 0) >= MCOLS && baseOf(k) !== baseOf(cB));
       if (tem.length) { const nova = pick(tem), pk = pick(['vestido', 'saia', 'camisa'].filter(pieceOpen)), md = PIECES[pk].moldes[0].id; opts.push({ tipo: 'cor', cor: nova, antes: { peca: pk, molde: md, z: vz(cA, cB) }, depois: { peca: pk, molde: md, z: [{ cor: cA, padrao: v.fav }, { cor: nova, padrao: 'liso' }] } }); }
       o = { vid: v.id, kind: 'reforma', ...pick(opts), line };
+    } else if (state.served >= 3 && Math.random() < 0.2) {
+      o = { vid: v.id, kind: 'livre', line };
     } else if (state.served >= 3 && Math.random() < 0.22) {
       const petT = AKEYS.filter((k) => ACCS[k].pet && unlocked(ACCS[k]));
       o = { vid: v.id, kind: 'acessorio', acc: { tipo: PETS[v.id] && petT.length && Math.random() < 0.45 ? pick(petT) : pick(tipos), cor: scrapCols.length && Math.random() < 0.7 ? pick(scrapCols) : tone(pick(pool)) }, line };
@@ -2088,6 +2123,10 @@ function patchShape(x, y, hex, forma) {
   return `<rect x="${x - 6}" y="${y - 6}" width="12" height="12" rx="1" fill="${hex}" ${st}/>`;
 }
 function requestText(c) {
+  const M = c.motivo && MOTIVOS.find((m) => m[0] === c.motivo);
+  return (M ? M[1] + ' ' : '') + (c.kind === 'livre' ? LIVRE_LINES[c.line % LIVRE_LINES.length] : requestTextBase(c));
+}
+function requestTextBase(c) {
   if (c.misterio) { const P = PIECES[c.peca], [zA, zB] = P.zonas; return `📜 Um bilhete sem assinatura: «${MISTERIO[c.misterio - 1].bilhete}» Pede ${P.g === 'f' ? 'uma' : 'um'} ${P.nome.toLowerCase()} ${c.cores[0] === c.cores[1] ? corForm(c.cores[0], P.g) : `com ${zA.nome} ${corForm(c.cores[0], zA.g, zA.pl)} e ${zB.nome} ${corForm(c.cores[1], zB.g, zB.pl)}`}.`; }
   if (c.casamento && c.kind === 'conjunto') return `${nomesDe(c.vids)}: "Somos as madrinhas do casamento da Lua e da Nina! Uma peça toda ${corForm(c.cor, 'f')} pra cada uma, pra gente combinar." (${c.got.length} de ${c.vids.length})`;
   if (c.casamento) { const P = PIECES[c.peca]; return `"Eu vou me casar! 💍 Você faz ${P.g === 'f' ? 'uma' : 'um'} ${P.nome.toLowerCase()} ${corForm(c.cores[0], P.g)} pra mim? Quero estar linda pra ${c.vid === 'lua' ? 'Nina' : 'Lua'}."`; }
@@ -2115,6 +2154,7 @@ function wantIcon(o) {
   if (o.kind === 'remendo') return remendoSVG(o);
   if (o.kind === 'reforma') return `<svg class="want-rf" viewBox="0 0 100 60" aria-hidden="true">${pieceSVG(o.antes.peca, o.antes.molde, o.antes.z).replace('<svg ', '<svg x="0" y="4" width="46" height="52" ')}<path d="M44 30 h10 m-4 -4 l4 4 l-4 4" stroke="#3A3040" stroke-width="2.4" fill="none"/>${pieceSVG(o.depois.peca, o.depois.molde, o.depois.z).replace('<svg ', '<svg x="54" y="4" width="46" height="52" ')}</svg>`;
   if (o.kind === 'conjunto') return `<span class="want-conj"><span class="wsw" style="background:${hexOf(o.cor)}"></span>×${o.vids.length}</span>`;
+  if (o.kind === 'livre') return `<span class="want-q">${pieceSVG('vestido', null, null)}<b>✨</b></span>`;
   if (o.riddle) return `<span class="want-q">${o.kind === 'acessorio' ? accSVG(o.acc.tipo, null) : pieceSVG(o.peca, null, null)}<b>?</b></span>`;
   if (o.peca === 'patch') return pieceSVG('patch', o.molde, null);
   return o.kind === 'acessorio' ? accSVG(o.acc.tipo, o.acc.cor) : pieceSVG(o.peca, o.molde || null, [{ cor: o.cores[0], padrao: 'liso' }, { cor: o.cores[1], padrao: 'liso' }]);
@@ -2137,6 +2177,7 @@ function deliver() {
   const item = state.rack[state.selRack];
   if (!item) return;
   if (c.peca === 'patch') { deliverPatch(c, item); return; }
+  if (c.kind === 'livre') { deliverLivre(c, item); return; }
   const v = villager(c.vid);
   const P = PIECES[c.peca];
   const twoTone = c.cores[0] !== c.cores[1];
@@ -2181,6 +2222,29 @@ function deliver() {
     r.pay += item.bordado.q === 2 ? 6 : 3;
     if (item.bordado.q === 2) { r.h += 1; r.msg += ' E esse bordado, que capricho!'; }
   }
+  if (r.h >= 1) wear(v.id, item);
+  state.rack.splice(state.selRack, 1);
+  state.selRack = null;
+  settle(c, v, r);
+}
+/* A free order: she judges how much the piece looks like her */
+function deliverLivre(c, item) {
+  const v = villager(c.vid), price = moldeOf(item.peca, item.molde).preco;
+  let sc = 0;
+  if (item.z.some((z) => z.padrao === v.fav)) sc += 1;
+  sc += Math.min(2, item.z.filter((z) => z.cor && v.cores.includes(baseOf(z.cor))).length);
+  if (item.fin && item.fin.botao === VBOTAO[v.id]) sc += 1;
+  if (item.fin && item.fin.gola && item.fin.gola === VGOLA[v.id]) sc += 1;
+  if (item.stars === 3) sc += 1;
+  if (item.bordado && item.bordado.q) sc += 1;
+  const cabe = (item.tam || 'M') === v.tam || ['trico', 'patch'].includes(item.peca);
+  let r;
+  if (!cabe) r = { mood: 'hmm', pay: Math.ceil(price / 2), h: 0, msg: `Que linda… mas não serviu. Eu visto ${v.tam}.` };
+  else if (sc >= 4) r = { mood: 'amor', pay: price * 2 + 6, h: 3, msg: 'Você me conhece mesmo! É a minha cara, do jeitinho que eu sonhava.' };
+  else if (sc >= 2) r = { mood: 'feliz', pay: Math.round(price * 1.5), h: 2, msg: 'Que linda! Combinou comigo.' };
+  else if (sc === 1) r = { mood: 'hmm', pay: price, h: 1, msg: 'É bonita, mas não é bem o meu estilo.' };
+  else r = { mood: 'hmm', pay: Math.round(price * 0.6), h: 0, msg: 'Hmm… não combinou muito comigo. Mas obrigada!' };
+  if (v.exigente && item.stars === 1 && r.h >= 1) r = { mood: 'emburrada', pay: 2, h: -1, msg: 'Essa costura saiu com defeito… assim eu não posso usar.' };
   if (r.h >= 1) wear(v.id, item);
   state.rack.splice(state.selRack, 1);
   state.selRack = null;
@@ -2240,13 +2304,14 @@ function casamentoStart() {
   const day = clock().day;
   const madrinhas = activeVillagers().filter((v) => !NOIVAS.includes(v.id)).slice(0, 3).map((v) => v.id);
   const cor = makeableColors().includes('rosa') ? 'rosa' : 'amarelo';
-  state.orders.push(
+  state.fila = state.fila || [];
+  state.fila.unshift(
     { id: id() + 'a', vid: 'lua', occ: 0, peca: 'vestido', cores: ['branco', 'branco'], line: 0, casamento: true, due: day + 9 },
     { id: id() + 'b', vid: 'nina', occ: 0, peca: pieceOpen('macacao') ? 'macacao' : 'vestido', cores: ['branco', 'branco'], line: 0, casamento: true, due: day + 9 },
     { id: id() + 'c', vid: madrinhas[0], vids: madrinhas, kind: 'conjunto', occ: 0, cor, got: [], line: 0, casamento: true, due: day + 9 },
   );
   C.madrinhas = madrinhas;
-  toast('💍 Novidade! A Lua e a Nina vão se casar! Elas deixaram encomendas no mural.');
+  toast('💍 Novidade! A Lua e a Nina vão se casar! As encomendas do casamento vão chegar no mural, uma de cada vez.');
   sfx('chime');
 }
 function settle(c, v, r) {
@@ -2261,7 +2326,8 @@ function settle(c, v, r) {
       if (c.misterio === 5) { r.pay += 60; setTimeout(() => { revelaAurora(); state.hearts.aurora = (state.hearts.aurora || 0) + 3; save(); renderAll(); openSheet({ kind: 'aurora' }); confete(50); }, 3500); }
     } else {
       const again = { ...c, id: c.id + 'x' };
-      setTimeout(() => { state.orders.push(again); toast('📜 O bilhete voltou pro mural: ela ainda espera a peça certa.'); save(); renderAll(); }, 4500);
+      (state.fila = state.fila || []).unshift(again);
+      setTimeout(() => toast('📜 Ela ainda espera a peça certa: o bilhete volta pro mural daqui a pouco.'), 4500);
     }
   }
   if (c.casamento) {
@@ -2274,9 +2340,13 @@ function settle(c, v, r) {
       if (C.got >= 3 && C.fase < 2) { C.fase = 2; C.dia = clock().day + 1; setTimeout(() => toast('💒 Tudo pronto! O casamento vai ser amanhã na praça.'), 1800); }
     } else {
       const again = { ...c, id: c.id + 'x', got: c.kind === 'conjunto' ? [] : undefined };
-      setTimeout(() => { state.orders.push(again); toast(`${v.nome} pediu de novo: o casamento ainda precisa dessa peça!`); save(); renderAll(); }, 4500);
+      (state.fila = state.fila || []).unshift(again);
+      setTimeout(() => toast(`${v.nome} vai pedir de novo: o casamento ainda precisa dessa peça!`), 4500);
     }
   }
+  if (r.h >= 1) { r.pay = Math.round(r.pay * 1.8); r.h += 1; }
+  proxPedido();
+  if (c.motivo && r.h >= 1) (state.historias = state.historias || []).push({ vid: v.id, motivo: c.motivo, day: clock().day + 1 });
   if (r.h >= 1 && v && humorOf(v) === 'apaixonada') r.pay = Math.round(r.pay * 1.2);
   if (r.h >= 1 && state.etiqueta && c.kind !== 'acessorio' && c.kind !== 'remendo') {
     state.marca = (state.marca || 0) + (c.kind === 'conjunto' ? c.vids.length : 1);
@@ -2717,7 +2787,7 @@ function act(el) {
   }
   else if (a === 'skip') {
     const o = curOrder();
-    if (o && !o.result) { state.orders = state.orders.filter((x) => x !== o); state.focus = null; toast('Pedido recusado.'); }
+    if (o && !o.result) { state.orders = state.orders.filter((x) => x !== o); state.focus = null; toast('Pedido recusado.'); proxPedido(); if (o.casamento || o.misterio) (state.fila = state.fila || []).push({ ...o, id: o.id + 'r' }); }
   }
   else if (a === 'me-opt') { const s = ui.sheet; if (s && s.me) { s.me[el.dataset.k] = el.dataset.v; renderSheet(); } return; }
   else if (a === 'me-ok') {
@@ -3082,7 +3152,7 @@ function renderAll() {
 const DAY_MS = 480000, SEASON_DAYS = 5, OLD_DAY_MS = 180000;
 
 function hintBox(o) {
-  if (o.kind === 'remendo' || o.kind === 'reforma') return '';
+  if (o.kind === 'remendo' || o.kind === 'reforma' || o.kind === 'livre') return '';
   const list = hintList(o);
   const shown = list.slice(0, o.hints || 0);
   const price = hintPrice(), left = HINTS_FREE - hintToday().used;
@@ -3313,7 +3383,7 @@ function renderTalk(s) {
   const T = trocaDe(v), trocou = state.trocas && state.trocas[v.id] === c.day;
   const trocaBox = `<div class="festa"><b>🔄 Troca do dia</b><p>${v.nome} te dá <b>${trocaTxt(T.da)}</b> em troca de <b>${trocaTxt(T.por)}</b>.</p>${trocou ? '<p>Vocês já trocaram hoje. Amanhã tem outra!</p>' : `<button class="btn" data-act="troca" data-v="${v.id}" id="troca-${v.id}" style="align-self:flex-start" ${trocaPode(T) ? '' : 'disabled'}>${trocaPode(T) ? 'Trocar' : 'Falta o que ela pede'}</button>`}</div>`;
   $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, talkMood(v, line), true)}${petSVG(v.id)}</div>
-      <div class="talk-txt"><p class="quote">${line}</p>${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}${(() => { const hm = humorOf(v), H = HUMORES[hm]; return `<p class="help" style="margin:0">${H.emo} ${H.txt}: ${hm === 'pensativa' ? `"Ando pensando em ${v.cores[c.day % v.cores.length]}…"` : H.efeito}.</p>`; })()}${amigaDe(v.id) && villager(amigaDe(v.id)) ? `<p class="help" style="margin:0">💞 Melhor amiga: ${villager(amigaDe(v.id)).nome}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
+      <div class="talk-txt"><p class="quote">${line}</p>${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}${(() => { const hm = humorOf(v), H = HUMORES[hm]; return `<p class="help" style="margin:0">${H.emo} ${H.txt}: ${hm === 'pensativa' ? `"Ando pensando em ${v.cores[c.day % v.cores.length]}…"` : H.efeito}.</p>`; })()}${(() => { const m = (state.memorias || []).filter((x) => x.vid === v.id).pop(); return m ? `<p class="help" style="margin:0">📖 ${motivoDepois(m)}</p>` : ''; })()}${amigaDe(v.id) && villager(amigaDe(v.id)) ? `<p class="help" style="margin:0">💞 Melhor amiga: ${villager(amigaDe(v.id)).nome}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
     <p class="label">Dar um presente${done ? ' · ela já ganhou um hoje' : ' · um por dia'}</p><div class="box">${gifts}</div>${trocaBox}`;
 }
 
@@ -4436,7 +4506,7 @@ function sceneSVG() {
   s += `<rect x="234" y="12" width="66" height="48" fill="#8B6A50"/><rect x="236" y="14" width="62" height="44" fill="#C9A06A"/>`;
   state.orders.filter((x) => !x.result).slice(0, 4).forEach((x, i) => {
     const nx = 240 + (i % 2) * 30, ny = 17 + Math.floor(i / 2) * 21;
-    const hx = x.riddle ? '#FFFFFF' : hexOf(x.kind === 'acessorio' ? x.acc.cor : x.kind === 'conjunto' ? x.cor : x.kind === 'remendo' ? x.z[0].cor : x.kind === 'reforma' ? x.depois.z[1].cor : x.cores[0]);
+    const hx = x.riddle ? '#FFFFFF' : hexOf(x.kind === 'acessorio' ? x.acc.cor : x.kind === 'conjunto' ? x.cor : x.kind === 'remendo' ? x.z[0].cor : x.kind === 'reforma' ? x.depois.z[1].cor : x.kind === 'livre' ? villager(x.vid).cores[0] : x.cores[0]);
     s += `<rect x="${nx}" y="${ny}" width="24" height="18" fill="#FFF8E6"/><rect x="${nx + 10}" y="${ny - 1}" width="3" height="3" fill="#C8463D"/><rect x="${nx + 3}" y="${ny + 5}" width="9" height="9" fill="${hx}" stroke="#9A8B78" stroke-width=".6"/><rect x="${nx + 14}" y="${ny + 7}" width="7" height="1" fill="#9A8B78"/><rect x="${nx + 14}" y="${ny + 10}" width="6" height="1" fill="#9A8B78"/>`;
   });
   if (state.trofeus) s += `<rect x="84" y="46" width="18" height="4" fill="#8B6A50"/><rect x="89" y="41" width="8" height="5" fill="#C9A640"/><rect x="91" y="35" width="4" height="6" fill="#E8B931"/><rect x="85" y="24" width="16" height="11" fill="#F2C94C"/><rect x="82" y="25" width="3" height="6" fill="#E8B931"/><rect x="101" y="25" width="3" height="6" fill="#E8B931"/><rect x="88" y="26" width="2" height="6" fill="#FFF3B0"/>${state.trofeus > 1 ? `<text x="93" y="58" text-anchor="middle" font-family="Pixelify Sans, monospace" font-size="8" fill="#6E5D48">×${state.trofeus}</text>` : ''}`;
@@ -5035,7 +5105,7 @@ function renderMedir(s) {
 }
 function renderPedidos() {
   const open = state.orders.filter((o) => !o.result);
-  $('gen-title').textContent = `Mural de pedidos · ${open.length} de ${maxOrders()}`;
+  $("gen-title").textContent = `Mural de pedidos · ${open.length}`;
   const cur = curOrder();
   const cards = open.map((o) => {
     const v = villager(o.vid);
@@ -5584,15 +5654,24 @@ function tick() {
   const before = state.orders.length;
   state.orders = state.orders.filter((o) => !(o.result && now >= o.leaveAt));
   if (state.orders.length !== before) changed = true;
-  if (state.orders.filter((o) => !o.result).length < maxOrders() && now >= state.nextOrder) {
-    const o = newOrder();
+  /* One order at a time: the next one arrives a little while after the last is settled */
+  if (!state.orders.some((o) => !o.result) && now >= state.nextOrder) {
+    state.fila = state.fila || [];
+    const o = state.fila.length ? state.fila.shift() : newOrder();
     state.orders.push(o);
-    state.nextOrder = now + 40000 + Math.random() * 30000;
-    if (state.served > 0) toast(`${villager(o.vid).nome} deixou um pedido no mural.`);
+    state.nextOrder = now + 25000;
+    if (o.misterio) toast('📜 Chegou um bilhete sem assinatura no mural…');
+    else if (state.served > 0) toast(`${villager(o.vid).nome} deixou um pedido no mural.`);
     changed = true;
   }
   if (state.vitrine.some(Boolean) && now >= state.nextPass) { passBy(); changed = true; }
   if (state.lastDay !== ck.day) {
+    const hs = (state.historias || []).filter((h) => h.day <= ck.day);
+    if (hs.length) {
+      state.historias = state.historias.filter((h) => h.day > ck.day);
+      state.memorias = [...(state.memorias || []), ...hs].slice(-20);
+      hs.forEach((h, i) => setTimeout(() => toast('📖 ' + motivoDepois(h)), 1800 + i * 2200));
+    }
     if (state.lastDay != null) toast(ck.festa ? `Dia ${ck.day}: hoje tem ${FESTAS[ck.season.id].nome} na praça!` : ck.dayInSeason === 3 ? `Dia ${ck.day}: Madame Lis chegou pro concurso de moda!` : clubeHoje(ck) ? `Dia ${ck.day}: hoje tem Clube de costura no ateliê! 🧵` : ck.dayInSeason === 1 ? `Começou ${ck.season.art} ${ck.season.nome.toLowerCase()}!` : `Bom dia! Dia ${ck.day}${ck.rain ? ', com chuva' : ''}.`);
     state.lastDay = ck.day;
     changed = true;
@@ -5602,12 +5681,10 @@ function tick() {
   if (state.served >= 5 && state.correio.cartas.length < 2 && now >= state.correio.next) { novaCarta(now); changed = true; }
   if (!state.misterio && state.served >= 8) state.misterio = { cap: 0, next: now };
   const MM = state.misterio;
-  if (MM && MM.cap < 5 && now >= MM.next && !state.orders.some((o) => o.misterio)) {
+  if (MM && MM.cap < 5 && now >= MM.next && !state.orders.some((o) => o.misterio) && !(state.fila || []).some((o) => o.misterio)) {
     const C = MISTERIO[MM.cap];
-    state.orders.push({ id: 'om' + Math.floor(now) + MM.cap, vid: 'aurora', occ: 0, peca: C.peca, cores: C.cores, line: 0, misterio: MM.cap + 1, due: ck.day + 9 });
+    (state.fila = state.fila || []).push({ id: 'om' + Math.floor(now) + MM.cap, vid: 'aurora', occ: 0, peca: C.peca, cores: C.cores, line: 0, misterio: MM.cap + 1, due: ck.day + 9 });
     state.measured.aurora = true;
-    toast('📜 Chegou um bilhete sem assinatura no mural…');
-    changed = true;
   }
   if (state.tab === 'vila' && !ui.sheet) { const ps = Math.floor(now / 20000); if (ui.papo !== ps) { if (ui.papo != null) changed = true; ui.papo = ps; } }
   if (now >= state.cat.next) { catEvent(now); changed = true; }
