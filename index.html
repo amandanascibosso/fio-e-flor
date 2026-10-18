@@ -380,6 +380,7 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
 .rotate { display: none; position: fixed; inset: 0; z-index: 60; background: var(--bg); color: var(--cream); flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
 .rotate h2 { font-family: var(--font-display); font-size: 30px; margin: 0; }
 .rotate p { margin: 0; color: #CDBFA6; max-width: 30ch; }
+.rotate .btn { color: var(--ink); }
 .rotate svg { width: 84px; height: 84px; animation: turn 2.4s steps(1) infinite; }
 @keyframes turn { 50% { transform: rotate(-90deg); } }
 
@@ -771,7 +772,7 @@ html.deitado .arrow svg { width: 18px; height: 18px; }
   .plot.ready, .bubbles circle, .flame, .toast, .miss, .sprite .eyes, .crowd-v .sprite, .desfila, .cat .tail, .zzz, .drop, .loc.enter-r, .loc.enter-l, .rotate svg { animation: none !important; }
 }
 </style>
-<script>try { var dp = localStorage.getItem('fio-deitado') || 'on'; if (dp !== 'off' && matchMedia('(orientation: portrait)').matches) { document.documentElement.classList.add('deitado'); if (dp === 'r') document.documentElement.classList.add('deitado-r'); } } catch (e) {}</script>
+<script>try { var dp = localStorage.getItem('fio-deitado') || 'off'; if (dp !== 'off' && matchMedia('(orientation: portrait)').matches) { document.documentElement.classList.add('deitado'); if (dp === 'r') document.documentElement.classList.add('deitado-r'); } } catch (e) {}</script>
 <div id="splash" class="splash" role="status" aria-live="polite" aria-label="Carregando Fio e Flor">
   <div class="sp-logo">Fio <span>&amp;</span> Flor</div>
   <svg class="sp-anim" viewBox="0 0 200 64" shape-rendering="crispEdges" aria-hidden="true">
@@ -835,6 +836,7 @@ html.deitado .arrow svg { width: 18px; height: 18px; }
     <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="1" width="6" height="14" fill="#F6E7C8"/><rect x="6" y="2" width="4" height="10" fill="#8EC3E6"/><rect x="7" y="13" width="2" height="1" fill="#3A3040"/></svg>
     <h2 id="rotate-title">Gire o celular</h2>
     <p>Fio &amp; Flor fica mais gostoso deitado, com a vila inteira na tela.</p>
+    <button class="primary" id="rotate-lock">Mostrar deitado com o celular em pé</button>
     <button class="btn" id="rotate-ok">Jogar em pé mesmo assim</button>
   </div>
   <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -2768,7 +2770,7 @@ function renderStats() {
     <button class="snd-btn tar-btn" data-act="sheet" data-kind="tarefas" id="tar-btn" aria-label="Tarefas" title="Tarefas">📋${(() => { const T = tarefasHoje(); const left = T.list.filter((x) => x.n < TAREFAS[x.id].n).length; return `<span class="badge${left ? '' : ' pronta'}">${left || '!'}</span>`; })()}</button>
     <button class="snd-btn" data-act="sheet" data-kind="conquistas" id="conq-btn" aria-label="Conquistas" title="Conquistas">🏅</button>
     <button class="snd-btn" data-act="foto" id="foto-btn" aria-label="Modo foto" title="Modo foto">📷</button>
-    <button class="snd-btn" data-act="music" id="music-btn" aria-pressed="${SND.music}" aria-label="Música" title="Música">♪</button>
+    <button class="snd-btn" data-act="sheet" data-kind="config" id="config-btn" aria-label="Configurações" title="Configurações">⚙️</button>
     <button class="shop-btn" data-act="sheet" data-kind="loja" id="open-loja">Loja</button>`;
 }
 
@@ -3359,14 +3361,24 @@ function renderLoja() {
     <p class="label">Melhorias</p><div class="shop-list">${ups}</div>
     <p class="label">Revistas de moda</p><div class="shop-list">${REVISTAS.map((R) => `<div class="shop-item"><div><b>${R.nome}</b><p>${R.desc}</p></div>${state.revistas.includes(R.id) ? '<span class="owned">Na estante</span>' : `<button class="btn" data-act="buy-revista" data-v="${R.id}" id="rev-${R.id}" ${state.coins < R.preco ? 'disabled' : ''}><span class="coin" aria-hidden="true"></span>${R.preco}</button>`}</div>`).join('')}</div>
     <p class="label">Decoração do ateliê</p><div class="shop-list">${decs}</div>
-    <p class="label">Jogo</p><div class="deliver-row">
+    <p class="label">Sua marca</p><div class="deliver-row">
+      <button class="btn" data-act="sheet" data-kind="etiqueta" id="etq-open">🏷️ Etiqueta da marca</button></div>`;
+}
+function renderConfig() {
+  const dp = deitPref();
+  $('gen-title').textContent = '⚙️ Configurações';
+  $('gen-body').innerHTML = `<p class="label">Sons</p><div class="deliver-row">
       <button class="btn" data-act="sfx-toggle" id="sfx-t" aria-pressed="${SND.sfx}">Sons: ${SND.sfx ? 'ligados' : 'desligados'}</button>
       <button class="btn" data-act="music" id="music-t" aria-pressed="${SND.music}">Música: ${SND.music ? 'ligada' : 'desligada'}</button>
-      <button class="btn" data-act="deit-toggle" id="deit-t" aria-pressed="${deitPref() !== 'off'}">Tela deitada travada: ${deitPref() !== 'off' ? 'ligada' : 'desligada'}</button>
-      ${deitPref() !== 'off' ? '<button class="btn" data-act="deit-virar" id="deit-v">Virar a tela pro outro lado</button>' : ''}
-      <button class="btn" data-act="amb-toggle" id="amb-t" aria-pressed="${SND.amb}">Sons do ambiente: ${SND.amb ? 'ligados' : 'desligados'}</button>
-      <button class="btn" data-act="sheet" data-kind="criar" id="me-edit">Mudar costureira</button>
-      <button class="btn" data-act="sheet" data-kind="etiqueta" id="etq-open">🏷️ Etiqueta da marca</button>
+      <button class="btn" data-act="amb-toggle" id="amb-t" aria-pressed="${SND.amb}">Sons do ambiente: ${SND.amb ? 'ligados' : 'desligados'}</button></div>
+    <p class="label">Tela</p>
+    <p class="help" style="margin:0">Pra quando a trava de rotação do celular estiver ligada: com o celular em pé, o jogo aparece desenhado de lado. Com a trava desligada, o celular gira sozinho e isso não é necessário.</p>
+    <div class="deliver-row">
+      <button class="btn" data-act="deit-toggle" id="deit-t" aria-pressed="${dp !== 'off'}">Tela deitada com trava: ${dp !== 'off' ? 'ligada' : 'desligada'}</button>
+      ${dp !== 'off' ? '<button class="btn" data-act="deit-virar" id="deit-v">Virar pro outro lado</button>' : ''}</div>
+    <p class="label">Sua costureira</p><div class="deliver-row">
+      <button class="btn" data-act="sheet" data-kind="criar" id="me-edit">Mudar costureira</button></div>
+    <p class="label">Progresso</p><div class="deliver-row">
       <button class="btn" data-act="sheet" data-kind="backup" id="backup-open">Backup do progresso</button>
       <button class="btn" data-act="reset" id="reset">Recomeçar do zero</button></div>`;
 }
@@ -4535,6 +4547,7 @@ function renderSheet() {
   if (s.kind === 'revista') { renderRevista(s); return; }
   if (s.kind === 'conquistas') { renderConquistas(); return; }
   if (s.kind === 'tarefas') { renderTarefas(); return; }
+  if (s.kind === 'config') { renderConfig(); return; }
   if (s.kind === 'etiqueta') { renderEtiqueta(s); return; }
   if (s.kind === 'aurora') { renderAurora(); return; }
   if (s.kind === 'bau') { renderBau(); return; }
@@ -4807,7 +4820,7 @@ function ambTick() {
 }
 setInterval(ambTick, 120);
 /* Lying-down lock. On by default; 'r' turns it the other way round. */
-const deitPref = () => { try { return localStorage.getItem('fio-deitado') || 'on'; } catch (e) { return 'on'; } };
+const deitPref = () => { try { return localStorage.getItem('fio-deitado') || 'off'; } catch (e) { return 'off'; } };
 function aplicaDeitado() {
   const p = deitPref(), on = p !== 'off' && matchMedia('(orientation: portrait)').matches;
   document.documentElement.classList.toggle('deitado', on);
@@ -5690,6 +5703,7 @@ function start(data) {
   aplicaDeitado();
   addEventListener('resize', aplicaDeitado);
   matchMedia('(orientation: portrait)').addEventListener?.('change', aplicaDeitado);
+  $('rotate-lock').addEventListener('click', () => { try { localStorage.setItem('fio-deitado', 'on'); } catch (e) {} aplicaDeitado(); });
   $('rotate-ok').addEventListener('click', () => {
     document.body.classList.add('portrait-ok');
     try { localStorage.setItem('fio-portrait-ok', '1'); } catch (e) {}
