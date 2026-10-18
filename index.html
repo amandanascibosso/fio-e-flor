@@ -687,6 +687,15 @@ html.deitado #sew-stage svg { max-height: 44vw; }
 html.deitado #cut-svg { max-height: 54vw; }
 html.deitado .arrow { padding: 4px 4px 3px; font-size: 10px; }
 html.deitado .arrow svg { width: 18px; height: 18px; }
+.cat-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 2px 4px; flex: none; }
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-tab { flex: none; display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 56px; padding: 3px 5px 2px; background: var(--paper-2); border: 2px solid var(--line); border-radius: 10px; font-weight: 800; font-size: 11px; line-height: 1.1; }
+.cat-tab svg { width: 24px; height: 24px; }
+.cat-tab .cat-emo { font-size: 18px; line-height: 24px; height: 24px; }
+.cat-tab[aria-pressed="true"] { border: 3px solid var(--accent); background: var(--accent-soft); }
+.cat-tab.extra { border-style: dashed; }
+.piece { position: relative; }
+.piece .vint { position: absolute; top: 4px; right: 4px; font-size: 9px; font-weight: 800; background: #C9A06A; color: #fff; border-radius: 6px; padding: 0 4px; }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -1434,6 +1443,10 @@ function pieceSVG(peca, moldeId, zs, label, acc, bordado, fin) {
   return `<svg viewBox="0 0 100 100" ${aria}><defs>${L.defs}</defs>${L.body}${stitch}${fin ? golaBolsoMarkup(m, peca, fin, z) + finMarkup(fin, z) + (fin.etq ? etiquetaMarkup(m) : '') : ''}${bordadoMarkup(bordado)}${extra}</svg>`;
 }
 
+/* Soft pastel previews so the patterns look as cute as the villagers */
+const CAT_NOME = { vestido: 'Vestidos', saia: 'Saias', camisa: 'Blusas', cachecol: 'Cachecóis', chapeu: 'Chapéus', avental: 'Aventais', casaco: 'Casacos', macacao: 'Macacões' };
+const MOL_COR = { vestido: ['chiclete', 'rosa'], saia: ['pervinca', 'celeste'], camisa: ['creme', 'pêssego'], cachecol: ['verde-água', 'menta'], chapeu: ['pêssego', 'creme'], avental: ['creme', 'amarelo'], casaco: ['névoa', 'lírio'], macacao: ['celeste', 'pervinca'] };
+const molPreview = (pk) => (MOL_COR[pk] || ['rosa', 'chiclete']).map((c) => ({ cor: COLORS[c] ? c : 'rosa', padrao: 'liso' }));
 function patchArt(m, grid) {
   const n = Math.round(Math.sqrt(grid.length)), x0 = m.id === 'colcha' ? 12 : 20, w = m.id === 'colcha' ? 76 : 60, c = w / n;
   let r = '';
@@ -2813,6 +2826,7 @@ function act(el) {
     try { localStorage.setItem('fio-deitado', nv); } catch (e) {}
     aplicaDeitado(); renderSheet(); return;
   }
+  else if (a === 'mesa-cat') { ui.mesaCat = el.dataset.v; }
   else if (a === 'foto') { document.body.classList.add('foto'); return; }
   else if (a === 'amb-toggle') { SND.amb = !SND.amb; saveSnd(); if (SND.amb) actx(); else ambStop(); }
   else if (a === 'reset') {
@@ -2981,17 +2995,20 @@ function renderAtelie() {
   let title, content, confirmCard = '';
   if (sub === 'mesa') {
     title = 'Mesa de trabalho';
-    const tiles = Object.keys(PIECES).filter((pk) => pieceOpen(pk) && !PIECES[pk].fora).flatMap((pk) => PIECES[pk].moldes.filter((m) => !m.vintage || (state.vintage || []).includes(m.id)).map((m) => {
+    const cats = Object.keys(PIECES).filter((pk) => pieceOpen(pk) && !PIECES[pk].fora);
+    const co = curOrder();
+    const cat = cats.includes(ui.mesaCat) ? ui.mesaCat : co && !co.result && cats.includes(co.peca) ? co.peca : cats.includes(b.peca) ? b.peca : cats[0];
+    const tabs = cats.map((pk) => `<button class="cat-tab" data-act="mesa-cat" data-v="${pk}" id="cat-${pk}" aria-pressed="${pk === cat}">${pieceSVG(pk, null, molPreview(pk))}<span>${CAT_NOME[pk] || PIECES[pk].nome}</span></button>`).join('')
+      + '<button class="cat-tab extra" data-act="sheet" data-kind="trico" id="open-trico"><span class="cat-emo">🧶</span><span>Tricô</span></button><button class="cat-tab extra" data-act="sheet" data-kind="patch" id="open-patch"><span class="cat-emo">🧩</span><span>Patchwork</span></button>';
+    const tiles = [cat].flatMap((pk) => PIECES[pk].moldes.filter((m) => !m.vintage || (state.vintage || []).includes(m.id)).map((m) => {
       const on = b.peca === pk && moldeOf(b.peca, b.molde).id === m.id;
-      return `<button class="piece" data-act="pickmolde" data-p="${pk}" data-v="${m.id}" id="molde-${m.id}" aria-pressed="${on}">${pieceSVG(pk, m.id, on ? b.z : null)}${m.nome}<span class="price"><span class="coin" aria-hidden="true"></span>${m.preco}</span></button>`;
+      return `<button class="piece" data-act="pickmolde" data-p="${pk}" data-v="${m.id}" id="molde-${m.id}" aria-pressed="${on}">${pieceSVG(pk, m.id, on && b.z[0].cor ? b.z : molPreview(pk))}${m.vintage ? '<span class="vint">antigo</span>' : ''}${m.nome}<span class="price"><span class="coin" aria-hidden="true"></span>${m.preco}</span></button>`;
     })).join('');
     const rackFull = state.rack.length >= rackMax();
     const m = b.peca ? moldeOf(b.peca, b.molde) : null;
-    content = `${clubeHoje() ? '<div class="festa on"><b>🧵 Clube de costura hoje!</b><button class="btn" data-act="sheet" data-kind="clube" id="clube-atelie" style="align-self:flex-start">Abrir o clube</button></div>' : ''}<p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
-      <div class="deliver-row"><button class="btn" data-act="sheet" data-kind="estampa" id="open-estampa">✏️ Criar estampa (${(state.myPats || []).length} de 3)</button>
-      <button class="btn" data-act="sheet" data-kind="trico" id="open-trico">🧶 Tricô</button>
-      <button class="btn" data-act="sheet" data-kind="patch" id="open-patch">🧩 Patchwork</button></div>`;
-    confirmCard = m ? `<div class="confirm-card">${pieceSVG(b.peca, b.molde, null, 'Molde escolhido')}<div><b>${m.nome}</b><span>${m.cut.length} moldes de papel</span>
+    content = `${clubeHoje() ? '<div class="festa on"><b>🧵 Clube de costura hoje!</b><button class="btn" data-act="sheet" data-kind="clube" id="clube-atelie" style="align-self:flex-start">Abrir o clube</button></div>' : ''}<div class="cat-tabs">${tabs}</div><p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
+      <div class="deliver-row"><button class="btn" data-act="sheet" data-kind="estampa" id="open-estampa">✏️ Criar estampa (${(state.myPats || []).length} de 3)</button></div>`;
+    confirmCard = m ? `<div class="confirm-card">${pieceSVG(b.peca, b.molde, molPreview(b.peca), 'Molde escolhido')}<div><b>${m.nome}</b><span>${m.cut.length} moldes de papel</span>
       <button class="primary sm" data-act="confirm-molde" id="confirm-molde" ${rackFull ? 'disabled' : ''}>${rackFull ? 'Arara cheia' : 'Confirmar molde'}</button></div></div>` : '';
   } else if (sub === 'arara') {
     title = 'Arara';
