@@ -696,6 +696,19 @@ html.deitado .arrow svg { width: 18px; height: 18px; }
 .cat-tab.extra { border-style: dashed; }
 .piece { position: relative; }
 .piece .vint { position: absolute; top: 4px; right: 4px; font-size: 9px; font-weight: 800; background: #C9A06A; color: #fff; border-radius: 6px; padding: 0 4px; }
+.obra-steps { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+.obra-steps:empty { display: none; }
+.ob-dot { width: 26px; height: 26px; display: grid; place-items: center; font-size: 13px; border-radius: 50%; background: var(--paper-2); border: 2px solid var(--line); opacity: .55; }
+.ob-dot.on { opacity: 1; border-color: var(--accent); background: var(--accent-soft); transform: scale(1.12); }
+.ob-dot.ok { opacity: 1; background: #DCEFD2; border-color: #6FAE5C; }
+.ob-alvo { animation: alvo 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; cursor: pointer; }
+@keyframes alvo { 50% { transform: scale(1.2); } }
+.ob-puff { animation: puff .9s ease-out forwards; }
+@keyframes puff { to { transform: translateY(-8px); opacity: 0; } }
+.obra-prova { display: flex; align-items: flex-end; justify-content: center; gap: 14px; width: 100%; }
+.prova-me { width: min(30vw, 120px); } .prova-me .sprite { width: 100%; height: auto; }
+.prova-peca { width: min(26vw, 110px); } .prova-peca svg { width: 100%; height: auto; }
+html.deitado .prova-me { width: min(30vh, 120px); } html.deitado .prova-peca { width: min(26vh, 110px); }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -826,7 +839,8 @@ html.deitado .arrow svg { width: 18px; height: 18px; }
   <div class="sheet" id="sew" hidden role="dialog" aria-modal="true" aria-labelledby="sew-title">
     <div class="sheet-card">
       <h2 id="sew-title">Mesa de costura</h2>
-      <p class="help" style="margin:0">A agulha vai seguir a costura. Toque em "Dar ponto" (ou no tecido) quando ela passar em cima de cada marquinha.</p>
+      <div class="obra-steps" id="obra-steps"></div>
+      <p class="help" id="sew-help" style="margin:0">A agulha vai seguir a costura. Toque em "Dar ponto" (ou no tecido) quando ela passar em cima de cada marquinha.</p>
       <div id="sew-stage"></div>
       <div class="sew-status"><span id="sew-count"></span><span id="sew-msg" aria-live="polite"></span></div>
       <button class="primary" id="sew-btn">Dar ponto</button>
@@ -2476,7 +2490,7 @@ function act(el) {
     return;
   }
   else if (a === 'zpad') { b.z[+el.dataset.z].padrao = el.dataset.v; }
-  else if (a === 'open-cut') { if (ui.sheet) { ui.sheet = null; renderSheet(); } openCut(); return; }
+  else if (a === 'open-cut') { if (ui.sheet) { ui.sheet = null; renderSheet(); } if (state.sewing && state.sewing.obra) { toast('Termine primeiro a peça que já está na costura!'); openObra(); return; } openCut(); return; }
   else if (a === 'plant') {
     const i = ui.sheet && ui.sheet.i, f = el.dataset.f;
     if (i != null && !state.plots[i] && state.seeds[f] > 0) {
@@ -2827,6 +2841,7 @@ function act(el) {
     aplicaDeitado(); renderSheet(); return;
   }
   else if (a === 'mesa-cat') { ui.mesaCat = el.dataset.v; }
+  else if (a === 'obra-voltar') { if (state.sewing && state.sewing.obra) openObra(); return; }
   else if (a === 'foto') { document.body.classList.add('foto'); return; }
   else if (a === 'amb-toggle') { SND.amb = !SND.amb; saveSnd(); if (SND.amb) actx(); else ambStop(); }
   else if (a === 'reset') {
@@ -3006,7 +3021,7 @@ function renderAtelie() {
     })).join('');
     const rackFull = state.rack.length >= rackMax();
     const m = b.peca ? moldeOf(b.peca, b.molde) : null;
-    content = `${clubeHoje() ? '<div class="festa on"><b>🧵 Clube de costura hoje!</b><button class="btn" data-act="sheet" data-kind="clube" id="clube-atelie" style="align-self:flex-start">Abrir o clube</button></div>' : ''}<div class="cat-tabs">${tabs}</div><p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
+    content = `${state.sewing && state.sewing.obra ? '<button class="primary" data-act="obra-voltar" id="obra-voltar" style="align-self:flex-start">🧵 Continuar a peça que você estava fazendo</button>' : ''}${clubeHoje() ? '<div class="festa on"><b>🧵 Clube de costura hoje!</b><button class="btn" data-act="sheet" data-kind="clube" id="clube-atelie" style="align-self:flex-start">Abrir o clube</button></div>' : ''}<div class="cat-tabs">${tabs}</div><p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
       <div class="deliver-row"><button class="btn" data-act="sheet" data-kind="estampa" id="open-estampa">✏️ Criar estampa (${(state.myPats || []).length} de 3)</button></div>`;
     confirmCard = m ? `<div class="confirm-card">${pieceSVG(b.peca, b.molde, molPreview(b.peca), 'Molde escolhido')}<div><b>${m.nome}</b><span>${m.cut.length} moldes de papel</span>
       <button class="primary sm" data-act="confirm-molde" id="confirm-molde" ${rackFull ? 'disabled' : ''}>${rackFull ? 'Arara cheia' : 'Confirmar molde'}</button></div></div>` : '';
@@ -5421,17 +5436,16 @@ function doCut() {
   const b = state.bench;
   const fin = { linha: b.linha || null, botao: b.botao || 'madeira', gola: temGola(b.peca) ? b.gola || 'nenhuma' : 'nenhuma', bolso: temBolso(b.peca) ? b.bolso || 'nenhum' : 'nenhum', etq: !!state.etiqueta };
   state.coins = Math.max(0, state.coins - BOTOES[fin.botao].preco - GOLAS[fin.gola].preco - BOLSOS[fin.bolso].preco);
-  state.sewing = { kind: 'peca', peca: b.peca, molde: b.molde, z: b.z.map((z) => ({ ...z })), tam: b.tam || 'M', fin };
+  state.sewing = { kind: 'peca', peca: b.peca, molde: b.molde, z: b.z.map((z) => ({ ...z })), tam: b.tam || 'M', fin, obra: { i: 0, notas: [] } };
   b.z.forEach((z) => { if (!(state.cloth[z.cor] > 0)) z.cor = null; });
   cut = null;
-  try { retalhosVoando(state.bench.z.map((z) => hexOf(z.cor)).filter(Boolean)); } catch (e) {}
   $('cut').hidden = true;
   save();
   renderAll();
-  openSew();
+  openObra();
 }
-function svgPt(e) {
-  const svg = $('cut-svg');
+function svgPt(e) { return svgPtIn($('cut-svg'), e); }
+function svgPtIn(svg, e) {
   if (document.documentElement.classList.contains('deitado')) {
     const r = localRect(svg), [lx, ly] = toLocal(e.clientX, e.clientY), vb = svg.viewBox.baseVal;
     const k = Math.min(r.width / vb.width, r.height / vb.height), ox = (r.width - vb.width * k) / 2, oy = (r.height - vb.height * k) / 2;
@@ -5526,7 +5540,7 @@ function profProgress(cum, f) {
   return 1;
 }
 let sew = null;
-function openSew() {
+function openSew(seg) {
   const s = state.sewing;
   const isAcc = s.kind === 'acc';
   let seam, art, nome, nMarks, dbl;
@@ -5542,7 +5556,8 @@ function openSew() {
     nome = m.nome; nMarks = SEW_MARKS; dbl = [2, 5];
   }
   $('sew').hidden = false;
-  $('sew-title').textContent = `Costurando: ${nome}`;
+  if (!seg) { $('obra-steps').innerHTML = ''; $('sew-help').textContent = 'A agulha vai seguir a costura. Toque em "Dar ponto" (ou no tecido) quando ela passar em cima de cada marquinha.'; $('sew-btn').hidden = false; }
+  $('sew-title').textContent = seg ? $('sew-title').textContent : `Costurando: ${nome}`;
   $('sew-stage').innerHTML = `<svg viewBox="-6 -6 112 112" role="img" aria-label="${nome} na mesa de costura">${art}
     <path id="seam" d="${seam}" fill="none" stroke="#3A3040" stroke-width="1.2" stroke-dasharray="2.5 2.5"/>
     <path id="thread" d="${seam}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>
@@ -5551,14 +5566,16 @@ function openSew() {
   </svg>`;
   const path = $('seam');
   const total = path.getTotalLength();
-  const marks = Array.from({ length: nMarks }, (_, i) => ({ at: total * (i + 0.5) / nMarks, st: 0, need: dbl.includes(i) ? 2 : 1, got: 0 }));
+  const A = seg ? seg.a * total : 0, B = seg ? seg.b * total : total;
+  if (seg) { nMarks = 3; dbl = [1]; }
+  const marks = Array.from({ length: nMarks }, (_, i) => ({ at: A + (B - A) * (i + 0.5) / nMarks, st: 0, need: dbl.includes(i) ? 2 : 1, got: 0 }));
   $('marks').innerHTML = marks.map((mk, i) => {
     const pt = path.getPointAtLength(mk.at);
     return `<g id="mk-${i}"><circle cx="${pt.x}" cy="${pt.y}" r="${mk.need > 1 ? 4.2 : 3}" fill="var(--paper)" stroke="#3A3040" stroke-width="1"/>${mk.need > 1 ? `<circle cx="${pt.x}" cy="${pt.y}" r="1.8" fill="none" stroke="#3A3040" stroke-width=".8"/>` : ''}</g>`;
   }).join('');
-  $('thread').style.strokeDasharray = `0 ${total}`;
+  $('thread').style.strokeDasharray = `${A} ${total}`;
   if (s.fin && s.fin.linha) $('thread').style.stroke = s.fin.linha;
-  sew = { path, total, marks, t0: performance.now(), hits: 0, misses: 0, req: marks.reduce((t, m) => t + m.need, 0), done: false, dur: (isAcc ? 0.7 : 1) * sewMs(), cum: makeProfile(isAcc ? s.tipo : s.molde) };
+  sew = { path, total, a: A, b: B, parte: seg ? seg.i : null, marks, t0: performance.now(), hits: 0, misses: 0, req: marks.reduce((t, m) => t + m.need, 0), done: false, dur: (isAcc ? 0.7 : 1) * sewMs() * (seg ? Math.max(0.45, (B - A) / total) : 1), cum: makeProfile(isAcc ? s.tipo : s.molde) };
   $('sew-btn').textContent = 'Dar ponto';
   $('sew-skip').hidden = false;
   $('sew-msg').textContent = 'Prepare a agulha…';
@@ -5566,7 +5583,7 @@ function openSew() {
   $('sew-btn').focus({ preventScroll: true });
   requestAnimationFrame(sewFrame);
 }
-const sewLen = (now) => profProgress(sew.cum, Math.max(0, Math.min(1, (now - sew.t0 - SEW_LEAD) / sew.dur))) * sew.total;
+const sewLen = (now) => sew.a + profProgress(sew.cum, Math.max(0, Math.min(1, (now - sew.t0 - SEW_LEAD) / sew.dur))) * (sew.b - sew.a);
 function updateSewCount() { $('sew-count').textContent = `${sew.hits} de ${sew.req} pontos`; }
 function markStyle(i, fill, r) {
   const g = $('mk-' + i);
@@ -5586,12 +5603,12 @@ function sewFrame(now) {
     if (m.st === 0 && len > m.at + tol) { m.st = -1; markStyle(i, 'var(--line)'); }
   });
   if (len > 0 && $('sew-msg').textContent === 'Prepare a agulha…') $('sew-msg').textContent = '';
-  if (now - sew.t0 - SEW_LEAD >= sew.dur || len >= sew.total - 0.01) { finishSew(); return; }
+  if (now - sew.t0 - SEW_LEAD >= sew.dur || len >= sew.b - 0.01) { finishSew(); return; }
   requestAnimationFrame(sewFrame);
 }
 function stitch() {
-  if (!sew) return;
-  if (sew.done) { closeSew(); return; }
+  if (!sew) { if (ui.obraFim) { ui.obraFim = false; closeSew(); } return; }
+  if (sew.done) { if (state.sewing && state.sewing.obra) return; closeSew(); return; }
   const len = sewLen(performance.now());
   const tol = sew.total * sewTol();
   const i = sew.marks.findIndex((x) => x.st === 0 && Math.abs(x.at - len) <= tol);
@@ -5617,6 +5634,7 @@ function finishSew() {
   if (!sew || sew.done || !state.sewing) { if (sew) sew.done = true; return; }
   sew.done = true;
   const ratio = Math.max(0, sew.hits - sew.misses * 0.5) / sew.req;
+  if (sew.parte != null && state.sewing.obra) { obraNota(Math.min(1, ratio), ratio >= 0.9 ? 'Costura perfeita!' : ratio >= 0.55 ? 'Costura bonita!' : 'Ficou meio torta…'); return; }
   const stars = ratio >= 0.9 ? 3 : ratio >= 0.55 ? 2 : 1;
   const s = state.sewing;
   taskEv('costurar');
@@ -5653,9 +5671,202 @@ function finishSew() {
   $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : s.kind === 'reforma' ? 'Devolver pra cliente' : 'Pendurar na arara';
   if (stars === 3) { state.stats.perfeitas += 1; sfx('chime'); sparkle($('sew-stage'), 16); confete(); } else if (stars === 1) sfx('sad');
 }
+/* ---------- The whole workshop: cut, pin, sew part by part, press, buttons, try on ---------- */
+const PARTES = { vestido: ['ombros e decote', 'laterais do corpete', 'saia e barra'], saia: ['cós', 'laterais', 'barra'], camisa: ['ombros e gola', 'mangas', 'laterais e barra'], cachecol: ['bainha', 'laterais', 'franjas'], chapeu: ['copa', 'aba', 'acabamento da aba'] };
+const OBRA_ROT = { cortar: '✂️ Cortar', alfinetar: '📍 Alfinetar', costura: '🧵 Costurar', passar: '♨️ Passar', botoes: '🔘 Botões', prova: '🪞 Prova' };
+const OBRA_PESO = { cortar: 1, alfinetar: 0.5, costura: 1, passar: 0.5, botoes: 0.5 };
+const obraEtapas = (s) => ['cortar', 'alfinetar', ...(PARTES[s.peca] || ['primeira costura', 'segunda costura', 'terceira costura']).map((_, i) => 'costura' + i), 'passar', 'botoes', 'prova'];
+const etapaTipo = (e) => e.replace(/\d+$/, '');
+let obra = null;
+function openObra() {
+  $('sew').hidden = false;
+  renderObra();
+}
+function obraArt(s, extra = '') {
+  const m = moldeOf(s.peca, s.molde), L = pieceLayers(m, s.z, true);
+  return `<svg viewBox="-6 -6 112 112" class="obra-svg" style="touch-action:none"><defs>${L.defs}</defs>${L.body}<path id="ob-seam" d="${m.d.split(' M')[0]}" fill="none" stroke="none"/>${extra}</svg>`;
+}
+function renderObra() {
+  const s = state.sewing;
+  if (!s || !s.obra) return;
+  const O = s.obra, et = obraEtapas(s), step = et[O.i], tipo = etapaTipo(step), m = moldeOf(s.peca, s.molde);
+  obra = { step };
+  $('obra-steps').innerHTML = et.map((e, i) => `<span class="ob-dot${i < O.i ? ' ok' : i === O.i ? ' on' : ''}" title="${OBRA_ROT[etapaTipo(e)]}">${OBRA_ROT[etapaTipo(e)].split(' ')[0]}</span>`).join('');
+  $('sew-title').textContent = `${m.nome} · ${OBRA_ROT[tipo].slice(OBRA_ROT[tipo].indexOf(' ') + 1)}`;
+  $('sew-skip').hidden = tipo === 'prova';
+  $('sew-skip').textContent = state.aprendiz ? '🧒 A Flora faz esta etapa' : 'Pular esta etapa';
+  $('sew-btn').hidden = tipo !== 'costura' && tipo !== 'prova';
+  $('sew-count').textContent = ''; $('sew-msg').textContent = '';
+  const help = $('sew-help');
+  if (tipo === 'costura') {
+    const i = +step.slice(7), P = PARTES[s.peca] || ['primeira costura', 'segunda costura', 'terceira costura'];
+    help.textContent = `Costurando ${P[i]} (${i + 1} de ${P.length}). Toque em "Dar ponto" quando a agulha passar em cada marquinha.`;
+    openSew({ a: i / P.length, b: (i + 1) / P.length, i });
+    return;
+  }
+  sew = null;
+  if (tipo === 'cortar') return obraCortar(s, help);
+  if (tipo === 'alfinetar') return obraAlfinetar(s, help);
+  if (tipo === 'passar') return obraPassar(s, help);
+  if (tipo === 'botoes') return obraBotoes(s, help);
+  return obraProva(s, help);
+}
+function obraNota(n, msg) {
+  const s = state.sewing;
+  if (!s || !s.obra) return;
+  s.obra.notas.push({ e: etapaTipo(obraEtapas(s)[s.obra.i]), n });
+  s.obra.i += 1;
+  save();
+  if (msg) $('sew-msg').textContent = msg;
+  sfx(n >= 0.9 ? 'chime' : 'coin');
+  setTimeout(renderObra, 650);
+}
+function obraFlora() {
+  const s = state.sewing;
+  if (!s || !s.obra || etapaTipo(obraEtapas(s)[s.obra.i]) === 'prova') return;
+  if (sew) sew.done = true;
+  obraNota(0.62, state.aprendiz ? 'A Flora fez essa etapa pra você!' : 'Etapa pulada.');
+}
+/* Cut: run a finger along the outline of each paper piece */
+function obraCortar(s, help) {
+  const m = moldeOf(s.peca, s.molde);
+  const pecas = m.cut.map(([mk, zi, label]) => ({ mask: scaleMask(MASKS[mk], s.tam || 'M'), cor: hexOf(s.z[zi].cor) || CRU, label }));
+  obra.cut = { k: 0, pecas, notas: [] };
+  help.textContent = 'Passe o dedo pelo contorno tracejado pra cortar cada molde. Quanto mais certinho, melhor a peça!';
+  obraCortarPeca();
+}
+function obraCortarPeca() {
+  const C = obra.cut, P = C.pecas[C.k];
+  const filled = (x, y) => P.mask[y] && P.mask[y][x] === '#';
+  const h = P.mask.length, w = P.mask[0].length;
+  const ed = [];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!filled(x, y)) continue;
+    if (!filled(x - 1, y)) ed.push([x, y + 0.5, `M${x} ${y}v1`]);
+    if (!filled(x + 1, y)) ed.push([x + 1, y + 0.5, `M${x + 1} ${y}v1`]);
+    if (!filled(x, y - 1)) ed.push([x + 0.5, y, `M${x} ${y}h1`]);
+    if (!filled(x, y + 1)) ed.push([x + 0.5, y + 1, `M${x} ${y + 1}h1`]);
+  }
+  C.ed = ed; C.feito = new Set(); C.off = 0;
+  const cells = cellsOf(P.mask).map(([x, y]) => `<rect x="${x}" y="${y}" width="1" height="1" fill="${P.cor}"/>`).join('');
+  $('sew-stage').innerHTML = `<svg viewBox="-1 -1 ${w + 2} ${h + 2}" class="obra-svg" id="ob-cut" style="touch-action:none">${cells}<path d="${ed.map((e) => e[2]).join('')}" stroke="#3A3040" stroke-width=".07" stroke-dasharray=".22 .16" fill="none"/><path id="ob-cortado" d="" stroke="#FFFFFF" stroke-width=".14" fill="none" stroke-linecap="round"/><text id="ob-tes" x="-5" y="-5" font-size=".9" text-anchor="middle" dominant-baseline="middle">✂️</text></svg>`;
+  $('sew-count').textContent = `Molde ${C.k + 1} de ${C.pecas.length} · ${P.label}`;
+  const svg = $('ob-cut');
+  let down = false;
+  const mover = (e) => {
+    const p = svgPtIn(svg, e);
+    const t = $('ob-tes'); if (t) { t.setAttribute('x', p.x); t.setAttribute('y', p.y - 0.6); }
+    if (!down) return;
+    let near = 99;
+    C.ed.forEach((ed, i) => { const d = Math.hypot(ed[0] - p.x, ed[1] - p.y); near = Math.min(near, d); if (d < 0.7) C.feito.add(i); });
+    if (near > 1.4) C.off += 1;
+    $('ob-cortado').setAttribute('d', [...C.feito].map((i) => C.ed[i][2]).join(''));
+    const frac = C.feito.size / C.ed.length;
+    $('sew-msg').textContent = `${Math.round(frac * 100)}% cortado`;
+    if (frac >= 0.92) {
+      down = false;
+      C.notas.push(Math.max(0, Math.min(1, frac + 0.08 - Math.min(0.4, C.off * 0.012))));
+      sfx('stitch');
+      C.k += 1;
+      if (C.k >= C.pecas.length) { const n = C.notas.reduce((a, b) => a + b, 0) / C.notas.length; try { retalhosVoando(C.pecas.map((q) => q.cor)); } catch (e2) {} obraNota(n, n >= 0.9 ? 'Corte perfeito!' : 'Tudo cortado!'); }
+      else setTimeout(obraCortarPeca, 350);
+    }
+  };
+  svg.addEventListener('pointerdown', (e) => { down = true; svg.setPointerCapture && svg.setPointerCapture(e.pointerId); mover(e); });
+  svg.addEventListener('pointermove', mover);
+  svg.addEventListener('pointerup', () => { down = false; });
+  svg.addEventListener('pointercancel', () => { down = false; });
+}
+function seamPoints(n, pad = 0.04) {
+  const path = $('ob-seam'), L = path.getTotalLength();
+  return Array.from({ length: n }, (_, i) => path.getPointAtLength(L * (pad + (1 - 2 * pad) * i / (n - 1 || 1))));
+}
+/* Pin: tap every pin spot along the seam */
+function obraAlfinetar(s, help) {
+  help.textContent = 'Toque em cada pontinho pra prender os alfinetes antes de costurar.';
+  $('sew-stage').innerHTML = obraArt(s, '<g id="ob-pins"></g>');
+  const pts = seamPoints(6), feito = new Set();
+  const cores = ['#E8615A', '#F7D35E', '#8EC3E6', '#B864B8', '#5E9A4E', '#F2A7C6'];
+  const draw = () => { $('ob-pins').innerHTML = pts.map((p, i) => (feito.has(i) ? `<line x1="${p.x - 3}" y1="${p.y + 3}" x2="${p.x + 2}" y2="${p.y - 2}" stroke="#9AA0A8" stroke-width="1"/><circle cx="${p.x + 2}" cy="${p.y - 2}" r="2.2" fill="${cores[i]}" stroke="#3A3040" stroke-width=".6"/>` : `<circle class="ob-alvo" data-pin="${i}" cx="${p.x}" cy="${p.y}" r="4.5" fill="rgba(255,255,255,.75)" stroke="#3A3040" stroke-width=".8" stroke-dasharray="1.5 1"/>`)).join(''); $('sew-count').textContent = `${feito.size} de ${pts.length} alfinetes`; };
+  draw();
+  $('sew-stage').querySelector('svg').addEventListener('pointerdown', (e) => {
+    const t = e.target.closest('[data-pin]');
+    if (!t) return;
+    feito.add(+t.dataset.pin); sfx('tap'); draw();
+    if (feito.size === pts.length) obraNota(1, 'Tudo alfinetado!');
+  });
+}
+/* Press: slide the iron over every wrinkle */
+function obraPassar(s, help) {
+  help.textContent = 'Arraste o ferro por cima dos amassados até a peça ficar lisinha.';
+  const amassos = [[38, 34], [58, 40], [44, 56], [62, 62], [50, 74], [36, 70]];
+  const feito = new Set();
+  $('sew-stage').innerHTML = obraArt(s, '<g id="ob-amassos"></g><g id="ob-vapor"></g><text id="ob-ferro" x="-20" y="-20" font-size="13" text-anchor="middle" dominant-baseline="middle">♨️</text>');
+  const draw = () => { $('ob-amassos').innerHTML = amassos.map(([x, y], i) => (feito.has(i) ? '' : `<path d="M${x - 6} ${y} l3 -2 l3 2 l3 -2 l3 2" fill="none" stroke="rgba(40,28,45,.45)" stroke-width="1.1" stroke-linecap="round"/>`)).join(''); $('sew-count').textContent = `${feito.size} de ${amassos.length} amassados`; };
+  draw();
+  const svg = $('sew-stage').querySelector('svg');
+  let down = false;
+  const mover = (e) => {
+    const p = svgPtIn(svg, e);
+    const f = $('ob-ferro'); f.setAttribute('x', p.x); f.setAttribute('y', p.y - 4);
+    if (!down) return;
+    amassos.forEach(([x, y], i) => { if (!feito.has(i) && Math.hypot(x - p.x, y - p.y) < 9) { feito.add(i); sfx('tap'); $('ob-vapor').insertAdjacentHTML('beforeend', `<circle class="ob-puff" cx="${x}" cy="${y}" r="3" fill="#fff"/>`); draw(); } });
+    if (feito.size === amassos.length) { down = false; obraNota(1, 'Lisinha!'); }
+  };
+  svg.addEventListener('pointerdown', (e) => { down = true; svg.setPointerCapture && svg.setPointerCapture(e.pointerId); mover(e); });
+  svg.addEventListener('pointermove', mover);
+  svg.addEventListener('pointerup', () => { down = false; });
+}
+/* Buttons: three little stitches on each one */
+function obraBotoes(s, help) {
+  const B = BOTOES[(s.fin && s.fin.botao) || 'madeira'];
+  help.textContent = `Toque 3 vezes em cada botão de ${B.nome.toLowerCase()} pra pregar.`;
+  const bt = [[50, 30], [50, 40]], pontos = [0, 0];
+  $('sew-stage').innerHTML = obraArt(s, '<g id="ob-bts"></g>');
+  const draw = () => { $('ob-bts').innerHTML = bt.map(([x, y], i) => `<g data-bt="${i}"><circle cx="${x}" cy="${y}" r="${pontos[i] >= 3 ? 2.6 : 4.5}" fill="${pontos[i] >= 3 ? B.c : 'rgba(255,255,255,.75)'}" stroke="#3A3040" stroke-width=".7" ${pontos[i] >= 3 ? '' : 'stroke-dasharray="1.5 1"'}/>${[0, 1, 2].slice(0, pontos[i]).map((k) => `<line x1="${x - 1.4}" y1="${y - 1.4 + k * 0.6}" x2="${x + 1.4}" y2="${y + 1.4 - k * 0.6}" stroke="${(s.fin && s.fin.linha) || '#3A3040'}" stroke-width=".6"/>`).join('')}</g>`).join(''); $('sew-count').textContent = `${pontos.filter((p) => p >= 3).length} de ${bt.length} botões`; };
+  draw();
+  $('sew-stage').querySelector('svg').addEventListener('pointerdown', (e) => {
+    const t = e.target.closest('[data-bt]');
+    if (!t) return;
+    const i = +t.dataset.bt;
+    if (pontos[i] >= 3) return;
+    pontos[i] += 1; sfx('stitch'); draw();
+    if (pontos.every((p) => p >= 3)) obraNota(1, 'Botões pregados!');
+  });
+}
+/* Try on: your seamstress wears it, then it goes to the rack */
+function obraProva(s, help) {
+  const notas = s.obra.notas, peso = (n) => OBRA_PESO[n.e] || 1;
+  const q = notas.reduce((a, n) => a + n.n * peso(n), 0) / Math.max(0.01, notas.reduce((a, n) => a + peso(n), 0));
+  const stars = q >= 0.88 ? 3 : q >= 0.55 ? 2 : 1;
+  const item = { peca: s.peca, molde: s.molde, z: s.z, tam: s.tam || 'M', stars, defeito: stars === 1, fin: s.fin };
+  const prev = state.outfits.__prova;
+  state.outfits.__prova = {}; wear('__prova', item); const o = state.outfits.__prova;
+  if (prev) state.outfits.__prova = prev; else delete state.outfits.__prova;
+  help.textContent = ['', 'Ficou com uns defeitinhos… quem é exigente pode recusar.', 'Ficou bonita! Pronta pra arara.', 'Ficou perfeita! Que orgulho!'][stars];
+  $('sew-stage').innerHTML = `<div class="obra-prova"><div class="prova-me">${spriteSVG(meV(), { mood: stars === 3 ? 'amor' : 'feliz', outfit: o })}</div><div class="prova-peca">${pieceSVG(s.peca, s.molde, s.z, null, null, null, s.fin)}</div></div>`;
+  $('sew-count').innerHTML = `<span class="stars" aria-label="${stars} de 3 estrelas">${starStr(stars)}</span>`;
+  state.rack.push(item);
+  state.stats.pecas = (state.stats.pecas || 0) + 1;
+  taskEv('costurar');
+  if (stars === 3) { taskEv('perfeita'); state.stats.perfeitas += 1; confete(); }
+  if (state.aprendiz) { state.aprendiz.xp += stars === 3 ? 2 : 1; const l = aprLevel(); if (l > (state.aprendiz.lvl || 0)) { state.aprendiz.lvl = l; setTimeout(() => toast(`Flora aprendeu mais! Agora ela está no nível ${l}.`), 1200); } }
+  state.selRack = state.rack.length - 1;
+  state.sub = 'arara';
+  state.sewing = null;
+  ui.obraFim = true;
+  $('sew-btn').hidden = false;
+  $('sew-btn').textContent = 'Pendurar na arara';
+  sfx(stars === 1 ? 'sad' : 'chime');
+  try { save(); renderAll(); } catch (e) { console.error(e); }
+}
 function closeSew() {
   sew = null;
+  obra = null; ui.obraFim = false;
   $('sew').hidden = true;
+  $('obra-steps').innerHTML = '';
+  $('sew-help').textContent = 'A agulha vai seguir a costura. Toque em "Dar ponto" (ou no tecido) quando ela passar em cima de cada marquinha.';
+  $('sew-btn').hidden = false;
   const d = $('deliver');
   if (d && !d.disabled) d.focus({ preventScroll: true });
 }
@@ -5790,8 +6001,8 @@ function start(data) {
     if (el && !el.disabled) act(el);
   });
   $('sew-btn').addEventListener('click', stitch);
-  $('sew-skip').addEventListener('click', () => { if (sew && !sew.done) finishSew(); else closeSew(); });
-  $('sew-stage').addEventListener('pointerdown', (e) => { e.preventDefault(); stitch(); });
+  $('sew-skip').addEventListener('click', () => { if (state.sewing && state.sewing.obra) { obraFlora(); return; } if (sew && !sew.done) finishSew(); else closeSew(); });
+  $('sew-stage').addEventListener('pointerdown', (e) => { e.preventDefault(); if (sew) stitch(); });
   bindCut();
   try { if (localStorage.getItem('fio-portrait-ok')) document.body.classList.add('portrait-ok'); } catch (e) {}
   aplicaDeitado();
@@ -5841,7 +6052,7 @@ function start(data) {
   });
   window.claude?.hot?.snapshot?.(() => ({ state }));
   renderAll();
-  if (state.sewing) openSew();
+  if (state.sewing) (state.sewing.obra ? openObra() : openSew());
   else showTitle();
   hideSplash();
   setInterval(tick, 250);
