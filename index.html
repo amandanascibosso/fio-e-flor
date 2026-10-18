@@ -538,6 +538,7 @@ body.portrait-ok .rotate { display: none; }
 @keyframes yarnroll { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-6px); } }
 @media (prefers-reduced-motion: reduce) { .yarn, .crowd-v .pet svg { animation: none; } }
 .tar-btn { position: relative; }
+.tar-btn .badge.pronta { background: #5E9A4E; animation: hop .6s ease-out infinite; }
 .tar-btn .badge { position: absolute; top: -6px; right: -6px; background: var(--accent); color: #fff; border-radius: 8px; font-size: 10px; line-height: 14px; min-width: 14px; padding: 0 3px; border: 2px solid var(--edge); }
 .tbar { height: 6px; background: #E6DCC8; border-radius: 3px; margin-top: 4px; overflow: hidden; }
 .tbar span { display: block; height: 100%; background: #6FAE5C; }
@@ -2545,6 +2546,7 @@ function act(el) {
       toast('🌸 Que festa linda! +80 moedas e +2 ♥ com todo mundo.');
     }
   }
+  else if (a === 'tar-claim') { claimTarefas(); sparkle(el, 20); }
   else if (a === 'amb-toggle') { SND.amb = !SND.amb; saveSnd(); if (SND.amb) actx(); else ambStop(); }
   else if (a === 'reset') {
     if (el.dataset.armed) { state = fresh(); el.textContent = 'Recomeçar do zero'; delete el.dataset.armed; ui.sheet = null; renderSheet(); }
@@ -2568,7 +2570,7 @@ function renderStats() {
     <span class="chip-h">${clockIcon(ck)}Dia ${ck.day} · ${ck.season.nome} · ${ck.part}</span>
     <span class="chip-h"><span class="coin" aria-hidden="true"></span>${state.coins}<small>moedas</small></span>
     <span class="chip-h"><span class="hrt" aria-hidden="true">♥</span>${totalHearts()}<small>carinho</small></span>
-    <button class="snd-btn tar-btn" data-act="sheet" data-kind="tarefas" id="tar-btn" aria-label="Tarefas do dia" title="Tarefas do dia">📋${(() => { const T = tarefasHoje(); const left = T.list.filter((x) => x.n < TAREFAS[x.id].n).length; return left ? `<span class="badge">${left}</span>` : ''; })()}</button>
+    <button class="snd-btn tar-btn" data-act="sheet" data-kind="tarefas" id="tar-btn" aria-label="Tarefas" title="Tarefas">📋${(() => { const T = tarefasHoje(); const left = T.list.filter((x) => x.n < TAREFAS[x.id].n).length; return `<span class="badge${left ? '' : ' pronta'}">${left || '!'}</span>`; })()}</button>
     <button class="snd-btn" data-act="sheet" data-kind="conquistas" id="conq-btn" aria-label="Conquistas" title="Conquistas">🏅</button>
     <button class="snd-btn" data-act="music" id="music-btn" aria-pressed="${SND.music}" aria-label="Música" title="Música">♪</button>
     <button class="shop-btn" data-act="sheet" data-kind="loja" id="open-loja">Loja</button>`;
@@ -3411,7 +3413,7 @@ const CONQ = [
   { id: 'cores40', nome: 'Arco-íris inteiro', desc: 'Descobrir 40 cores', premio: 100, ok: () => state.discovered.length >= 40 },
   { id: 'entregas10', nome: 'Freguesia fiel', desc: 'Entregar 10 pedidos', premio: 20, ok: () => state.served >= 10 },
   { id: 'entregas50', nome: 'Ateliê famoso', desc: 'Entregar 50 pedidos', premio: 60, ok: () => state.served >= 50 },
-  { id: 'tarefas', nome: 'Dia produtivo', desc: 'Fazer todas as tarefas de um dia', premio: 20, ok: () => (state.stats.diasTarefas || 0) >= 1 },
+  { id: 'tarefas', nome: 'Primeira fase', desc: 'Completar uma fase de tarefas', premio: 20, ok: () => (state.stats.diasTarefas || 0) >= 1 },
   { id: 'casamento', nome: 'Madrinha da vila', desc: 'Vestir as noivas do casamento da vila', premio: 50, ok: () => !!(state.casamento && state.casamento.fase >= 3) },
   { id: 'perfeita10', nome: 'Agulha de ouro', desc: 'Fazer 10 costuras perfeitas', premio: 30, ok: () => state.stats.perfeitas >= 10 },
   { id: 'bordado', nome: 'Bordadeira', desc: 'Fazer um bordado perfeito', premio: 25, ok: () => state.stats.bordados >= 1 },
@@ -3437,16 +3439,28 @@ const TAREFAS = {
   vitrine: { txt: 'Vender 1 peça na vitrine', n: 1, ico: '🪟' },
   perfeita: { txt: 'Fazer uma costura perfeita', n: 1, ico: '⭐' },
 };
+/* Tasks come in stages: finish all three, collect the reward, and the next list opens. No daily reset. */
 function tarefasHoje() {
-  const d = clock().day;
-  if (!state.tarefas || state.tarefas.day !== d) {
+  let T = state.tarefas;
+  if (T && T.fase == null) { T = state.tarefas = { fase: 1, list: T.bonus ? null : T.list, done: false }; }
+  if (!T) T = state.tarefas = { fase: 1, list: null, done: false };
+  if (!T.list) {
     const ks = Object.keys(TAREFAS), out = [];
-    let r = d * 9301 + 49297;
-    while (out.length < 3) { r = (r * 9301 + 49297) % 233280; const k = ks[r % ks.length]; if (!out.includes(k)) out.push(k); }
-    state.tarefas = { day: d, list: out.map((id) => ({ id, n: 0 })), bonus: false };
+    let r = T.fase * 7919 + 104729;
+    while (out.length < 3) { r = (r * 9301 + 49297) % 233280; const k = ks[r % ks.length]; if (!out.includes(k) && !(T.prev || []).includes(k)) out.push(k); }
+    T.list = out.map((id) => ({ id, n: 0 }));
+    T.done = false;
   }
-  return state.tarefas;
+  return T;
 }
+const tarDone = (T) => T.list.every((x) => x.n >= TAREFAS[x.id].n);
+function tarPremio(fase) {
+  const p = { coins: 40 + 5 * Math.min(fase, 12) };
+  if (fase % 3 === 0) p.seeds = 2;
+  if (fase % 5 === 0) p.corante = 1;
+  return p;
+}
+const premioTxt = (p) => [`${p.coins} moedas`, p.seeds ? `${p.seeds} sementes` : '', p.corante ? '1 corante natural' : ''].filter(Boolean).join(' + ');
 function taskEv(id, n = 1) {
   if (!state) return;
   const T = tarefasHoje();
@@ -3454,13 +3468,20 @@ function taskEv(id, n = 1) {
   if (!t || t.n >= TAREFAS[id].n) return;
   t.n = Math.min(TAREFAS[id].n, t.n + n);
   if (t.n < TAREFAS[id].n) return;
-  state.coins += 15;
-  setTimeout(() => toast(`📋 Tarefa feita: ${TAREFAS[id].txt}! +15 moedas`), 700);
-  if (!T.bonus && T.list.every((x) => x.n >= TAREFAS[x.id].n)) {
-    T.bonus = true; state.coins += 30;
-    state.stats.diasTarefas = (state.stats.diasTarefas || 0) + 1;
-    setTimeout(() => { toast('📋 Todas as tarefas do dia! Bônus de +30 moedas'); sfx('chime'); }, 1700);
-  }
+  if (tarDone(T)) { T.done = true; setTimeout(() => { toast(`📋 Fase ${T.fase} completa! Abra as tarefas pra pegar a recompensa.`); sfx('chime'); }, 900); }
+  else setTimeout(() => toast(`📋 Tarefa feita: ${TAREFAS[id].txt}!`), 700);
+}
+function claimTarefas() {
+  const T = tarefasHoje();
+  if (!tarDone(T)) return;
+  const p = tarPremio(T.fase);
+  state.coins += p.coins;
+  if (p.seeds) { const open = FKEYS.filter(flowerOpen); for (let i = 0; i < p.seeds; i++) { const k = pick(open); state.seeds[k] = (state.seeds[k] || 0) + 1; } }
+  if (p.corante) { const k = pick(CKEYS); state.corantes = state.corantes || {}; state.corantes[k] = (state.corantes[k] || 0) + 1; }
+  state.stats.diasTarefas = (state.stats.diasTarefas || 0) + 1;
+  state.tarefas = { fase: T.fase + 1, list: null, done: false, prev: T.list.map((x) => x.id) };
+  toast(`🎁 Recompensa: ${premioTxt(p)}! A fase ${T.fase + 1} começou.`);
+  sfx('coin');
 }
 const woolKeys = () => clothKeys('cloth').filter((k) => tecOf(k) === 'lã');
 function tricoNeed(s) {
@@ -3542,10 +3563,11 @@ function renderPatch(s) {
     <div><p class="help">Cada quadrado gasta 1 retalho. Escolha a cor e toque nos quadrados. Xadrez, listras e moldura valem mais!</p><div class="folds">${pal || '<p class="help">Sem retalhos. Corte peças na mesa pra juntar.</p>'}</div></div></div>`;
 }
 function renderTarefas() {
-  const T = tarefasHoje();
-  $('gen-title').textContent = `Tarefas do dia ${T.day}`;
-  $('gen-body').innerHTML = `<div class="shop-list">${T.list.map((x) => { const D = TAREFAS[x.id], ok = x.n >= D.n; return `<div class="shop-item conq${ok ? ' got' : ''}"><span class="medal" aria-hidden="true">${ok ? '✅' : D.ico}</span><div><b>${D.txt}</b><div class="tbar"><span style="width:${(x.n / D.n) * 100}%"></span></div></div><span class="owned">${ok ? 'Feito!' : `${x.n} de ${D.n}`}</span></div>`; }).join('')}</div>
-    <p class="help">Cada tarefa vale 15 moedas. Fazendo as três, você ganha mais 30 de bônus. Amanhã tem tarefas novas!</p>${T.bonus ? '<p class="sub">🎉 Você fez tudo hoje!</p>' : ''}`;
+  const T = tarefasHoje(), ok = tarDone(T), p = tarPremio(T.fase);
+  $('gen-title').textContent = `Tarefas · Fase ${T.fase}`;
+  $('gen-body').innerHTML = `<div class="shop-list">${T.list.map((x) => { const D = TAREFAS[x.id], feito = x.n >= D.n; return `<div class="shop-item conq${feito ? ' got' : ''}"><span class="medal" aria-hidden="true">${feito ? '✅' : D.ico}</span><div><b>${D.txt}</b><div class="tbar"><span style="width:${(x.n / D.n) * 100}%"></span></div></div><span class="owned">${feito ? 'Feito!' : `${x.n} de ${D.n}`}</span></div>`; }).join('')}</div>
+    <p class="help">🎁 Recompensa desta fase: ${premioTxt(p)}. Sem pressa: as tarefas esperam por você, não somem quando o dia vira.</p>
+    ${ok ? '<button class="primary" data-act="tar-claim" id="tar-claim" style="align-self:center">Pegar recompensa 🎁</button>' : ''}`;
 }
 function checkConq() {
   if (!state || !state.conq) return;
@@ -4380,7 +4402,7 @@ function lifeFX(place, ck = clock()) {
   return h ? `<div class="fx life" aria-hidden="true">${h}</div>` : '';
 }
 const SP_MSGS = ['Enfiando a linha na agulha…', 'Separando os retalhos…', 'Regando as flores…', 'Esquentando o tacho…', 'Acordando o Novelo…', 'Abrindo o ateliê…'];
-const SP_TIPS = ['Dica: misturar duas flores no tacho faz cores novas!', 'Dica: conversar com as moradoras todo dia aumenta o carinho.', 'Dica: o Novelo às vezes acha retalhos pelo ateliê.', 'Dica: cada moradora tem uma estampa favorita. Repare nas roupas delas!', 'Dica: tem tarefas novas todo dia no 📋.', 'Dica: em dia de chuva, todo mundo sai de galocha.'];
+const SP_TIPS = ['Dica: misturar duas flores no tacho faz cores novas!', 'Dica: conversar com as moradoras todo dia aumenta o carinho.', 'Dica: o Novelo às vezes acha retalhos pelo ateliê.', 'Dica: cada moradora tem uma estampa favorita. Repare nas roupas delas!', 'Dica: as tarefas do 📋 não somem quando o dia vira. Complete as três e pegue a recompensa!', 'Dica: em dia de chuva, todo mundo sai de galocha.'];
 function hideSplash() {
   const sp = $('splash');
   if (!sp || sp.dataset.on) return;
