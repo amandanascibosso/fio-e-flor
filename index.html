@@ -647,6 +647,45 @@ body.portrait-ok .rotate { display: none; }
 .clube-row { display: flex; gap: 14px; flex-wrap: wrap; }
 .cquilt { display: grid; grid-template-columns: repeat(3, 34px); gap: 2px; padding: 3px; background: #3A3040; border-radius: 4px; width: max-content; }
 .cq { width: 34px; height: 34px; border: 1px dashed rgba(255,255,255,.35); }
+
+/* Locked lying-down mode: when the phone stands upright, the whole game is drawn turned sideways */
+html.deitado body { position: fixed; top: 0; left: 0; width: 100vh; width: 100dvh; height: 100vw; transform-origin: top left; transform: rotate(90deg) translateY(-100%); overflow: hidden; align-items: center; padding: 4px max(12px, env(safe-area-inset-bottom, 0px)) 4px max(12px, env(safe-area-inset-top, 0px)); }
+html.deitado-r body { transform: rotate(-90deg) translateX(-100%); padding-left: max(12px, env(safe-area-inset-bottom, 0px)); padding-right: max(12px, env(safe-area-inset-top, 0px)); }
+html.deitado .game { height: 100%; min-height: 0; max-height: 800px; }
+html.deitado .world { flex: 1; }
+html.deitado .loc { position: absolute; flex-direction: row; justify-content: center; }
+html.deitado .scene-col { container-type: size; display: grid; flex: none; height: 100%; aspect-ratio: 16 / 10; max-width: calc(100% - 268px); }
+html.deitado .scene-box { width: min(100cqw, 160cqh); height: min(100cqh, 62.5cqw); aspect-ratio: auto; }
+html.deitado .hud { flex-wrap: nowrap; }
+html.deitado .where { flex-basis: auto; }
+html.deitado .pnl { max-width: 470px; min-width: 260px; overflow-y: auto; }
+html.deitado .rotate { display: none !important; }
+html.deitado .cartela { grid-template-columns: 150px minmax(0, 1fr); }
+html.deitado .cart-prev { position: sticky; flex-direction: column; align-items: stretch; }
+html.deitado .cart-prev svg { width: 100%; }
+html.deitado .casorio { flex-direction: row; }
+html.deitado .pw-wrap { grid-template-columns: minmax(160px, 220px) 1fr; }
+html.deitado .egrid { --c: min(30px, 7vw); }
+html.deitado .bgrid { --c: min(32px, 6.4vw); }
+html.deitado .title-card h1 { font-size: clamp(34px, 8vw, 56px); }
+html.deitado .title-me { height: clamp(70px, 22vw, 130px); }
+html.deitado .rm-stage { width: min(260px, 52vw); }
+html.deitado .tc-stage { width: min(46vh, 200px); }
+html.deitado .sp-logo { font-size: clamp(40px, 12vw, 78px); }
+html.deitado .sp-anim { width: min(78vh, 440px); }
+html.deitado .bd2-grid { width: min(62vh, 44vw, 250px); }
+html.deitado body { padding-block: 4px; }
+html.deitado .game { gap: 4px; }
+html.deitado .hud { min-height: 30px; }
+html.deitado .pnl { padding: 8px 10px; gap: 8px; }
+html.deitado .pnl-title { font-size: 20px; }
+html.deitado .sheet-card { padding: 10px 14px; gap: 8px; }
+html.deitado .sheet-card h2 { font-size: 20px; }
+html.deitado .sheet-card > .help { display: none; }
+html.deitado #sew-stage svg { max-height: 44vw; }
+html.deitado #cut-svg { max-height: 54vw; }
+html.deitado .arrow { padding: 4px 4px 3px; font-size: 10px; }
+html.deitado .arrow svg { width: 18px; height: 18px; }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -732,6 +771,7 @@ body.portrait-ok .rotate { display: none; }
   .plot.ready, .bubbles circle, .flame, .toast, .miss, .sprite .eyes, .crowd-v .sprite, .desfila, .cat .tail, .zzz, .drop, .loc.enter-r, .loc.enter-l, .rotate svg { animation: none !important; }
 }
 </style>
+<script>try { var dp = localStorage.getItem('fio-deitado') || 'on'; if (dp !== 'off' && matchMedia('(orientation: portrait)').matches) { document.documentElement.classList.add('deitado'); if (dp === 'r') document.documentElement.classList.add('deitado-r'); } } catch (e) {}</script>
 <div id="splash" class="splash" role="status" aria-live="polite" aria-label="Carregando Fio e Flor">
   <div class="sp-logo">Fio <span>&amp;</span> Flor</div>
   <svg class="sp-anim" viewBox="0 0 200 64" shape-rendering="crispEdges" aria-hidden="true">
@@ -2696,6 +2736,11 @@ function act(el) {
     }
   }
   else if (a === 'tar-claim') { claimTarefas(); sparkle(el, 20); }
+  else if (a === 'deit-toggle' || a === 'deit-virar') {
+    const p = deitPref(), nv = a === 'deit-virar' ? (p === 'r' ? 'on' : 'r') : p === 'off' ? 'on' : 'off';
+    try { localStorage.setItem('fio-deitado', nv); } catch (e) {}
+    aplicaDeitado(); renderSheet(); return;
+  }
   else if (a === 'foto') { document.body.classList.add('foto'); return; }
   else if (a === 'amb-toggle') { SND.amb = !SND.amb; saveSnd(); if (SND.amb) actx(); else ambStop(); }
   else if (a === 'reset') {
@@ -3317,6 +3362,8 @@ function renderLoja() {
     <p class="label">Jogo</p><div class="deliver-row">
       <button class="btn" data-act="sfx-toggle" id="sfx-t" aria-pressed="${SND.sfx}">Sons: ${SND.sfx ? 'ligados' : 'desligados'}</button>
       <button class="btn" data-act="music" id="music-t" aria-pressed="${SND.music}">Música: ${SND.music ? 'ligada' : 'desligada'}</button>
+      <button class="btn" data-act="deit-toggle" id="deit-t" aria-pressed="${deitPref() !== 'off'}">Tela deitada travada: ${deitPref() !== 'off' ? 'ligada' : 'desligada'}</button>
+      ${deitPref() !== 'off' ? '<button class="btn" data-act="deit-virar" id="deit-v">Virar a tela pro outro lado</button>' : ''}
       <button class="btn" data-act="amb-toggle" id="amb-t" aria-pressed="${SND.amb}">Sons do ambiente: ${SND.amb ? 'ligados' : 'desligados'}</button>
       <button class="btn" data-act="sheet" data-kind="criar" id="me-edit">Mudar costureira</button>
       <button class="btn" data-act="sheet" data-kind="etiqueta" id="etq-open">🏷️ Etiqueta da marca</button>
@@ -4759,12 +4806,30 @@ function ambTick() {
   AMB.next = now + wait;
 }
 setInterval(ambTick, 120);
+/* Lying-down lock. On by default; 'r' turns it the other way round. */
+const deitPref = () => { try { return localStorage.getItem('fio-deitado') || 'on'; } catch (e) { return 'on'; } };
+function aplicaDeitado() {
+  const p = deitPref(), on = p !== 'off' && matchMedia('(orientation: portrait)').matches;
+  document.documentElement.classList.toggle('deitado', on);
+  document.documentElement.classList.toggle('deitado-r', on && p === 'r');
+}
+/* Turn a screen point into the game's own (possibly turned) coordinates */
+function toLocal(sx, sy) {
+  const h = document.documentElement;
+  if (!h.classList.contains('deitado')) return [sx, sy];
+  return h.classList.contains('deitado-r') ? [innerHeight - sy, sx] : [sy, innerWidth - sx];
+}
+function localRect(el) {
+  const r = el.getBoundingClientRect();
+  const [ax, ay] = toLocal(r.left, r.top), [bx, by] = toLocal(r.right, r.bottom);
+  return { left: Math.min(ax, bx), top: Math.min(ay, by), width: Math.abs(bx - ax), height: Math.abs(by - ay) };
+}
 function confete(n = 36) {
   const cols = ['#F2A7C6', '#F7D35E', '#8EC3E6', '#9CC48E', '#B79AD6', '#E8615A'];
   for (let i = 0; i < n; i++) {
     const c = document.createElement('span');
     c.className = 'confete';
-    c.style.left = (Math.random() * 100) + 'vw';
+    c.style.left = (Math.random() * 100) + '%';
     c.style.background = cols[i % cols.length];
     c.style.animationDelay = (Math.random() * 0.5) + 's';
     c.style.animationDuration = (1.6 + Math.random() * 1.2) + 's';
@@ -4774,7 +4839,8 @@ function confete(n = 36) {
   }
 }
 function retalhosVoando(cols) {
-  const cx = innerWidth / 2, cy = innerHeight / 2;
+  const deit = document.documentElement.classList.contains('deitado');
+  const cx = (deit ? innerHeight : innerWidth) / 2, cy = (deit ? innerWidth : innerHeight) / 2;
   for (let i = 0; i < 14; i++) {
     const r = document.createElement('span');
     r.className = 'spark retalho';
@@ -4789,7 +4855,7 @@ function retalhosVoando(cols) {
 }
 function sparkle(el, n = 12) {
   if (!el) return;
-  const r = el.getBoundingClientRect();
+  const r = localRect(el);
   for (let i = 0; i < n; i++) {
     const s = document.createElement('span');
     s.className = 'spark';
@@ -5266,6 +5332,11 @@ function doCut() {
 }
 function svgPt(e) {
   const svg = $('cut-svg');
+  if (document.documentElement.classList.contains('deitado')) {
+    const r = localRect(svg), [lx, ly] = toLocal(e.clientX, e.clientY), vb = svg.viewBox.baseVal;
+    const k = Math.min(r.width / vb.width, r.height / vb.height), ox = (r.width - vb.width * k) / 2, oy = (r.height - vb.height * k) / 2;
+    return { x: vb.x + (lx - r.left - ox) / k, y: vb.y + (ly - r.top - oy) / k };
+  }
   const pt = svg.createSVGPoint();
   pt.x = e.clientX; pt.y = e.clientY;
   return pt.matrixTransform(svg.getScreenCTM().inverse());
@@ -5616,6 +5687,9 @@ function start(data) {
   $('sew-stage').addEventListener('pointerdown', (e) => { e.preventDefault(); stitch(); });
   bindCut();
   try { if (localStorage.getItem('fio-portrait-ok')) document.body.classList.add('portrait-ok'); } catch (e) {}
+  aplicaDeitado();
+  addEventListener('resize', aplicaDeitado);
+  matchMedia('(orientation: portrait)').addEventListener?.('change', aplicaDeitado);
   $('rotate-ok').addEventListener('click', () => {
     document.body.classList.add('portrait-ok');
     try { localStorage.setItem('fio-portrait-ok', '1'); } catch (e) {}
@@ -5628,12 +5702,14 @@ function start(data) {
   let touch0 = null;
   document.addEventListener('touchstart', (e) => {
     const box = e.target.closest && e.target.closest('.scene-box');
-    touch0 = box && e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+    const p0 = e.touches[0] && toLocal(e.touches[0].clientX, e.touches[0].clientY);
+    touch0 = box && e.touches.length === 1 ? { x: p0[0], y: p0[1] } : null;
   }, { passive: true });
   document.addEventListener('touchend', (e) => {
     if (!touch0) return;
     const t = e.changedTouches[0];
-    const dx = t.clientX - touch0.x, dy = t.clientY - touch0.y;
+    const [tx, ty] = toLocal(t.clientX, t.clientY);
+    const dx = tx - touch0.x, dy = ty - touch0.y;
     touch0 = null;
     if (Math.abs(dx) > 60 && Math.abs(dy) < 40) step(dx < 0 ? 1 : -1);
   }, { passive: true });
