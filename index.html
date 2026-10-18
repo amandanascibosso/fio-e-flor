@@ -1785,6 +1785,8 @@ function biaWear(o, own) {
   return { defs, s };
   }
 }
+// the painted Bia is kept but switched off: she uses the pixel sprite like everyone else
+const BIA_PINTADA = false;
 const BIA_SCALE = 1.25;
 function biaSprite(v, opt, o) {
   const pij = opt.ocasiao === 'pijama', own = !pij && !(o.cima || o.baixo || o.avental || o.casaco);
@@ -1801,7 +1803,7 @@ function biaSprite(v, opt, o) {
 }
 const SPRITES = new Map();
 function spriteSVG(v, opt = {}) {
-  if (v.id === 'bia') return biaSprite(v, opt, opt.outfit || outfitOf(v.id));
+  if (BIA_PINTADA && v.id === 'bia') return biaSprite(v, opt, opt.outfit || outfitOf(v.id));
   if (opt.ocasiao === 'pijama') v = { ...v, roupa: mixHex(v.roupa, '#FFFFFF', 0.5), fav: 'bolinhas', sig: v.sig === 'oculos' ? 'oculos' : '', enfeite: null, base: { calca: mixHex(v.roupa, '#FFFFFF', 0.3), sapato: '#F2A7C6' } };
   const o = opt.ocasiao === 'pijama' ? {} : opt.outfit || outfitOf(v.id);
   const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, v.rosto, v.base, v.enfeite, v.sig, v.corpo, v.joia, v.cadeira, v.vitiligo, v.auditivo, v.dentes, opt.mood || null, !!opt.crop, !!opt.wave, !!opt.portrait, !!opt.talk, !!opt.rain, opt.ocasiao || null, o]);
