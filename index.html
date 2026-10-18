@@ -602,6 +602,51 @@ body.portrait-ok .rotate { display: none; }
 .title-crowd .tcv { height: 100%; }
 @media (max-height: 360px) { .title-crowd { height: 26%; } }
 @media (prefers-reduced-motion: reduce) { .sp-logo, .sp-st, .sp-needle, .sp-bob, .sp-spool, .sp-flower, .sp-yarn, .sp-tail { animation: none; } .sp-st { opacity: 1; } .sp-needle { transform: translateX(126px); } }
+.fx span.fx-tw { width: .45cqw; height: .45cqw; background: #FFF6D0; box-shadow: 0 0 4px 1px rgba(255,246,208,.8); animation: twinkle 2.6s ease-in-out infinite; }
+@keyframes twinkle { 0%, 100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.15); } }
+.fx span.fx-fio { left: 0; right: 0; height: 1px; background: rgba(40,30,45,.7); animation: none; }
+.fx span.fx-lant { width: 1.3cqw; height: 1.6cqw; margin-left: -.65cqw; border-radius: 40% 40% 45% 45%; background: var(--lc); box-shadow: 0 0 10px 3px color-mix(in srgb, var(--lc) 70%, transparent); animation: lantern 3.2s ease-in-out infinite; }
+@keyframes lantern { 50% { transform: translateY(2px) rotate(4deg); filter: brightness(1.15); } }
+.fx span.fx-sunset { inset: 0; background: linear-gradient(180deg, rgba(242,120,90,.28) 0%, rgba(242,167,198,.16) 35%, transparent 70%); animation: none; mix-blend-mode: soft-light; }
+.confete { position: fixed; top: -12px; width: 7px; height: 11px; z-index: 70; pointer-events: none; border-radius: 1px; animation: confete 2s ease-in forwards; }
+@keyframes confete { to { transform: translateY(105vh) rotate(var(--rx)); } }
+.spark.retalho { width: 10px; height: 10px; border-radius: 2px; border: 1px solid rgba(0,0,0,.3); }
+#thread { filter: drop-shadow(0 0 1.5px rgba(255,255,255,.9)); }
+/* sewing-box look: linen panels, stitched seams and pins */
+.pnl { background-image: repeating-linear-gradient(0deg, rgba(90,60,40,.025) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(90,60,40,.025) 0 1px, transparent 1px 3px); outline: 2px dashed rgba(138,63,107,.22); outline-offset: -7px; }
+.pnl-title::after { content: ''; display: block; height: 2px; margin-top: 7px; width: 70%; background: repeating-linear-gradient(90deg, var(--accent) 0 7px, transparent 7px 11px); opacity: .45; }
+.primary:not(:focus-visible) { outline: 1.5px dashed rgba(255,255,255,.5); outline-offset: -6px; }
+.btn:not(:focus-visible) { outline: 1px dashed rgba(58,48,64,.25); outline-offset: -4px; }
+.festa { position: relative; }
+.festa::before { content: ''; position: absolute; top: -6px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #F8C3D6, #C8463D 70%); box-shadow: 0 1px 0 rgba(0,0,0,.5); }
+/* photo mode */
+.foto .hud, .foto .pnl, .foto .arrow, .foto .mapdots, .foto .chat, .foto .toast, .foto .papo, .foto .bubble, .foto .want-tag { display: none !important; }
+.shop-item > .sprite { width: 40px; height: auto; flex: none; }
+.foto .scene-col { flex: 1; }
+.foto::after { content: '📷 Modo foto · toque pra voltar'; position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(35,30,41,.8); color: #F6F0E6; padding: 4px 12px; border-radius: 12px; font-weight: 800; font-size: 12px; z-index: 80; animation: fotohint 3s forwards; pointer-events: none; }
+@keyframes fotohint { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .fx span.fx-tw, .fx span.fx-lant, .confete { animation: none; } .confete { display: none; } }
+.papo { position: absolute; transform: translateX(-30%); z-index: 6; max-width: 34cqw; background: #fff; border: 2px solid var(--edge); border-radius: 10px; padding: 2px 7px; font-size: clamp(9px, 1.9cqw, 13px); line-height: 1.25; box-shadow: 0 2px 0 rgba(0,0,0,.35); pointer-events: none; animation: papoin .3s ease-out; }
+.papo::after { content: ''; position: absolute; left: 22%; bottom: -7px; border: 6px solid transparent; border-top-color: var(--edge); border-bottom: 0; }
+.papo b { color: var(--accent); }
+@keyframes papoin { from { transform: translateX(-30%) scale(.6); opacity: 0; } }
+.tc-zone.ov { left: 40%; width: 20%; }
+.bd2-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; width: min(62vw, 44vh, 250px); margin: 4px auto; }
+.bd2-c { aspect-ratio: 1; border: 1px dashed #CDBFA8; border-radius: 3px; background: #FBF6EC; padding: 0; }
+.bd2-c.on { background: color-mix(in srgb, var(--bc) 18%, #FBF6EC); border-style: solid; border-color: color-mix(in srgb, var(--bc) 40%, #CDBFA8); }
+.bd2-c.feito { background: var(--bc); border-color: var(--edge); }
+.bd2-c.lit { background: #FFF3B0; border: 2px solid var(--edge); box-shadow: 0 0 0 3px var(--bc); animation: bdlit .5s ease-in-out infinite alternate; }
+@keyframes bdlit { to { transform: scale(1.12); } }
+.carta { background: #FFFDF6; border: 2px solid var(--line); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 2px 2px 0 rgba(0,0,0,.12); background-image: repeating-linear-gradient(0deg, transparent 0 17px, rgba(142,195,230,.25) 17px 18px); }
+.carta p { margin: 0; font-size: 13px; }
+.carta.obrigado { flex-direction: row; align-items: center; gap: 10px; }
+.carta .foto { width: 54px; flex: none; background: #fff; padding: 3px 3px 10px; box-shadow: 0 1px 3px rgba(0,0,0,.3); transform: rotate(-4deg); }
+.carta .foto .sprite { width: 100%; height: auto; }
+.bau-molde { width: 92px; height: 92px; display: grid; place-items: center; font-size: 48px; background: #F3E3C8; border: 3px solid var(--edge); border-radius: 10px; }
+.bau-molde svg { width: 90%; height: 90%; color: #8A3F6B; }
+.clube-row { display: flex; gap: 14px; flex-wrap: wrap; }
+.cquilt { display: grid; grid-template-columns: repeat(3, 34px); gap: 2px; padding: 3px; background: #3A3040; border-radius: 4px; width: max-content; }
+.cq { width: 34px; height: 34px; border: 1px dashed rgba(255,255,255,.35); }
 /* dicas */
 .dicas { margin: 2px 0; padding-left: 18px; font-size: 12px; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
 .ink .pista { font-size: 10px; line-height: 1.25; color: var(--muted); }
@@ -943,6 +988,10 @@ const PIECES = {
       d: 'M40 6 L44 6 L46 16 Q50 20 54 16 L56 6 L60 6 L62 26 L64 34 L70 56 L74 76 L84 95 L16 95 L26 76 L30 56 L36 34 L38 26 Z',
       det: '<path d="M31 56 Q50 61 69 56"/><path d="M26 76 Q50 82 74 76"/><path d="M18 95 Q22 90 26 95 Q30 90 34 95 Q38 90 42 95 Q46 90 50 95 Q54 90 58 95 Q62 90 66 95 Q70 90 74 95 Q78 90 82 95"/>',
       cut: [['corpete', 0, 'Frente'], ['corpete', 0, 'Costas'], ['saiaLonga', 1, 'Saia frente'], ['saiaLonga', 1, 'Saia costas']] },
+    { id: 'anos50', nome: 'Vestido anos 50', preco: 32, split: { y: 38 }, vintage: true,
+      d: 'M38 8 L44 8 L46 17 Q50 22 54 17 L56 8 L62 8 L63 28 L60 38 L90 84 Q50 100 10 84 L40 38 L37 28 Z',
+      det: '<path d="M40 38 L60 38"/><path d="M46 38 L50 34 L54 38 L50 42 Z"/><path d="M47 48 L36 90"/><path d="M53 48 L64 90"/>',
+      cut: [['corpete', 0, 'Frente'], ['corpete', 0, 'Costas'], ['saiaRodada', 1, 'Saia frente'], ['saiaRodada', 1, 'Saia costas']] },
   ] },
   saia: { nome: 'Saia', g: 'f', zonas: [{ nome: 'cós', g: 'm' }, { nome: 'corpo', g: 'm' }], moldes: [
     { id: 'rodada', nome: 'Saia rodada', preco: 18, split: { y: 30 },
@@ -957,6 +1006,10 @@ const PIECES = {
       d: 'M32 18 L68 18 L69 26 L80 90 L20 90 L31 26 Z',
       det: PLEATS,
       cut: [['cos', 0, 'Cós'], ['saiaLonga', 1, 'Frente'], ['saiaLonga', 1, 'Costas']] },
+    { id: 'gode', nome: 'Saia godê', preco: 22, split: { y: 28 }, vintage: true,
+      d: 'M34 20 L66 20 L68 28 L94 88 Q50 100 6 88 L32 28 Z',
+      det: '<path d="M44 29 L28 92"/><path d="M50 29 L50 96"/><path d="M56 29 L72 92"/><path d="M12 86 Q50 96 88 86"/>',
+      cut: [['cos', 0, 'Cós'], ['saiaRodada', 1, 'Frente'], ['saiaRodada', 1, 'Costas']] },
   ] },
   camisa: { nome: 'Blusa', g: 'f', zonas: [{ nome: 'corpo', g: 'm' }, { nome: 'mangas', g: 'f', pl: true }], moldes: [
     { id: 'camiseta', nome: 'Camiseta', preco: 14, split: { x: [32, 68] },
@@ -971,6 +1024,10 @@ const PIECES = {
       d: 'M36 12 L44 10 L50 20 L56 10 L64 12 L84 28 L76 42 L68 36 L68 88 L32 88 L32 36 L24 42 L16 28 Z',
       det: '<path d="M44 10 L50 20 L41 23 Z"/><path d="M56 10 L50 20 L59 23 Z"/><path d="M50 20 L50 88"/><path d="M36 44 L44 44 L44 52 L36 52 Z"/>' + [30, 42, 54, 66, 78].map(BTN).join(''),
       cut: [['corpo', 0, 'Frente'], ['corpo', 0, 'Costas'], ['gola', 0, 'Gola'], ['manga', 1, 'Manga'], ['manga', 1, 'Manga']] },
+    { id: 'colete', nome: 'Colete de crochê', preco: 20, split: { x: [32, 68] }, vintage: true,
+      d: 'M34 12 L44 10 L50 24 L56 10 L66 12 L72 26 L72 84 L28 84 L28 26 Z',
+      det: '<path d="M50 24 L50 84"/><path d="M30 80 L70 80"/>' + [36, 46, 56, 66].map((y) => `<circle cx="41" cy="${y}" r="1.7" fill="none" stroke="rgba(255,255,255,.65)"/><circle cx="59" cy="${y}" r="1.7" fill="none" stroke="rgba(255,255,255,.65)"/>`).join(''),
+      cut: [['corpo', 0, 'Frente'], ['corpo', 0, 'Costas'], ['manga', 1, 'Lateral']] },
   ] },
   cachecol: { nome: 'Cachecol', g: 'm', zonas: [{ nome: 'corpo', g: 'm' }, { nome: 'franja', g: 'f' }], moldes: [
     { id: 'classico', nome: 'Cachecol', preco: 12, split: { y: 74 },
@@ -1080,12 +1137,14 @@ const VILLAGERS = [
   { id: 'helena', nome: 'Prof.ª Helena', quem: 'dá aula na escolinha', pele: '#C68E6A', cabelo: '#1F1A1A', estilo: 'curto', roupa: '#23395F', fav: 'xadrez', need: 10, cores: ['marinho', 'creme', 'vinho'], sig: 'oculos' },
   { id: 'mel', nome: 'Mel', quem: 'abriu uma confeitaria', pele: '#F3D2BC', cabelo: '#E6C46A', estilo: 'rabo', roupa: '#F2A7C6', fav: 'bolinhas', need: 16, cores: ['rosa', 'chiclete', 'creme'], sig: 'avental-rosa' },
   { id: 'nina', nome: 'Nina', quem: 'entrega cartas de bicicleta', pele: '#8C5A3C', cabelo: '#3A2318', estilo: 'trancas', roupa: '#3AA3A6', fav: 'listras', need: 22, cores: ['turquesa', 'lima', 'laranja'], sig: 'bone' },
+  { id: 'dandara', nome: 'Dandara', quem: 'dá aula de dança e capoeira', pele: '#6B4330', cabelo: '#1E1714', estilo: 'trancas', roupa: '#E07B2E', fav: 'listras', need: 40, cores: ['laranja', 'turquesa', 'amarelo'], sig: '' },
+  { id: 'iara', nome: 'Iara', quem: 'bióloga que cuida do rio', pele: '#C98E66', cabelo: '#2B1A12', estilo: 'longo', roupa: '#3AA3A6', fav: 'bolinhas', need: 46, cores: ['verde-água', 'turquesa', 'menta'], sig: 'oculos' },
   { id: 'rita', nome: 'Rita', quem: 'conserta bicicletas e rádios', pele: '#5C3A28', cabelo: '#2B211C', estilo: 'raspado', roupa: '#E8B931', fav: 'xadrez', need: 34, cores: ['amarelo', 'laranja', 'marinho'], sig: 'chave' },
   { id: 'zeze', nome: 'Vó Zezé', quem: 'tricota na varanda', pele: '#E2B796', cabelo: '#F1EEEA', estilo: 'coque', roupa: '#B3708E', fav: 'florzinha', need: 28, cores: ['lilás', 'malva', 'névoa'], sig: 'oculos' },
 ];
 const SIGS = { bia: 'violao', tito: 'chapeu-pesca', cida: 'oculos', joaquim: 'avental', lua: 'pincel' };
 VILLAGERS.forEach((v) => { v.cores = v.cores || VIL_CORES[v.id]; v.sig = v.sig || SIGS[v.id]; });
-const VTAM = { bia: 'P', tito: 'M', cida: 'M', joaquim: 'G', lua: 'P', helena: 'M', mel: 'G', nina: 'P', zeze: 'M', rita: 'G' };
+const VTAM = { dandara: 'G', iara: 'P', bia: 'P', tito: 'M', cida: 'M', joaquim: 'G', lua: 'P', helena: 'M', mel: 'G', nina: 'P', zeze: 'M', rita: 'G' };
 VILLAGERS.forEach((v) => { v.tam = VTAM[v.id]; v.exigente = ['cida', 'helena', 'zeze'].includes(v.id); });
 /* Each one has her own face and everyday clothes */
 const LOOKS = {
@@ -1099,6 +1158,8 @@ const LOOKS = {
   nina: { rosto: { olho: '#5A3A2A', sardas: true, batom: '#9C4652', sobr: 'reta' }, base: { short: '#3E5F8F', meia: '#F3EFE6', sapato: '#E8B931' } },
   zeze: { rosto: { olho: '#6E7480', batom: '#B3708E', sobr: 'fina' }, base: { saia: '#6B5B6E', longa: true, sapato: '#5E4B3C', colete: '#B79AD6' } },
 };
+LOOKS.dandara = { rosto: { olho: '#3A2A22', batom: '#8E3B4A', sobr: 'arco' }, base: { saia: '#5B3478', sapato: '#E8B931', cinto: '#E8B931' } };
+LOOKS.iara = { rosto: { olho: '#4E6A3E', sardas: true, batom: '#B4566A', sobr: 'reta' }, base: { short: '#3E5F8F', sapato: '#5E9A4E', colete: '#9CC48E' } };
 LOOKS.rita = { rosto: { olho: '#5A3A2A', pinta: true, batom: '#9C4652', sobr: 'reta' }, base: { calca: '#3E5F8F', sapato: '#2E2A33', cinto: '#6E5235' } };
 /* Bodies, jewelry and the many ways of being in the village */
 const EXTRAS = {
@@ -1112,6 +1173,8 @@ const EXTRAS = {
   nina: { corpo: { alt: 'alta', larg: 'fina' }, joia: { brinco: 'argola', pulseira: '#3AA3A6' } },
   zeze: { corpo: { alt: 'baixa' }, joia: { brinco: 'perola', colar: '#B79AD6' }, auditivo: true },
   rita: { corpo: { alt: 'alta' }, joia: { brinco: 'argola', bandana: '#3AA3A6' } },
+  dandara: { corpo: { alt: 'alta', larg: 'cheia' }, joia: { brinco: 'argola', bandana: '#E07B2E', pulseira: '#E8B931' } },
+  iara: { corpo: { larg: 'fina' }, joia: { brinco: 'flor', colar: '#3AA3A6' } },
 };
 VILLAGERS.forEach((v) => Object.assign(v, LOOKS[v.id], EXTRAS[v.id] || {}));
 const OCCASIONS = [
@@ -1379,6 +1442,8 @@ const PETS = {
   joaquim: { tipo: 'galinha', nome: 'Cocota', cor: '#E9DCC6', quem: 'a galinha de estimação dela' },
   zeze: { tipo: 'papagaio', nome: 'Louro', cor: '#4FA34A', quem: 'o papagaio dela', ombro: true },
   rita: { tipo: 'cachorro', nome: 'Parafuso', cor: '#4A3E3A', quem: 'o cachorro dela' },
+  dandara: { tipo: 'cachorro', nome: 'Samba', cor: '#8B5A3C', quem: 'o cachorrinho dela' },
+  iara: { tipo: 'gata', nome: 'Jabuticaba', cor: '#3B3A40', quem: 'a gatinha dela' },
 };
 function petSVG(vid) {
   const P = PETS[vid];
@@ -1452,8 +1517,9 @@ function zonePix(z) {
 }
 const SPRITES = new Map();
 function spriteSVG(v, opt = {}) {
-  const o = outfitOf(v.id);
-  const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, v.rosto, v.base, v.enfeite, v.sig, v.corpo, v.joia, v.cadeira, v.vitiligo, v.auditivo, v.dentes, opt.mood || null, !!opt.crop, !!opt.wave, !!opt.portrait, !!opt.talk, !!opt.rain, o]);
+  if (opt.ocasiao === 'pijama') v = { ...v, roupa: mixHex(v.roupa, '#FFFFFF', 0.5), fav: 'bolinhas', sig: v.sig === 'oculos' ? 'oculos' : '', enfeite: null, base: { calca: mixHex(v.roupa, '#FFFFFF', 0.3), sapato: '#F2A7C6' } };
+  const o = opt.ocasiao === 'pijama' ? {} : opt.outfit || outfitOf(v.id);
+  const key = JSON.stringify([v.id, v.nome, v.pele, v.cabelo, v.estilo, v.roupa, v.rosto, v.base, v.enfeite, v.sig, v.corpo, v.joia, v.cadeira, v.vitiligo, v.auditivo, v.dentes, opt.mood || null, !!opt.crop, !!opt.wave, !!opt.portrait, !!opt.talk, !!opt.rain, opt.ocasiao || null, o]);
   const hit = SPRITES.get(key);
   if (hit) return hit;
   if (SPRITES.size > 400) SPRITES.clear();
@@ -1463,10 +1529,10 @@ function spriteSVG(v, opt = {}) {
 }
 /* Little personal touches: resting mouth, pose, how she greets you, favourite shoes */
 const vhash = (v) => [...(v.id + v.nome)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
-const BOCA = { bia: 'sorriso', lua: 'bico', mel: 'dente', nina: 'sorriso', cida: 'bico', zeze: 'sorriso', tito: 'dente', joaquim: 'normal', helena: 'bico', rita: 'sorriso', flora: 'dente', lis: 'bico', vitoria: 'bico' };
+const BOCA = { dandara: 'sorriso', iara: 'bico', bia: 'sorriso', lua: 'bico', mel: 'dente', nina: 'sorriso', cida: 'bico', zeze: 'sorriso', tito: 'dente', joaquim: 'normal', helena: 'bico', rita: 'sorriso', flora: 'dente', lis: 'bico', vitoria: 'bico' };
 const POSE = { rita: 'cintura', tito: 'cintura', nina: 'cintura', vitoria: 'cintura', lis: 'cintura' };
-const ACENO = { bia: 'aceno', tito: 'pulinho', cida: 'beijo', joaquim: 'aceno', lua: 'beijo', helena: 'aceno', mel: 'pulinho', nina: 'pulinho', zeze: 'beijo', rita: 'aceno', me: 'aceno' };
-const SAP = { bia: 'laco', lua: 'babado', mel: 'laco', cida: 'fivela', zeze: 'fivela', helena: 'fivela', nina: 'tenis', flora: 'babado', lis: 'fivela', vitoria: 'fivela', rita: 'tenis' };
+const ACENO = { dandara: 'pulinho', iara: 'aceno', bia: 'aceno', tito: 'pulinho', cida: 'beijo', joaquim: 'aceno', lua: 'beijo', helena: 'aceno', mel: 'pulinho', nina: 'pulinho', zeze: 'beijo', rita: 'aceno', me: 'aceno' };
+const SAP = { dandara: 'fivela', iara: 'tenis', bia: 'laco', lua: 'babado', mel: 'laco', cida: 'fivela', zeze: 'fivela', helena: 'fivela', nina: 'tenis', flora: 'babado', lis: 'fivela', vitoria: 'fivela', rita: 'tenis' };
 const mixHex = (a, b, t) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - t) + parseInt(b.slice(i, i + 2), 16) * t).toString(16).padStart(2, '0')).join('');
 /* Her everyday clothes carry her favourite print, softly */
 function softPat(hex, p) {
@@ -1672,6 +1738,7 @@ function drawSprite(v, opt, o) {
     if (o.chapeu.molde === 'boina') { rows([[0, 8, 15], [1, 6, 18], [2, 5, 18], [3, 5, 18]], copa); rect(6, 4, 17, 4, aba); put(11, 0, aba); }
     else { rows([[0, 8, 15], [1, 7, 16], [2, 7, 16], [3, 7, 16]], copa); rect(o.chapeu.molde === 'aba' ? 2 : 4, 4, o.chapeu.molde === 'aba' ? 21 : 19, 4, aba); rect(7, 3, 16, 3, dim(copa, -0.2)); }
   } else if (v.sig === 'chapeu-pesca') { rows([[0, 8, 15], [1, 7, 16], [2, 7, 16], [3, 7, 16]], '#7A7234'); rect(5, 4, 18, 4, '#66602C'); put(14, 1, '#C8463D'); }
+  else if (v.sig === 'capuz') { rows([[1, 8, 15], [2, 6, 17], [3, 5, 18], [4, 4, 19]], '#4E3A5E'); rect(4, 5, 5, 14, '#4E3A5E'); rect(18, 5, 19, 14, '#3E2E4C'); rows([[15, 6, 17], [16, 5, 18]], '#4E3A5E'); rows([[2, 9, 12]], '#6B5480'); }
   else if (v.sig === 'bone') { rows([[1, 7, 16], [2, 6, 17], [3, 6, 17]], '#3AA3A6'); rect(13, 4, 21, 4, '#2A7F82'); put(11, 1, '#F3EFE6'); }
   if (v.sig === 'oculos' || v.oculos) {
     const fr = '#6E5D48';
@@ -1703,6 +1770,10 @@ function drawSprite(v, opt, o) {
     for (let x = 6; x <= 17; x += 2) put(x, 5, dim(t1, -0.18));
   }
   if (o.luvas) { const l0 = zonePix(o.luvas.z[0]), l1 = zonePix(o.luvas.z[1]) || l0; rect(5, 23, 6, 24, l0); rect(17, 23, 18, 24, l0); put(5, 22, l1); put(6, 22, l1); put(17, 22, l1); put(18, 22, l1); }
+  if (opt.ocasiao === 'festa' && !o.chapeu && !o.touca && v.sig !== 'bone' && v.sig !== 'chapeu-pesca') {
+    [[6, 4, '#F2A7C6'], [8, 3, '#F7D35E'], [10, 3, '#FFFFFF'], [12, 3, '#F2A7C6'], [14, 3, '#B79AD6'], [16, 3, '#F7D35E'], [17, 4, '#FFFFFF']].forEach(([x, y, c]) => put(x, y, c));
+    [[7, 4], [9, 3], [11, 3], [13, 3], [15, 3]].forEach(([x, y]) => put(x, y, '#5E9A4E'));
+  }
   if (v.sig === 'chave') { rect(19, 21, 19, 26, '#8B8580'); rows([[20, 18, 20], [19, 18, 18], [19, 20, 20]], '#9AA0A8'); }
   if (J.colar) { rows([[16, 10, 13]], J.colar); put(11, 17, J.colar); put(12, 17, shade(J.colar, -0.2)); }
   if (J.pulseira) { put(5, 24, J.pulseira); put(6, 24, shade(J.pulseira, -0.2)); }
@@ -1722,6 +1793,20 @@ function drawSprite(v, opt, o) {
     rect(4, 20, 5, 21, arm); put(4, 21, dim(arm, -0.14)); put(5, 22, arm); put(6, 22, br || arm); put(7, 22, hand); put(7, 21, hand);
   }
   let wave = '';
+  if (opt.ocasiao === 'chuva' && !opt.portrait && !opt.crop && !opt.wave) {
+    const uc = ['#E8615A', '#3E6FB0', '#E8B931', '#B864B8', '#5E9A4E', '#F2A7C6'][vhash(v) % 6], ud = shade(uc, -0.25);
+    const px = [];
+    for (let x = 8; x <= 15; x++) px.push([x, -1, uc]);
+    for (let x = 5; x <= 18; x++) px.push([x, 0, (x >> 1) % 2 ? uc : ud]);
+    for (let x = 3; x <= 20; x++) px.push([x, 1, (x >> 1) % 2 ? uc : ud]);
+    [3, 4, 8, 9, 13, 14, 19, 20].forEach((x) => px.push([x, 2, ud]));
+    for (let y = 2; y <= 24; y++) px.push([19, y, '#6E4A30']);
+    px.push([20, 25, '#6E4A30'], [21, 24, '#6E4A30'], [12, -2, '#6E4A30']);
+    const set = new Set(px.map(([x, y]) => x + ',' + y));
+    let ol = '', d = '';
+    px.forEach(([x, y, c]) => { d += `<path fill="${c}" d="M${x} ${y}h1v1h-1z"/>`; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => { if (!set.has((x + a) + ',' + (y + b)) && !(g[y + b] && g[y + b][x + a])) ol += `M${x + a} ${y + b}h1v1h-1z`; }); });
+    wave += `<g class="guarda"><path fill="#3A3040" opacity=".9" d="${ol}"/>${d}</g>`;
+  }
   const aceno = ACENO[v.id] || ['aceno', 'pulinho', 'beijo'][vhash(v) % 3];
   if (opt.wave && (aceno === 'beijo' || (aceno === 'pulinho' && v.cadeira))) {
     const sleeve = g[17][17] || skin;
@@ -1827,7 +1912,9 @@ function drawSprite(v, opt, o) {
   return `<svg class="sprite${opt.crop ? ' av' : ''}${opt.portrait ? ' port' : ''}${hop}" viewBox="${vb}" shape-rendering="crispEdges" role="img" aria-label="${v.nome}" style="--bd:${(2.2 + (hv % 6) * 0.2).toFixed(1)}s">${swing}${s}<g transform="translate(${dxW} ${top})">${wave}</g><g transform="translate(0 ${top})"><g class="eyes" style="animation-delay:-${(v.id.length * 0.9) % 5}s;animation-duration:${4 + (hv % 4)}s">${eye(8)}${eye(14)}${lash}</g>${talk}${fxLove}</g></svg>`;
 }
 const avatarSVG = (v, mood) => spriteSVG(v, { mood, crop: true });
-const figureSVG = (v, mood, wave) => spriteSVG(v, { mood, wave, rain: !!clock().rain });
+/* Pajamas at night, an umbrella in the rain, a flower crown on party days */
+const ocasiaoAgora = (ck = clock()) => (ck.part === 'noite' ? 'pijama' : ck.rain ? 'chuva' : ck.festa ? 'festa' : null);
+const figureSVG = (v, mood, wave, oc) => spriteSVG(v, { mood, wave, rain: !!clock().rain, ocasiao: oc === undefined ? ocasiaoAgora() : oc });
 const portraitSVG = (v, mood, talk) => `<div class="portrait" style="--bgp:${shade(v.roupa, 0.55)}">${spriteSVG(v, { mood, portrait: true, talk })}</div>`;
 /* What face does she make for this line of talk? */
 function talkMood(v, line) {
@@ -1889,7 +1976,7 @@ function newOrder() {
       o = { vid: v.id, vids, kind: 'conjunto', occ, cor: tone(pick(pool)), got: [], line };
     } else if (state.served >= 4 && Math.random() < 0.15) {
       const pk = pick(Object.keys(PIECES).filter((k) => pieceOpen(k) && k !== 'chapeu' && !PIECES[k].fora));
-      o = { vid: v.id, kind: 'remendo', peca: pk, molde: pick(PIECES[pk].moldes).id, z: [{ cor: v.cores[0], padrao: v.fav }, { cor: v.cores[1] || v.cores[0], padrao: 'liso' }], holes: 2 + Math.floor(Math.random() * 3), line };
+      o = { vid: v.id, kind: 'remendo', peca: pk, molde: pick(PIECES[pk].moldes.filter((m) => !m.vintage)).id, z: [{ cor: v.cores[0], padrao: v.fav }, { cor: v.cores[1] || v.cores[0], padrao: 'liso' }], holes: 2 + Math.floor(Math.random() * 3), line };
     } else if (state.served >= 5 && Math.random() < 0.12) {
       const opts = [];
       const vz = (a, b2) => [{ cor: a, padrao: v.fav }, { cor: b2, padrao: 'liso' }];
@@ -1922,6 +2009,7 @@ function newOrder() {
         const molde = Math.random() < 0.6 ? 'almofada' : 'colcha';
         o = { vid: v.id, occ, peca: 'patch', molde, regra: pick(molde === 'colcha' ? ['xadrez', 'moldura', 'listras'] : ['xadrez', 'listras']), cores: [v.cores[0], v.cores[0]], line };
       }
+      if (!o.capital && state.served >= 4 && Math.random() < 0.12) o.pressa = gnow() + 180000;
     }
     const single = o.kind === 'acessorio' || (o.cores && o.cores[0] === o.cores[1]);
     if (state.served >= 3 && single && o.kind !== 'conjunto' && Math.random() < 0.35) o.riddle = true;
@@ -1958,6 +2046,7 @@ function patchShape(x, y, hex, forma) {
   return `<rect x="${x - 6}" y="${y - 6}" width="12" height="12" rx="1" fill="${hex}" ${st}/>`;
 }
 function requestText(c) {
+  if (c.misterio) { const P = PIECES[c.peca], [zA, zB] = P.zonas; return `📜 Um bilhete sem assinatura: «${MISTERIO[c.misterio - 1].bilhete}» Pede ${P.g === 'f' ? 'uma' : 'um'} ${P.nome.toLowerCase()} ${c.cores[0] === c.cores[1] ? corForm(c.cores[0], P.g) : `com ${zA.nome} ${corForm(c.cores[0], zA.g, zA.pl)} e ${zB.nome} ${corForm(c.cores[1], zB.g, zB.pl)}`}.`; }
   if (c.casamento && c.kind === 'conjunto') return `${nomesDe(c.vids)}: "Somos as madrinhas do casamento da Lua e da Nina! Uma peça toda ${corForm(c.cor, 'f')} pra cada uma, pra gente combinar." (${c.got.length} de ${c.vids.length})`;
   if (c.casamento) { const P = PIECES[c.peca]; return `"Eu vou me casar! 💍 Você faz ${P.g === 'f' ? 'uma' : 'um'} ${P.nome.toLowerCase()} ${corForm(c.cores[0], P.g)} pra mim? Quero estar linda pra ${c.vid === 'lua' ? 'Nina' : 'Lua'}."`; }
   if (c.kind === 'reforma') {
@@ -2028,6 +2117,7 @@ function deliver() {
   else if (pecaOk) r = { mood: 'hmm', pay: Math.ceil(price / 3), h: 0, msg: 'Gostei da peça, mas as cores não são as que eu pedi.' };
   else r = { mood: 'triste', pay: 4, h: -1, msg: 'Ah... não era isso. Mas obrigada pelo esforço.' };
   r.pay *= capMul;
+  if (c.pressa && gnow() < c.pressa && r.h >= 1) { r.pay = Math.round(r.pay * 1.5); r.h += 1; r.msg += ' E ainda chegou rapidinho!'; }
   if (r.mood === 'amor') r.mood = pick(['amor', 'vergonha', 'risada']);
   if (r.mood === 'triste' && v.exigente) r.mood = 'emburrada';
   if (v.exigente && item.stars === 1 && r.h >= 1) r = { mood: 'emburrada', pay: 2, h: -1, msg: 'Essa costura saiu com defeito… assim eu não posso usar.' };
@@ -2038,6 +2128,7 @@ function deliver() {
     if (c.extra && item.acc.tipo === c.extra.tipo && r.h >= 1) { r.pay += 5; r.h += 1; r.msg += ` E ${A.g === 'f' ? 'a' : 'o'} ${A.nome.toLowerCase()} ficou um charme!`; }
     else r.pay += 2;
   }
+  if (item.over && r.h >= 1) { r.pay += 3; r.msg += ' E que acabamento caprichado por dentro!'; }
   if (item.fin && r.h >= 1) {
     if (item.fin.botao === VBOTAO[v.id]) { r.pay += 3; r.msg += ` Amei os botões de ${BOTOES[item.fin.botao].nome.toLowerCase()}!`; }
     if (!!item.fin.linha === !!VCONTRASTE[v.id]) r.pay += 2;
@@ -2117,6 +2208,20 @@ function casamentoStart() {
   sfx('chime');
 }
 function settle(c, v, r) {
+  if (c.misterio) {
+    if (r.h >= 1) {
+      const M = state.misterio;
+      M.cap = Math.max(M.cap, c.misterio);
+      M.next = gnow() + 360000;
+      const P = MISTERIO[c.misterio - 1];
+      r.mood = 'feliz';
+      r.msg = c.misterio < 5 ? P.pista : 'Ela segura o vestido amarelo com as mãos tremendo…';
+      if (c.misterio === 5) { r.pay += 60; setTimeout(() => { revelaAurora(); state.hearts.aurora = (state.hearts.aurora || 0) + 3; save(); renderAll(); openSheet({ kind: 'aurora' }); confete(50); }, 3500); }
+    } else {
+      const again = { ...c, id: c.id + 'x' };
+      setTimeout(() => { state.orders.push(again); toast('📜 O bilhete voltou pro mural: ela ainda espera a peça certa.'); save(); renderAll(); }, 4500);
+    }
+  }
   if (c.casamento) {
     if (r.h >= 1) {
       r.pay *= 2; r.h += 1;
@@ -2130,6 +2235,7 @@ function settle(c, v, r) {
       setTimeout(() => { state.orders.push(again); toast(`${v.nome} pediu de novo: o casamento ainda precisa dessa peça!`); save(); renderAll(); }, 4500);
     }
   }
+  if (r.h >= 1 && v && humorOf(v) === 'apaixonada') r.pay = Math.round(r.pay * 1.2);
   if (r.h >= 1 && state.etiqueta && c.kind !== 'acessorio' && c.kind !== 'remendo') {
     state.marca = (state.marca || 0) + (c.kind === 'conjunto' ? c.vids.length : 1);
     r.pay += marcaNivel()[2];
@@ -2391,6 +2497,49 @@ function act(el) {
   }
   else if (a === 'rm-scrap') { ui.sheet.scrap = el.dataset.v; renderSheet(); return; }
   else if (a === 'rm-forma') { ui.sheet.forma = el.dataset.v; renderSheet(); return; }
+  else if (a === 'ov-go') { const s2 = ui.sheet; s2.step = 'go'; s2.hits = 0; s2.miss = 0; s2.t0 = performance.now(); renderSheet(); return; }
+  else if (a === 'ov-tap') {
+    const s2 = ui.sheet;
+    if (!s2 || s2.step !== 'go') return;
+    if (s2.pos > 0.4 && s2.pos < 0.6) { s2.hits += 1; sfx('stitch'); } else { s2.miss += 1; sfx('miss'); }
+    if (s2.hits >= OV_HITS) finishOverloque(s2); else renderSheet();
+    return;
+  }
+  else if (a === 'bd2-d') { ui.sheet.d = el.dataset.v; renderSheet(); return; }
+  else if (a === 'bd2-cor') { ui.sheet.cor = el.dataset.v; renderSheet(); return; }
+  else if (a === 'bd2-go') {
+    const s2 = ui.sheet, g = BORDADOS[s2.d].g, pts = [...g].map((ch, i) => (ch === '#' ? i : -1)).filter((i) => i >= 0);
+    s2.seq = pts.sort(() => Math.random() - 0.5).slice(0, 10); s2.k = 0; s2.hits = 0; s2.feitos = []; s2.tLit = performance.now(); s2.step = 'go';
+    renderSheet(); return;
+  }
+  else if (a === 'bd2-tap') {
+    const s2 = ui.sheet, i = +el.dataset.i;
+    if (!s2 || s2.step !== 'go') return;
+    if (i === s2.seq[s2.k]) { s2.hits += 1; s2.feitos.push(i); sfx('stitch'); s2.k += 1; s2.tLit = performance.now(); if (s2.k >= s2.seq.length) { finishBordadeira(s2); return; } }
+    else sfx('miss');
+    renderSheet(); return;
+  }
+  else if (a === 'troca') { fazTroca(villager(el.dataset.v)); }
+  else if (a === 'bau') { abrirBau(); save(); renderAll(); return; }
+  else if (a === 'enviar') { enviarCarta(el.dataset.c, +el.dataset.i); }
+  else if (a === 'clube-truque') {
+    const Cl = state.clube, v = villager(el.dataset.v), T = TRUQUES[(clock().day + +el.dataset.i) % TRUQUES.length][1];
+    if (!v || Cl.aprendeu.includes(v.id)) return;
+    Cl.aprendeu.push(v.id); gainHeart(v.id, 1);
+    if (T.coins) state.coins += T.coins;
+    if (T.scraps) { const k = pick(v.cores); state.scraps[k] = (state.scraps[k] || 0) + T.scraps; }
+    if (T.seeds) { const k = STORY_SEED[v.id] || 'girassol'; state.seeds[k] = (state.seeds[k] || 0) + T.seeds; }
+    sfx('coin'); toast(`📝 Truque novo! ${T.coins ? `+${T.coins} moedas` : T.scraps ? `+${T.scraps} retalhos` : `+${T.seeds} sementes`} e +1 ♥ com ${v.nome}`);
+  }
+  else if (a === 'clube-q') {
+    const Cl = state.clube, k = el.dataset.v;
+    if (Cl.feitos >= 3 || !(state.scraps[k] > 0)) return;
+    state.scraps[k] -= 1; Cl.feitos += 1; Cl.quadros.push(k); sfx('stitch');
+    if (Cl.quadros.length >= 9) {
+      Cl.colchas += 1; Cl.ultima = Cl.quadros.slice(); Cl.quadros = []; state.coins += 60;
+      confete(50); sfx('chime'); toast('🧵 A colcha da vila ficou pronta! Ela vai ficar pendurada na praça. +60 moedas');
+    }
+  }
   else if (a === 'tc-molde') { ui.sheet.molde = el.dataset.v; renderSheet(); return; }
   else if (a === 'tc-cor') { ui.sheet[+el.dataset.z ? 'c1' : 'c0'] = el.dataset.v; renderSheet(); return; }
   else if (a === 'tc-start') {
@@ -2542,11 +2691,12 @@ function act(el) {
       const before = bestHearts();
       activeVillagers().forEach((v) => { state.hearts[v.id] = (state.hearts[v.id] || 0) + 2; });
       state.best = Math.max(before, totalHearts()); checkUnlocks(before, state.best);
-      sfx('chime'); sparkle(el, 30);
+      sfx('chime'); sparkle(el, 30); confete(60);
       toast('🌸 Que festa linda! +80 moedas e +2 ♥ com todo mundo.');
     }
   }
   else if (a === 'tar-claim') { claimTarefas(); sparkle(el, 20); }
+  else if (a === 'foto') { document.body.classList.add('foto'); return; }
   else if (a === 'amb-toggle') { SND.amb = !SND.amb; saveSnd(); if (SND.amb) actx(); else ambStop(); }
   else if (a === 'reset') {
     if (el.dataset.armed) { state = fresh(); el.textContent = 'Recomeçar do zero'; delete el.dataset.armed; ui.sheet = null; renderSheet(); }
@@ -2572,6 +2722,7 @@ function renderStats() {
     <span class="chip-h"><span class="hrt" aria-hidden="true">♥</span>${totalHearts()}<small>carinho</small></span>
     <button class="snd-btn tar-btn" data-act="sheet" data-kind="tarefas" id="tar-btn" aria-label="Tarefas" title="Tarefas">📋${(() => { const T = tarefasHoje(); const left = T.list.filter((x) => x.n < TAREFAS[x.id].n).length; return `<span class="badge${left ? '' : ' pronta'}">${left || '!'}</span>`; })()}</button>
     <button class="snd-btn" data-act="sheet" data-kind="conquistas" id="conq-btn" aria-label="Conquistas" title="Conquistas">🏅</button>
+    <button class="snd-btn" data-act="foto" id="foto-btn" aria-label="Modo foto" title="Modo foto">📷</button>
     <button class="snd-btn" data-act="music" id="music-btn" aria-pressed="${SND.music}" aria-label="Música" title="Música">♪</button>
     <button class="shop-btn" data-act="sheet" data-kind="loja" id="open-loja">Loja</button>`;
 }
@@ -2701,7 +2852,7 @@ function renderAtelie() {
     const needsMeasure = !accOrder && !conj && !rem && !rf && !['trico', 'patch'].includes(c.peca) && !state.measured[v.id];
     const favKnown = (state.hearts[v.id] || 0) >= 3 && !accOrder && !conj;
     const gosta = !accOrder && !conj && (state.hearts[v.id] || 0) >= 4 && VBOTAO[v.id] ? `Gosta de botão de ${BOTOES[VBOTAO[v.id]].nome.toLowerCase()}, linha ${VCONTRASTE[v.id] ? 'colorida' : 'combinando'}${(state.hearts[v.id] || 0) >= 6 && VGOLA[v.id] ? `, ${GOLAS[VGOLA[v.id]].nome.toLowerCase()} e ${BOLSOS[VBOLSO[v.id]].nome.toLowerCase()}` : ''}` : '';
-    const info = [gosta, conj ? `Conjunto: ${c.got.length} de ${c.vids.length} peças · cada uma toda ${c.cor}` : !accOrder && !rf && !['trico', 'patch'].includes(c.peca) ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
+    const info = [c.pressa && gnow() < c.pressa ? `<b>⏱ Com pressa! Bônus se entregar em <span id="pressa-left">${secs(c.pressa - gnow())}</span></b>` : '', gosta, conj ? `Conjunto: ${c.got.length} de ${c.vids.length} peças · cada uma toda ${c.cor}` : !accOrder && !rf && !['trico', 'patch'].includes(c.peca) ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
     balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>${conj ? nomesDe(c.vids) : v.nome} no balcão</b>${info ? `<span class="help">${info}</span>` : ''}
       <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${rf ? `<button class="primary sm" data-act="rf-start" id="rf-start">✂️ Reformar${c.tipo === 'cor' ? ` (1 m de ${c.cor})` : ''}</button>` : ''}${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${rem || rf ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
       ${hintBox(c)}
@@ -2713,13 +2864,13 @@ function renderAtelie() {
   let title, content, confirmCard = '';
   if (sub === 'mesa') {
     title = 'Mesa de trabalho';
-    const tiles = Object.keys(PIECES).filter((pk) => pieceOpen(pk) && !PIECES[pk].fora).flatMap((pk) => PIECES[pk].moldes.map((m) => {
+    const tiles = Object.keys(PIECES).filter((pk) => pieceOpen(pk) && !PIECES[pk].fora).flatMap((pk) => PIECES[pk].moldes.filter((m) => !m.vintage || (state.vintage || []).includes(m.id)).map((m) => {
       const on = b.peca === pk && moldeOf(b.peca, b.molde).id === m.id;
       return `<button class="piece" data-act="pickmolde" data-p="${pk}" data-v="${m.id}" id="molde-${m.id}" aria-pressed="${on}">${pieceSVG(pk, m.id, on ? b.z : null)}${m.nome}<span class="price"><span class="coin" aria-hidden="true"></span>${m.preco}</span></button>`;
     })).join('');
     const rackFull = state.rack.length >= rackMax();
     const m = b.peca ? moldeOf(b.peca, b.molde) : null;
-    content = `<p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
+    content = `${clubeHoje() ? '<div class="festa on"><b>🧵 Clube de costura hoje!</b><button class="btn" data-act="sheet" data-kind="clube" id="clube-atelie" style="align-self:flex-start">Abrir o clube</button></div>' : ''}<p class="help">Escolha o molde. Depois você escolhe tamanho e tecidos na cartela.</p><div class="moldes">${tiles}</div>
       <div class="deliver-row"><button class="btn" data-act="sheet" data-kind="estampa" id="open-estampa">✏️ Criar estampa (${(state.myPats || []).length} de 3)</button>
       <button class="btn" data-act="sheet" data-kind="trico" id="open-trico">🧶 Tricô</button>
       <button class="btn" data-act="sheet" data-kind="patch" id="open-patch">🧩 Patchwork</button></div>`;
@@ -2733,7 +2884,7 @@ function renderAtelie() {
     content = `
       <p class="help">${state.rack.length} de ${rackMax()} peças. Toque numa pra entregar, enfeitar ou levar pra vitrine.</p>
       <div class="rack">${rack}</div>
-      <div class="deliver-row">${adornBtn}${sel && !sel.bordado ? '<button class="btn" data-act="bordar" id="bordar">🪡 Bordar</button>' : ''}${sel ? `<button class="btn" data-act="to-vitrine" id="to-vit" ${state.vitrine.includes(null) ? '' : 'disabled'}>Pôr na vitrine (${state.vitrine.filter(Boolean).length} de ${state.vitrine.length})</button>` : ''}</div>`;
+      <div class="deliver-row">${adornBtn}${sel && !sel.bordado ? '<button class="btn" data-act="bordar" id="bordar">🪡 Bordar</button>' : ''}${sel && !sel.bordado && state.up.bordadeira && !PIECES[sel.peca].fora ? '<button class="btn" data-act="sheet" data-kind="bordadeira" id="bd2-open">🧵 Bordadeira</button>' : ''}${sel && !sel.over && state.up.overloque && !PIECES[sel.peca].fora ? '<button class="btn" data-act="sheet" data-kind="overloque" id="ov-open">✂️ Overloque</button>' : ''}${sel ? `<button class="btn" data-act="to-vitrine" id="to-vit" ${state.vitrine.includes(null) ? '' : 'disabled'}>Pôr na vitrine (${state.vitrine.filter(Boolean).length} de ${state.vitrine.length})</button>` : ''}</div>`;
   } else {
     title = 'Retalhos';
     const scrapCols = clothKeys('scraps');
@@ -2817,14 +2968,24 @@ function renderVila() {
   const vit = state.vitrine.map((it, i) => (it
     ? `<button class="mq" data-act="from-vitrine" data-i="${i}" id="vit-${i}" aria-label="Devolver ${moldeOf(it.peca, it.molde).nome} pra arara" title="${moldeOf(it.peca, it.molde).nome} (${it.tam || 'M'}) · toque pra devolver">${pieceSVG(it.peca, it.molde, it.z, null, it.acc, it.bordado, it.fin)}</button>`
     : '<span class="mq"></span>')).join('');
-  const POS = [[47, 3], [57.5, 3], [68, 3], [78.5, 3], [89, 3], [52, 17], [62.5, 17], [73, 17], [83.5, 17], [42, 17]];
+  const POS = [[47, 3], [57.5, 3], [68, 3], [78.5, 3], [89, 3], [52, 17], [62.5, 17], [73, 17], [83.5, 17], [42, 17], [93.5, 17], [37, 3], [26, 17]];
   const isConc = c.dayInSeason === 3;
   const waveAll = ui.wave === 'vila';
   ui.wave = null;
-  const crowd = vs.map((v, i) => ({ v, i, p: POS[i % POS.length] })).sort((a, b) => b.p[1] - a.p[1]).map(({ v, i, p }) => {
+  const presentes = vs.filter((v) => !ausente(v, c.part));
+  const pos = {};
+  presentes.forEach((v, i) => { pos[v.id] = POS[i % POS.length]; });
+  const pares = AMIGAS.filter(([a, b]) => pos[a] && pos[b]);
+  const pslot = Math.floor(gnow() / 20000);
+  let papo = '';
+  if (pares.length && pslot % 3 !== 2) {
+    const [a, b] = pares[pslot % pares.length], L = PAPOS[a + '|' + b] || [], k = pslot % L.length, quem = k % 2 ? b : a;
+    if (L[k]) papo = `<div class="papo" style="left:${pos[quem][0]}%;bottom:${pos[quem][1] + 37}%"><b>${villager(quem).nome}:</b> ${L[k]}</div>`;
+  }
+  const crowd = papo + presentes.map((v, i) => ({ v, i, p: POS[i % POS.length] })).sort((a, b) => b.p[1] - a.p[1]).map(({ v, i, p }) => {
     const novo = state.talked[v.id] !== c.day;
     const dx = ((i * 37) % 9 - 4) * 1.4;
-    return `<button class="crowd-v${p[1] > 10 ? ' back' : ''}" data-act="talk" data-v="${v.id}" id="talk-${v.id}" style="left:${p[0]}%;bottom:${p[1]}%;--dx:${dx}cqw;--dur:${9 + (i * 3) % 8}s" aria-label="Conversar com ${v.nome}">${novo ? '<span class="chat" aria-hidden="true">…</span>' : ''}${figureSVG(v, c.part === 'noite' && i % 3 === 0 ? 'sono' : null, waveAll && i % 2 === 0)}${petSVG(v.id)}<span class="nm">${v.nome}</span></button>`;
+    return `<button class="crowd-v${p[1] > 10 ? ' back' : ''}" data-act="talk" data-v="${v.id}" id="talk-${v.id}" style="left:${p[0]}%;bottom:${p[1]}%;--dx:${dx}cqw;--dur:${9 + (i * 3) % 8}s" aria-label="Conversar com ${v.nome}">${novo ? '<span class="chat" aria-hidden="true">…</span>' : ''}${figureSVG(v, (c.part === 'noite' && i % 3 === 0) || (humorOf(v) === 'sonolenta' && c.part !== 'tarde') ? 'sono' : humorOf(v) === 'animada' && i % 2 ? 'feliz' : null, waveAll && i % 2 === 0)}${petSVG(v.id)}<span class="nm">${v.nome}</span></button>`;
   }).join('') + (isConc ? `<button class="crowd-v jurada" data-act="sheet" data-kind="concurso" id="talk-lis" style="left:36%;bottom:3%;--dx:0cqw;--dur:10s" aria-label="Falar com Madame Lis, a jurada">${state.concursos[c.day] ? '' : '<span class="chat" aria-hidden="true">!</span>'}${figureSVG(JURADA)}<span class="nm">Madame Lis</span></button>` : '');
   const F = FESTAS[c.season.id];
   const ready = vs.filter((v) => festaMatch(v, F)).length;
@@ -2843,7 +3004,7 @@ function renderVila() {
   const pass = filled
     ? `${state.lastPass ? `<p class="pass">${state.lastPass}</p>` : ''}<p class="pass">Alguém passa na frente da loja em <span id="pass-left">${secs(state.nextPass - gnow())}</span>.</p>`
     : `<p class="pass">${state.lastPass ? state.lastPass + ' ' : ''}A vitrine está vazia. Leve peças da arara do ateliê pra quem passa poder comprar.</p>`;
-  const mor = vs.map((v) => `<button class="mor" data-act="talk" data-v="${v.id}" id="mor-${v.id}">${avatarSVG(v)}<span><b>${v.nome}</b> <span class="hrt">♥</span> ${state.hearts[v.id] || 0}${state.measured[v.id] ? ` · veste ${v.tam}` : ''}<br><small>${likesText(v)}</small></span></button>`).join('');
+  const mor = vs.map((v) => `<button class="mor" data-act="talk" data-v="${v.id}" id="mor-${v.id}">${avatarSVG(v)}<span><b>${v.nome}</b> ${HUMORES[humorOf(v)].emo} <span class="hrt">♥</span> ${state.hearts[v.id] || 0}${ausente(v, c.part) ? `<br><small>🕐 Agora está ${ROTINA[v.id][1]}</small>` : ''}${state.measured[v.id] ? ` · veste ${v.tam}` : ''}<br><small>${likesText(v)}</small></span></button>`).join('');
   const next = VILLAGERS.filter((v) => v.need && bestHearts() < v.need).sort((a, b) => a.need - b.need)[0];
   const nextRow = next ? `<div class="mor soon"><span class="q" aria-hidden="true">?</span><span><b>Casa vazia</b><br><small>Alguém se muda pra vila quando você juntar ${next.need} ♥.</small></span></div>` : '';
   $('p-vila').innerHTML = `
@@ -2851,6 +3012,8 @@ function renderVila() {
     <aside class="pnl" aria-labelledby="h-vila">
       <h2 class="pnl-title" id="h-vila">Praça</h2>
       ${casamentoHoje() || (state.casamento && state.casamento.fase === 3 && state.casamento.dia === c.day) ? `<div class="festa on"><b>💒 Hoje é o casamento da Lua e da Nina!</b><p>A praça está toda enfeitada de flores.</p><button class="primary" data-act="sheet" data-kind="casamento" id="casorio-btn" style="align-self:flex-start">${state.casamento.fase >= 3 ? 'Ver de novo' : 'Ir à cerimônia'}</button></div>` : state.casamento && state.casamento.fase === 1 ? `<div class="festa"><b>💍 Casamento à vista!</b><p>A Lua e a Nina vão se casar. Faltam ${3 - state.casamento.got} de 3 encomendas do casamento.</p></div>` : ''}
+      ${clubeHoje(c) ? '<div class="festa on"><b>🧵 Hoje tem Clube de costura!</b><p>As moradoras estão no ateliê esperando você.</p><button class="primary" data-act="sheet" data-kind="clube" id="clube-vila" style="align-self:flex-start">Ir ao clube</button></div>' : ''}
+      <div class="deliver-row"><button class="btn" data-act="sheet" data-kind="correio" id="correio-vila">📬 Correio${state.correio.cartas.length ? ` (${state.correio.cartas.length})` : ''}</button></div>
       ${concBox}
       ${festaBox}
       <div class="festa${state.capas[seasonIdx()] && state.capas[seasonIdx()].ok ? ' on' : ''}"><b>📰 Revista Moda da Capital</b><p>${state.capas[seasonIdx()] ? (state.capas[seasonIdx()].ok ? 'Sua peça é capa desta estação!' : 'Você já tentou nesta estação. Tem tema novo na próxima!') : `Tema da estação: ${revistaTema(seasonIdx()).map((c) => c.txt).join(' e ')}.`}</p><button class="btn" data-act="sheet" data-kind="revista" id="rev-open" style="align-self:flex-start">${state.capas[seasonIdx()] ? 'Ver a revista' : 'Enviar uma peça'}</button></div>
@@ -2948,9 +3111,35 @@ function clock(now = gnow()) {
   const rain = isRainDay(day);
   return { day, frac, season: SEASONS[si], dayInSeason, festa, rain, part: frac < 0.4 ? 'manhã' : frac < 0.75 ? 'tarde' : 'noite' };
 }
-const inSeason = (k) => FLOWER_EST[k].includes(clock().season.id);
+const inSeason = (k) => !!(state && state.up && state.up.estufa) || FLOWER_EST[k].includes(clock().season.id);
 const growMs = (k) => FLOWERS[k].tempo * (inSeason(k) ? 1 : 2) * (clock().rain ? 0.66 : 1) * (state.up.colmeia ? 0.7 : 1);
 const pdur = (p) => p.dur || FLOWERS[p.f].tempo;
+const HUMORES = {
+  animada: { emo: '✨', txt: 'Hoje ela acordou animada', efeito: 'conversar rende +1 ♥ extra' },
+  sonolenta: { emo: '😴', txt: 'Hoje ela tá sonolenta', efeito: 'ela boceja o tempo todo' },
+  pensativa: { emo: '💭', txt: 'Hoje ela tá pensativa', efeito: 'ela conta uma cor que anda querendo' },
+  apaixonada: { emo: '💗', txt: 'Hoje ela tá apaixonadinha', efeito: 'paga 20% a mais nas encomendas' },
+  carinhosa: { emo: '🤗', txt: 'Hoje ela tá carinhosa', efeito: 'presente rende +1 ♥ extra' },
+};
+const humorOf = (v, day = clock().day) => Object.keys(HUMORES)[(day * 131 + vhash(v)) % 5];
+/* Where each one is when she is not in the square */
+const ROTINA = {
+  bia: ['noite', 'tocando violão na varanda'], tito: ['tarde', 'pescando no rio'], cida: ['manhã', 'fazendo pão na padaria'],
+  joaquim: ['manhã', 'cuidando da horta'], lua: ['tarde', 'pintando aquarelas no mirante'], helena: ['noite', 'lendo na biblioteca'],
+  mel: ['manhã', 'abrindo a doceria'], nina: ['manhã', 'entregando cartas de bicicleta'], zeze: ['noite', 'dormindo cedinho'],
+  rita: ['tarde', 'consertando uma bicicleta na oficina'], dandara: ['noite', 'dando aula de dança'], iara: ['manhã', 'medindo a água do rio'],
+};
+const ausente = (v, part = clock().part) => !!(ROTINA[v.id] && ROTINA[v.id][0] === part);
+const AMIGAS = [['bia', 'lua'], ['tito', 'nina'], ['cida', 'zeze'], ['joaquim', 'helena'], ['mel', 'rita'], ['dandara', 'iara']];
+const PAPOS = {
+  'bia|lua': ['Lua, pinta a capa do meu disco?', 'Só se você tocar enquanto eu pinto!', 'Fechado! Uma música pra cada cor.'],
+  'tito|nina': ['Nina, me leva de garupa até o rio?', 'Só se você me der um peixe dourado!', 'Ele é livre, menina! Hahaha'],
+  'cida|zeze': ['Zezé, me ensina aquele ponto de tricô?', 'Ensino, se você trouxer pão de queijo.', 'Combinado, quentinho!'],
+  'joaquim|helena': ['Helena, achei um livro sobre hortas!', 'Me empresta? Eu te leio em voz alta.', 'Então vem tomar café lá em casa.'],
+  'mel|rita': ['Rita, meu forno tá fazendo um barulho estranho…', 'Deixa comigo! Em troca, um bolo?', 'Dois bolos!'],
+  'dandara|iara': ['Iara, bora dançar na beira do rio?', 'Só se as garças puderem assistir!', 'Elas vão adorar a ginga.'],
+};
+const amigaDe = (vid) => { const p = AMIGAS.find((x) => x.includes(vid)); return p ? p[p[0] === vid ? 1 : 0] : null; };
 const activeVillagers = () => VILLAGERS.filter((v) => !v.need || bestHearts() >= v.need);
 function gainHeart(vid, n) {
   const before = bestHearts();
@@ -2995,7 +3184,7 @@ function renderDesfile(s) {
   const okN = s.res.filter((r) => r.ok).length;
   const walk = s.res.map((r, i) => {
     const v = villager(r.id);
-    return `<div class="desfila${r.ok ? ' react-feliz' : ''}" style="animation-delay:${i * 0.45}s">${figureSVG(v, r.ok ? 'feliz' : null)}<b>${v.nome}</b><span class="${r.ok ? 'ok' : 'no'}">${r.ok ? 'No tema! +6 · +1 ♥' : 'Fora do tema'}</span></div>`;
+    return `<div class="desfila${r.ok ? ' react-feliz' : ''}" style="animation-delay:${i * 0.45}s">${figureSVG(v, r.ok ? 'feliz' : null, false, 'festa')}<b>${v.nome}</b><span class="${r.ok ? 'ok' : 'no'}">${r.ok ? 'No tema! +6 · +1 ♥' : 'Fora do tema'}</span></div>`;
   }).join('');
   $('gen-body').innerHTML = `<div class="passarela">${walk}</div>
     <p class="result">${okN} de ${s.res.length} no tema · +${s.coins} moedas${okN === s.res.length ? ' (bônus de vila inteira no tema!)' : ''}</p>`;
@@ -3010,6 +3199,8 @@ const VTALK = {
   helena: ['As crianças pediram aula sobre cores. Adivinha de quem eu falei?', 'Corrigir prova cansa. Costurar parece tão relaxante.', 'Xadrez me lembra caderno quadriculado. Adoro.'],
   mel: ['Prova esse bolo de fubá! Tá quentinho.', 'Avental cor-de-rosa é a marca da confeitaria.', 'Bolinhas parecem confeito, né? Por isso eu amo.'],
   nina: ['Entreguei 42 cartas hoje. Recorde!', 'Roupa pra pedalar tem que ser confortável e chamar atenção.', 'Listras ficam lindas em movimento.'],
+  dandara: ['Ginga é igual costura: tudo é ritmo!', 'Roupa de dança tem que girar bonito. Saia rodada é minha paixão.', 'Vem pra roda de capoeira no sábado!'],
+  iara: ['Hoje vi uma garça pescando no rio. Que elegância!', 'Sabia que a hortelã gosta de terra úmida?', 'Uso roupa verde-água pra combinar com o rio. Bobeira minha.'],
   rita: ['Bicicleta boa é igual roupa boa: bem costurada… quer dizer, bem parafusada!', 'Cabelo raspado é prático. E fresquinho no verão!', 'Se precisar de qualquer conserto, me chama.'],
   zeze: ['Esse cachecol aqui eu tricotei em 1987.', 'Menina, você tem mãos de fada.', 'Quando eu era moça, florzinha era a estampa mais pedida da vila.'],
 };
@@ -3034,9 +3225,10 @@ function talkTo(vid) {
   const v = villager(vid);
   if (state.talked[vid] !== c.day) {
     state.talked[vid] = c.day;
-    gainHeart(vid, 1);
+    const nh = humorOf(v) === 'animada' ? 2 : 1;
+    gainHeart(vid, nh);
     taskEv('conversar');
-    toast(`Conversa boa! +1 ♥ com ${v.nome}`);
+    toast(`Conversa boa! +${nh} ♥ com ${v.nome}${nh > 1 ? ' (ela tá animada!)' : ''}`);
   }
   const si = nextStory(vid);
   if (si >= 0) { openStory(vid, si); return; }
@@ -3057,6 +3249,7 @@ function giftTo(i) {
   gainHeart(v.id, fav ? 2 : 1);
   state.gifted[v.id] = c.day;
   taskEv('presente');
+  if (humorOf(v) === 'carinhosa') gainHeart(v.id, 1);
   toast(fav ? `${v.nome} ficou toda vermelhinha de alegria! É uma cor favorita dela. +2 ♥` : `${v.nome} agradeceu o presente. +1 ♥`);
   save();
   renderAll();
@@ -3070,9 +3263,11 @@ function renderTalk(s) {
     ? state.box.map((x, i) => `<button class="piece" data-act="gift" data-i="${i}" id="gift-${i}" ${done ? 'disabled' : ''}>${accSVG(x.tipo, x.cor)}${ACCS[x.tipo].nome}<span class="price">${x.cor}</span></button>`).join('')
     : `<p class="help" style="margin:0;grid-column:1/-1">A caixinha está vazia. Faça acessórios na aba Retalhos do ateliê.</p>`;
   const line = talkLine(v);
+  const T = trocaDe(v), trocou = state.trocas && state.trocas[v.id] === c.day;
+  const trocaBox = `<div class="festa"><b>🔄 Troca do dia</b><p>${v.nome} te dá <b>${trocaTxt(T.da)}</b> em troca de <b>${trocaTxt(T.por)}</b>.</p>${trocou ? '<p>Vocês já trocaram hoje. Amanhã tem outra!</p>' : `<button class="btn" data-act="troca" data-v="${v.id}" id="troca-${v.id}" style="align-self:flex-start" ${trocaPode(T) ? '' : 'disabled'}>${trocaPode(T) ? 'Trocar' : 'Falta o que ela pede'}</button>`}</div>`;
   $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, talkMood(v, line), true)}${petSVG(v.id)}</div>
-      <div class="talk-txt"><p class="quote">${line}</p>${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
-    <p class="label">Dar um presente${done ? ' · ela já ganhou um hoje' : ' · um por dia'}</p><div class="box">${gifts}</div>`;
+      <div class="talk-txt"><p class="quote">${line}</p>${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}${(() => { const hm = humorOf(v), H = HUMORES[hm]; return `<p class="help" style="margin:0">${H.emo} ${H.txt}: ${hm === 'pensativa' ? `"Ando pensando em ${v.cores[c.day % v.cores.length]}…"` : H.efeito}.</p>`; })()}${amigaDe(v.id) && villager(amigaDe(v.id)) ? `<p class="help" style="margin:0">💞 Melhor amiga: ${villager(amigaDe(v.id)).nome}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
+    <p class="label">Dar um presente${done ? ' · ela já ganhou um hoje' : ' · um por dia'}</p><div class="box">${gifts}</div>${trocaBox}`;
 }
 
 const UPGRADES = [
@@ -3083,6 +3278,9 @@ const UPGRADES = [
   { id: 'tesoura', nome: 'Tesoura dourada', desc: 'Sobra 50% mais retalho em cada corte.', preco: 45 },
   { id: 'colmeia', nome: 'Colmeia', desc: 'Abelhinhas no jardim: as flores crescem 30% mais rápido.', preco: 65 },
   { id: 'regador', nome: 'Regador de cobre', desc: 'Cada colheita dá 3 flores em vez de 2.', preco: 55 },
+  { id: 'estufa', nome: 'Estufa', desc: 'Uma estufa de vidro no jardim: toda flor cresce como se fosse da estação.', preco: 110 },
+  { id: 'overloque', nome: 'Overloque', desc: 'Dá acabamento por dentro das peças: conserta defeitos e as clientes pagam mais.', preco: 90 },
+  { id: 'bordadeira', nome: 'Bordadeira', desc: 'Uma máquina de bordar com um joguinho próprio, sem precisar decorar o desenho.', preco: 120 },
   { id: 'maquina', nome: 'Máquina de costura', desc: 'A agulha anda mais devagar e as marquinhas ficam mais fáceis.', preco: 55 },
 ];
 const DECOR = [
@@ -3234,12 +3432,12 @@ const BORDADOS = {
   lua: { nome: 'Lua', g: ['..###..', '.##....', '##.....', '##.....', '##.....', '.##....', '..###..'].join('') },
 };
 const BOTOES = { madeira: { nome: 'Madeira', preco: 0, c: '#9E6E48' }, madreperola: { nome: 'Madrepérola', preco: 3, c: '#F3EFE6' }, flor: { nome: 'Florzinha', preco: 5, c: '#F2A7C6' } };
-const VBOTAO = { rita: 'madeira', bia: 'flor', tito: 'madeira', cida: 'madreperola', joaquim: 'madeira', lua: 'flor', helena: 'madreperola', mel: 'flor', nina: 'madeira', zeze: 'madreperola' };
-const VCONTRASTE = { rita: true, bia: true, lua: true, nina: true, mel: true };
+const VBOTAO = { dandara: 'madeira', iara: 'flor', rita: 'madeira', bia: 'flor', tito: 'madeira', cida: 'madreperola', joaquim: 'madeira', lua: 'flor', helena: 'madreperola', mel: 'flor', nina: 'madeira', zeze: 'madreperola' };
+const VCONTRASTE = { dandara: true, rita: true, bia: true, lua: true, nina: true, mel: true };
 const GOLAS = { nenhuma: { nome: 'Sem gola', preco: 0 }, bebe: { nome: 'Gola bebê', preco: 2 }, babado: { nome: 'Babado', preco: 3 }, marinheiro: { nome: 'Marinheiro', preco: 4 } };
 const BOLSOS = { nenhum: { nome: 'Sem bolso', preco: 0 }, chapado: { nome: 'Bolso chapado', preco: 1 }, coracao: { nome: 'Bolso coração', preco: 3 } };
-const VGOLA = { bia: 'babado', tito: 'marinheiro', cida: 'bebe', joaquim: 'marinheiro', lua: 'babado', helena: 'bebe', mel: 'babado', nina: 'marinheiro', zeze: 'bebe', rita: 'marinheiro', vitoria: 'bebe' };
-const VBOLSO = { bia: 'coracao', tito: 'chapado', cida: 'chapado', joaquim: 'chapado', lua: 'coracao', helena: 'chapado', mel: 'coracao', nina: 'chapado', zeze: 'coracao', rita: 'chapado' };
+const VGOLA = { dandara: 'babado', iara: 'bebe', bia: 'babado', tito: 'marinheiro', cida: 'bebe', joaquim: 'marinheiro', lua: 'babado', helena: 'bebe', mel: 'babado', nina: 'marinheiro', zeze: 'bebe', rita: 'marinheiro', vitoria: 'bebe' };
+const VBOLSO = { dandara: 'chapado', iara: 'coracao', bia: 'coracao', tito: 'chapado', cida: 'chapado', joaquim: 'chapado', lua: 'coracao', helena: 'chapado', mel: 'coracao', nina: 'chapado', zeze: 'coracao', rita: 'chapado' };
 /* Where the neckline and hem sit, read straight from the pattern outline */
 const BOX = new Map();
 function moldeBox(m) {
@@ -3353,7 +3551,7 @@ function finishBordado(s) {
 }
 
 /* ---------- histórias de amizade ---------- */
-const STORY_SEED = { rita: 'girassol', bia: 'girassol', tito: 'anil', cida: 'camomila', joaquim: 'papoula', lua: 'lavanda', helena: 'anil', mel: 'hibisco', nina: 'hortela', zeze: 'iris' };
+const STORY_SEED = { dandara: 'hibisco', iara: 'hortela', rita: 'girassol', bia: 'girassol', tito: 'anil', cida: 'camomila', joaquim: 'papoula', lua: 'lavanda', helena: 'anil', mel: 'hibisco', nina: 'hortela', zeze: 'iris' };
 const STORY_REV = { mel: 'avental', joaquim: 'macacao', zeze: 'casaco' };
 const STORIES = {
   bia: [['Bia te chama pra praça no fim da tarde. "Fiz uma música sobre o ateliê! Quer ouvir?"', 'Ela toca três acordes meio tortos e ri. "Ainda não tem letra… mas tem o barulhinho da máquina de costura."'],
@@ -3372,6 +3570,10 @@ const STORIES = {
     ['"Quero que a confeitaria tenha aventais iguais, com a cara da vila."', 'Ela te dá uma revista de cozinha com uma receita de bolo grudada na capa.']],
   nina: [['Nina freia a bicicleta na sua porta. "Tem carta pra você! É de uma cliente de outra vila elogiando seu trabalho."', 'Dentro, umas sementes de presente.'],
     ['"Pedalei até a cidade e vi vitrines enormes. Nenhuma tinha a alma da sua."', 'Ela te dá uma revista que pegou na banca da estação.']],
+  dandara: [['Dandara aparece batucando na porta. "Bora aprender um passo? Costureira também precisa esticar as costas!"', 'Vocês dançam no meio do ateliê, rindo. Ela deixa umas sementes de hibisco "pra dar cor à vida".'],
+    ['"Minha avó dizia que a gente dança com a roupa, não só com o corpo."', 'Ela te dá um retrato antigo da avó dançando, de saia rodada, e umas sementinhas.']],
+  iara: [['Iara chega com as botas molhadas. "Achei uma tartaruguinha no rio! Mas fiz um rasgo na calça…"', 'Ela te dá umas sementes de hortelã da beira do rio em agradecimento.'],
+    ['"Quando eu era pequena, achava que o rio era um tecido azul comprido."', 'Ela te dá um potinho de sementes e uma pena de garça.']],
   rita: [['Rita aparece com a caixa de ferramentas. "Seu rádio do ateliê tava chiando, né? Dei um jeitinho!"', 'Agora ele toca até modinha antiga. Ela ainda deixa umas sementes de girassol que ganhou na feira.'],
     ['"Sabia que eu restauro bicicletas velhas? Cada uma ganha uma cor nova… igual seus tecidos!"', 'Ela te dá uma revista que achou no meio das peças de uma bicicleta antiga.']],
   zeze: [['Vó Zezé te ensina um ponto de tricô antigo. "Devagar e sempre, menina. A pressa embola a linha."', 'Ela te dá sementes de íris que guardava numa lata de biscoito.'],
@@ -3413,6 +3615,9 @@ const CONQ = [
   { id: 'cores40', nome: 'Arco-íris inteiro', desc: 'Descobrir 40 cores', premio: 100, ok: () => state.discovered.length >= 40 },
   { id: 'entregas10', nome: 'Freguesia fiel', desc: 'Entregar 10 pedidos', premio: 20, ok: () => state.served >= 10 },
   { id: 'entregas50', nome: 'Ateliê famoso', desc: 'Entregar 50 pedidos', premio: 60, ok: () => state.served >= 50 },
+  { id: 'colcha', nome: 'Colcha da vila', desc: 'Terminar uma colcha no Clube de costura', premio: 30, ok: () => !!(state.clube && state.clube.colchas) },
+  { id: 'correio', nome: 'Carteira da vila', desc: 'Enviar 3 pacotes pelo correio', premio: 25, ok: () => !!(state.correio && state.correio.n >= 3 && state.correio.obrigados.length >= 3) },
+  { id: 'misterio', nome: 'Mistério resolvido', desc: 'Descobrir quem é a cliente misteriosa', premio: 40, ok: () => !!(state.misterio && state.misterio.cap >= 5) },
   { id: 'tarefas', nome: 'Primeira fase', desc: 'Completar uma fase de tarefas', premio: 20, ok: () => (state.stats.diasTarefas || 0) >= 1 },
   { id: 'casamento', nome: 'Madrinha da vila', desc: 'Vestir as noivas do casamento da vila', premio: 50, ok: () => !!(state.casamento && state.casamento.fase >= 3) },
   { id: 'perfeita10', nome: 'Agulha de ouro', desc: 'Fazer 10 costuras perfeitas', premio: 30, ok: () => state.stats.perfeitas >= 10 },
@@ -3531,6 +3736,7 @@ function finishTrico(s) {
   state.stats.pecas = (state.stats.pecas || 0) + 1;
   taskEv('costurar'); if (s.stars === 3) { taskEv('perfeita'); state.stats.perfeitas += 1; }
   sfx(s.stars === 3 ? 'chime' : s.stars === 1 ? 'sad' : 'coin');
+  if (s.stars === 3) confete();
   save(); renderAll(); renderSheet();
 }
 /* Patchwork: square scraps sewn into a cushion (2×2) or a quilt (3×3) */
@@ -3561,6 +3767,178 @@ function renderPatch(s) {
     <p class="sub">${regra ? `Desenho: ${REGRAS[regra]}${regra !== 'livre' ? ' ✨' : ''}` : 'Preencha todos os quadrados'}</p>
     <button class="primary" data-act="pw-done" id="pw-done" ${regra && !full ? '' : 'disabled'}>${full ? 'Arara cheia' : 'Costurar os quadrados'}</button></div>
     <div><p class="help">Cada quadrado gasta 1 retalho. Escolha a cor e toque nos quadrados. Xadrez, listras e moldura valem mais!</p><div class="folds">${pal || '<p class="help">Sem retalhos. Corte peças na mesa pra juntar.</p>'}</div></div></div>`;
+}
+/* Overlocker: keep the needle on the edge, six good passes finish the seams */
+const OV_HITS = 6, OV_MS = 10000;
+function renderOverloque(s) {
+  const it = state.rack[s.i != null ? s.i : (s.i = state.selRack)];
+  if (!it) { ui.sheet = null; renderSheet(); return; }
+  $('gen-title').textContent = `Overloque · ${moldeOf(it.peca, it.molde).nome}`;
+  const art = `<div class="tc-stage">${pieceSVG(it.peca, it.molde, it.z, null, it.acc, it.bordado, it.fin)}</div>`;
+  if (!s.step) { $('gen-body').innerHTML = `${art}<p class="help">A overloque arremata as costuras por dentro: a peça ganha +1 estrela (até 3), perde o defeito e a cliente paga mais. Toque em "Passar!" quando o pezinho estiver na parte verde. ${OV_HITS} passadas certas.</p><button class="primary" data-act="ov-go" id="ov-go" style="align-self:center">Ligar a overloque</button>`; return; }
+  if (s.step === 'fim') { $('gen-body').innerHTML = `${art}<p class="sub" style="text-align:center">${s.ok ? 'Acabamento perfeito! A peça ficou impecável por dentro.' : 'A linha embolou… quer tentar de novo?'}</p><div class="deliver-row" style="justify-content:center">${s.ok ? '<button class="primary" data-act="close-sheet">Que capricho!</button>' : '<button class="primary" data-act="ov-go" id="ov-go">Tentar de novo</button>'}</div>`; return; }
+  $('gen-body').innerHTML = `<p class="help">${s.hits} de ${OV_HITS} passadas${s.miss ? ` · ${s.miss} torta${s.miss > 1 ? 's' : ''}` : ''}</p><div class="rm-timer"><i id="ov-time"></i></div>${art}
+    <div class="tc-bar"><span class="tc-zone ov"></span><span class="tc-mark" id="ov-mark">🧵</span></div><button class="primary tc-tap" data-act="ov-tap" id="ov-tap">Passar!</button>`;
+}
+function finishOverloque(s) {
+  if (s.step !== 'go') return;
+  const it = state.rack[s.i];
+  s.ok = s.hits >= OV_HITS && s.miss <= 3;
+  s.step = 'fim';
+  if (s.ok && it) { it.over = true; it.stars = Math.min(3, (it.stars || 1) + 1); it.defeito = false; sfx('chime'); taskEv('costurar'); } else sfx('sad');
+  save(); renderAll(); renderSheet();
+}
+/* Embroidery machine: tap each lit stitch of the design before it moves on */
+function renderBordadeira(s) {
+  const it = state.rack[s.i != null ? s.i : (s.i = state.selRack)];
+  if (!it) { ui.sheet = null; renderSheet(); return; }
+  s.d = s.d || 'coracao'; s.cor = s.cor || THREADS[0];
+  $('gen-title').textContent = `Bordadeira · ${moldeOf(it.peca, it.molde).nome}`;
+  const g = BORDADOS[s.d].g;
+  if (!s.step) {
+    const ds = Object.entries(BORDADOS).map(([k, b]) => `<button class="pat" data-act="bd2-d" data-v="${k}" aria-pressed="${s.d === k}"><svg viewBox="-1 -1 9 9" width="22" height="22" shape-rendering="crispEdges">${[...b.g].map((ch, i) => (ch === '#' ? `<rect x="${i % 7}" y="${Math.floor(i / 7)}" width="1" height="1" fill="${s.cor}"/>` : '')).join('')}</svg>${b.nome}</button>`).join('');
+    const ts = THREADS.map((c) => `<button class="swb${s.cor === c ? ' on' : ''}" data-act="bd2-cor" data-v="${c}" style="background:${c}" aria-label="Linha ${c}" aria-pressed="${s.cor === c}"></button>`).join('');
+    $('gen-body').innerHTML = `<p class="help">A bordadeira acende um ponto de cada vez: toque nele antes que ela passe pro próximo!</p><p class="label">Desenho</p><div class="pats">${ds}</div><p class="label">Linha</p><div class="sws">${ts}</div><button class="primary" data-act="bd2-go" id="bd2-go" style="align-self:flex-start">Ligar a bordadeira</button>`;
+    return;
+  }
+  if (s.step === 'fim') {
+    $('gen-body').innerHTML = `<div class="tc-stage">${pieceSVG(it.peca, it.molde, it.z, null, it.acc, it.bordado, it.fin)}</div><p class="sub" style="text-align:center">${['Ficou meio falhado, mas tem charme.', 'Bordado bonito!', 'Bordado perfeito!'][s.q]} (${s.hits} de ${s.seq.length} pontos)</p><button class="primary" data-act="close-sheet" style="align-self:center">Pendurar de volta</button>`;
+    return;
+  }
+  const cells = [...g].map((ch, i) => `<button class="bd2-c${ch === '#' ? ' on' : ''}${s.feitos.includes(i) ? ' feito' : ''}${s.seq[s.k] === i ? ' lit' : ''}" data-act="bd2-tap" data-i="${i}" id="bd2-${i}" style="--bc:${s.cor}" aria-label="Ponto ${i + 1}"></button>`).join('');
+  $('gen-body').innerHTML = `<p class="help">${s.hits} pontos certos · faltam ${s.seq.length - s.k}</p><div class="bd2-grid">${cells}</div>`;
+}
+function finishBordadeira(s) {
+  if (s.step !== 'go') return;
+  const it = state.rack[s.i];
+  s.step = 'fim';
+  s.q = s.hits >= s.seq.length * 0.9 ? 2 : s.hits >= s.seq.length * 0.5 ? 1 : 0;
+  if (it) { it.bordado = { d: s.d, cor: s.cor, q: s.q }; state.stats.bordados = (state.stats.bordados || 0) + 1; }
+  sfx(s.q === 2 ? 'chime' : s.q ? 'coin' : 'sad');
+  if (s.q === 2) confete(24);
+  save(); renderAll(); renderSheet();
+}
+/* A little trade each villager offers per day */
+function trocaDe(v, day = clock().day) {
+  const h = (day * 7 + vhash(v)) >>> 0, fls = FKEYS.filter(flowerOpen), fk = fls[(day + h) % fls.length];
+  const t = h % 3;
+  if (t === 0) return { da: { tipo: 'sementes', k: STORY_SEED[v.id] || 'girassol', n: 2 }, por: { tipo: 'flores', k: fk, n: 3 } };
+  if (t === 1) return { da: { tipo: 'corante', k: CKEYS[h % CKEYS.length], n: 1 }, por: { tipo: 'retalhos', n: 4 } };
+  return { da: { tipo: 'retalhos', k: v.cores[0], n: 4 }, por: { tipo: 'flores', k: fk, n: 2 } };
+}
+const trocaTxt = (x) => (x.tipo === 'sementes' ? `${x.n} sementes de ${FLOWERS[x.k].nome.toLowerCase()}` : x.tipo === 'flores' ? `${x.n} ${FLOWERS[x.k].nome.toLowerCase()} colhidas` : x.tipo === 'corante' ? `${x.n} ${CORANTES[x.k].nome.toLowerCase()} (corante)` : x.k ? `${x.n} retalhos ${x.k}` : `${x.n} retalhos de qualquer cor`);
+function trocaPode(T) {
+  if (T.por.tipo === 'flores') return (state.flowers[T.por.k] || 0) >= T.por.n;
+  return clothKeys('scraps').reduce((a, k) => a + state.scraps[k], 0) >= T.por.n;
+}
+function fazTroca(v) {
+  const T = trocaDe(v), day = clock().day;
+  state.trocas = state.trocas || {};
+  if (state.trocas[v.id] === day || !trocaPode(T)) return;
+  if (T.por.tipo === 'flores') state.flowers[T.por.k] -= T.por.n;
+  else { let n = T.por.n; clothKeys('scraps').sort((a, b) => state.scraps[b] - state.scraps[a]).forEach((k) => { const q = Math.min(n, state.scraps[k]); state.scraps[k] -= q; n -= q; }); }
+  if (T.da.tipo === 'sementes') state.seeds[T.da.k] = (state.seeds[T.da.k] || 0) + T.da.n;
+  if (T.da.tipo === 'corante') { state.corantes = state.corantes || {}; state.corantes[T.da.k] = (state.corantes[T.da.k] || 0) + T.da.n; }
+  if (T.da.tipo === 'retalhos') state.scraps[T.da.k] = (state.scraps[T.da.k] || 0) + T.da.n;
+  state.trocas[v.id] = day;
+  sfx('coin'); toast(`🔄 Trocado! Você ganhou ${trocaTxt(T.da)}.`);
+}
+const VINTAGE = [['vestido', 'anos50', 'Um molde de papel amarelado, dobrado com cuidado: "Vestido anos 50 — cintura marcada, saia bem rodada."'], ['saia', 'gode', 'Embaixo de uma toalha de crochê, um molde: "Saia godê, pra girar no baile."'], ['camisa', 'colete', 'Num envelope de seda: "Colete de crochê. Fica lindo por cima de tudo."']];
+function abrirBau() {
+  const day = clock().day;
+  state.bau = state.bau || { day: 0 };
+  if (state.bau.day === day) return;
+  state.bau.day = day;
+  state.vintage = state.vintage || [];
+  const prox = VINTAGE.find(([, id]) => !state.vintage.includes(id));
+  if (prox) { state.vintage.push(prox[1]); state.bau.achou = { tipo: 'molde', peca: prox[0], molde: prox[1], txt: prox[2] }; sfx('chime'); }
+  else {
+    const cor = pick(state.discovered), n = 2 + Math.floor(Math.random() * 3);
+    state.scraps[cor] = (state.scraps[cor] || 0) + n; state.coins += 5;
+    state.bau.achou = { tipo: 'coisas', txt: `Você achou ${n} retalhos ${cor}, um carretel antigo e 5 moedas esquecidas no fundo do baú.` };
+    sfx('coin');
+  }
+  openSheet({ kind: 'bau' });
+}
+function renderBau() {
+  const A = state.bau && state.bau.achou;
+  $('gen-title').textContent = 'Baú do sótão';
+  const achados = (state.vintage || []).map((id) => { const [pk] = VINTAGE.find((x) => x[1] === id); return `<div class="fold">${pieceSVG(pk, id, null)}<b>${moldeOf(pk, id).nome}</b></div>`; }).join('');
+  $('gen-body').innerHTML = `${A ? `<div class="talk"><div class="talk-fig">${A.tipo === 'molde' ? `<div class="bau-molde">${pieceSVG(A.peca, A.molde, null)}</div>` : '<div class="bau-molde">🧳</div>'}</div><div class="talk-txt"><p class="quote">${A.txt}</p>${A.tipo === 'molde' ? `<p class="sub">✨ Molde novo na mesa de trabalho: ${moldeOf(A.peca, A.molde).nome}!</p>` : ''}</div></div>` : ''}
+    <p class="help">Dá pra fuçar o baú uma vez por dia. ${(state.vintage || []).length < VINTAGE.length ? 'Ainda tem moldes antigos escondidos lá dentro…' : 'Você já achou todos os moldes antigos!'}</p>
+    <p class="label">Moldes antigos · ${(state.vintage || []).length} de ${VINTAGE.length}</p><div class="folds">${achados || '<p class="help">Nenhum ainda.</p>'}</div>`;
+}
+/* ---------- G1: mail from other towns, delivered by Nina on her bike ---------- */
+const REMETENTES = [['Dona Cleide', 'Pedra Azul'], ['Joana Maria', 'Vale do Sol'], ['Tia Rosa', 'Porto das Garças'], ['Marília', 'Serra Verde'], ['Dona Benedita', 'Rio Manso'], ['Clarinha', 'Lagoa Funda'], ['Seu Zé e a Dona Lurdes', 'Campo Alegre'], ['Ana Flor', 'Alto da Lua']];
+const OBRIGADO_TXT = ['Usei no aniversário da minha neta e todo mundo perguntou de onde era!', 'Chegou cheirosinho, embrulhado com carinho. Já virou minha peça favorita.', 'A Nina chegou toda suada de tanto pedalar. Dei um suco pra ela!', 'Coube direitinho. Vou indicar você pra todas as minhas amigas.', 'Fui no baile da cidade com ela e dancei a noite inteira!'];
+function novaCarta(now) {
+  const C = state.correio;
+  const [de, cidade] = REMETENTES[(C.n * 5 + 3) % REMETENTES.length];
+  const pecas = Object.keys(PIECES).filter((pk) => pieceOpen(pk) && !PIECES[pk].fora);
+  C.n += 1;
+  C.cartas.push({ id: 'ct' + Math.floor(now) + C.n, de, cidade, peca: pick(pecas), cor: pick(makeableColors()) });
+  C.next = now + 300000;
+  toast(`📬 Chegou uma carta de ${cidade}! Veja no correio.`);
+}
+const cartaMatch = (ct, it) => it.peca === ct.peca && it.z.some((z) => matchKey(z.cor, ct.cor));
+const cartaPaga = (ct, it) => Math.round(moldeOf(it.peca, it.molde).preco * 1.4) + 8 + (it.stars === 3 ? 4 : 0);
+function fotoDe(ob) {
+  const h = [...ob.de].reduce((a, ch) => a + ch.charCodeAt(0), 0);
+  const fake = { id: 'carta-' + ob.id, nome: ob.de, pele: ['#F1CDB1', '#D6A27C', '#A8724F', '#6B4330', '#E9C2A0'][h % 5], cabelo: ['#3A2318', '#C9A06A', '#1E1714', '#8A4B2A', '#D9D4CC'][(h >> 2) % 5], estilo: ['longo', 'curto', 'coque', 'cacheado', 'afro'][(h >> 3) % 5], roupa: '#8EC3E6', fav: 'liso', rosto: { olho: '#5A3A2A', batom: '#B4566A' }, base: { saia: '#56607A', sapato: '#5A3F4F' } };
+  const tmp = {};
+  const prev = state.outfits.__foto;
+  state.outfits.__foto = tmp; wear('__foto', ob.item); const o = state.outfits.__foto;
+  if (prev) state.outfits.__foto = prev; else delete state.outfits.__foto;
+  return spriteSVG(fake, { mood: 'feliz', outfit: o });
+}
+function renderCorreio() {
+  const C = state.correio, day = clock().day;
+  $('gen-title').textContent = '📬 Correio da vila';
+  const cartas = C.cartas.map((ct) => {
+    const P = PIECES[ct.peca], art = P.g === 'f' ? 'uma' : 'um';
+    const ok = state.rack.map((it, i) => ({ it, i })).filter(({ it }) => cartaMatch(ct, it));
+    return `<div class="carta"><b>De: ${ct.de}, de ${ct.cidade}</b><p>"Ouvi falar das suas peças lá na cidade! Você me manda ${art} ${P.nome.toLowerCase()} ${corForm(ct.cor, P.g)}? Pago o frete e a Nina entrega."</p>
+      ${ok.length ? `<div class="rack">${ok.map(({ it, i }) => `<button class="hang" data-act="enviar" data-c="${ct.id}" data-i="${i}" id="env-${ct.id}-${i}">${pieceSVG(it.peca, it.molde, it.z, null, it.acc, it.bordado, it.fin)}<span>Enviar · ${cartaPaga(ct, it)} 🪙</span></button>`).join('')}</div>` : `<p class="help">Costure ${art} ${P.nome.toLowerCase()} com ${ct.cor} e volte aqui pra enviar.</p>`}</div>`;
+  }).join('');
+  const obs = C.obrigados.filter((o) => o.day <= day).slice(-6).reverse().map((o) => `<div class="carta obrigado"><div class="foto">${fotoDe(o)}</div><div><b>${o.de} mandou uma foto!</b><p>"${o.txt}"</p></div></div>`).join('');
+  $('gen-body').innerHTML = `${cartas || '<p class="help">Nenhuma carta esperando. Elas chegam de tempos em tempos!</p>'}${obs ? `<p class="label">Cartas de agradecimento</p>${obs}` : ''}`;
+}
+function enviarCarta(cid, i) {
+  const C = state.correio, ct = C.cartas.find((x) => x.id === cid), it = state.rack[i];
+  if (!ct || !it || !cartaMatch(ct, it)) return;
+  const pay = cartaPaga(ct, it);
+  state.coins += pay;
+  state.rack.splice(i, 1); state.selRack = null;
+  C.cartas = C.cartas.filter((x) => x !== ct);
+  C.obrigados.push({ id: ct.id, de: ct.de, item: it, txt: pick(OBRIGADO_TXT), day: clock().day + 1 });
+  if (C.obrigados.length > 12) C.obrigados.shift();
+  if (state.etiqueta) state.marca = (state.marca || 0) + 1;
+  taskEv('entregar');
+  sfx('coin'); toast(`🚲 A Nina passou de bicicleta e levou seu pacote! +${pay} moedas`);
+}
+/* ---------- G6: the weekly sewing club and the village quilt ---------- */
+const clubeHoje = (ck = clock()) => ck.dayInSeason === 2;
+const TRUQUES = [
+  ['ensina a dar um nó invisível no fim da linha', { coins: 10 }], ['mostra como guardar retalhos por cor', { scraps: 3 }],
+  ['ensina a marcar o tecido com sabão', { coins: 8 }], ['conta que sementes guardadas no escuro brotam melhor', { seeds: 2 }],
+  ['ensina o ponto atrás, que nunca solta', { coins: 12 }], ['mostra um jeito de passar o fio na agulha sem errar', { scraps: 2 }],
+];
+function clubeMembros(ck = clock()) {
+  const vs = activeVillagers();
+  return [0, 1, 2].map((i) => vs[(ck.day * 3 + i * 5) % vs.length]).filter((v, i, a) => a.indexOf(v) === i);
+}
+function renderClube() {
+  const ck = clock(), Cl = state.clube;
+  if (Cl.dia !== ck.day) { Cl.dia = ck.day; Cl.feitos = 0; Cl.aprendeu = []; }
+  const ms = clubeMembros(ck);
+  $('gen-title').textContent = '🧵 Clube de costura';
+  const membros = ms.map((v, i) => { const T = TRUQUES[(ck.day + i) % TRUQUES.length], ja = Cl.aprendeu.includes(v.id); return `<div class="shop-item">${avatarSVG(v, ja ? 'feliz' : null)}<div><b>${v.nome}</b><p>${v.nome} ${T[0]}.</p></div>${ja ? '<span class="owned">Aprendido!</span>' : `<button class="btn" data-act="clube-truque" data-v="${v.id}" data-i="${i}" id="truque-${v.id}">Aprender</button>`}</div>`; }).join('');
+  const quilt = Array.from({ length: 9 }, (_, i) => `<span class="cq" style="background:${Cl.quadros[i] ? hexOf(Cl.quadros[i]) : 'transparent'}"></span>`).join('');
+  const sc = clothKeys('scraps').map((k) => `<button class="fold" data-act="clube-q" data-v="${k}" id="cq-${k.replace(/\s/g, '_')}" ${Cl.feitos >= 3 ? 'disabled' : ''}>${foldSVG(hexOf(k), bandsOf(k))}<b>${k}</b><span>${state.scraps[k]}</span></button>`).join('');
+  $('gen-body').innerHTML = `<p class="help">As moradoras vieram costurar com você! Cada uma ensina um truque, e juntas vocês fazem a colcha da vila: cada quadrado é um retalho seu (até 3 por encontro).</p>
+    <div class="shop-list">${membros}</div>
+    <div class="clube-row"><div><p class="label">Colcha da vila · ${Cl.quadros.length} de 9${Cl.colchas ? ` · ${Cl.colchas} pronta${Cl.colchas > 1 ? 's' : ''}` : ''}</p><div class="cquilt">${quilt}</div></div>
+    <div style="flex:1"><p class="label">Costurar um quadrado · ${3 - Cl.feitos} hoje</p><div class="folds">${sc || '<p class="help">Sem retalhos agora.</p>'}</div></div></div>`;
 }
 function renderTarefas() {
   const T = tarefasHoje(), ok = tarDone(T), p = tarPremio(T.fase);
@@ -3692,6 +4070,29 @@ function renderVisita(s) {
 const VITORIA = { corpo: { alt: 'alta', larg: 'fina' }, joia: { brinco: 'perola', colar: '#F6F0E6' }, id: 'vitoria', nome: 'Srta. Vitória', quem: 'cliente da capital', pele: '#F1CDB1', cabelo: '#2B211C', estilo: 'curto', roupa: '#B3264F', fav: 'liso', need: 99999, cores: ['vinho', 'marinho', 'grafite'],
   rosto: { olho: '#2A2230', batom: '#B3264F', sobr: 'arco', pinta: true }, base: { saia: '#2E2A33', meia: '#2E2A33', sapato: '#B3264F', gola: '#F3EFE6' }, tam: 'M', exigente: true, sig: '', fora: true };
 VILLAGERS.push(VITORIA);
+const AURORA = { id: 'aurora', nome: 'Cliente misteriosa', quem: 'deixa bilhetes sem assinatura', pele: '#E9C2A0', cabelo: '#D9D4CC', estilo: 'coque', roupa: '#5B3478', fav: 'florzinha', need: 99999, cores: ['lilás', 'rosa', 'creme'],
+  rosto: { olho: '#5A3A2A', batom: '#B4566A', sobr: 'arco' }, base: { saia: '#4E3A5E', sapato: '#3A3040', gola: '#F6F0E6' }, tam: 'M', sig: 'capuz', fora: true, corpo: { alt: 'baixa' }, joia: { brinco: 'perola', colar: '#F6F0E6' } };
+VILLAGERS.push(AURORA);
+const MISTERIO = [
+  { peca: 'saia', cores: ['lilás', 'lilás'], bilhete: 'Uma saia lilás, por favor. Lilás era a cor favorita de alguém que eu amei muito.', pista: 'Ela pega a saia, sorri por baixo do capuz e some na esquina.' },
+  { peca: 'camisa', cores: ['branco', 'branco'], bilhete: 'A máquina de costura do seu ateliê ainda faz aquele barulhinho de trem?', pista: 'No bilhete de volta: "Faz sim, eu ouvi da rua. Que saudade."' },
+  { peca: 'vestido', cores: ['rosa', 'creme'], bilhete: 'Achei uma foto antiga: uma moça costurando nesse mesmo ateliê, com um gato laranja no colo.', pista: 'Ela deixa a foto no balcão. A moça da foto tem um coque igualzinho ao dela…' },
+  { peca: 'cachecol', cores: ['roxo', 'roxo'], bilhete: 'Eu ensinei uma menina a costurar há muitos anos. Ela tinha mãos de fada. Acho que você também tem.', pista: 'Dessa vez o bilhete vem com um alfinete de prata, bem antigo.' },
+  { peca: 'vestido', cores: ['amarelo', 'amarelo'], bilhete: 'Esse é o último pedido. Quando eu vier buscar, você vai saber quem eu sou.', pista: '' },
+];
+function revelaAurora() {
+  Object.assign(AURORA, { nome: 'Vó Aurora', quem: 'a primeira costureira do Fio & Flor', sig: '', need: 0 });
+  delete AURORA.fora;
+}
+function renderAurora() {
+  $('gen-title').textContent = 'A cliente misteriosa';
+  $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(AURORA, 'amor', true)}</div><div class="talk-txt">
+    <p class="quote">Ela tira o capuz devagar. "Meu nome é Aurora. Fui eu que abri o Fio & Flor, muitos anos atrás."</p>
+    <p class="quote">"Quando fiquei velhinha, fechei o ateliê e fui morar longe. Mas fiquei sabendo que uma moça tinha reaberto ele… e eu precisava ver com meus próprios olhos."</p>
+    <p class="quote">"Agora vou morar aqui na vila de novo. Posso passar pra tomar um cafezinho?"</p>
+    <p class="sub">🎁 +60 moedas · a Vó Aurora agora mora na vila</p></div></div>`;
+}
+
 const seasonIdx = (ck = clock()) => Math.floor((ck.day - 1) / SEASON_DAYS);
 function revistaTema(si) {
   const avail = CRITS.filter((c) => !c.need || bestHearts() >= c.need);
@@ -3831,7 +4232,9 @@ function renderCasa() {
     <aside class="pnl" aria-labelledby="h-casa">
       <h2 class="pnl-title" id="h-casa">Sua casa</h2>
       <p class="help">Seu cantinho. Cada conquista traz um móvel novo; depois dá pra comprar outros estilos dele.</p>
-      <div class="deliver-row">${colcha}<button class="btn" data-act="sheet" data-kind="conquistas" id="conq-casa">🏅 Conquistas</button></div>
+      <div class="deliver-row">${colcha}<button class="btn" data-act="sheet" data-kind="conquistas" id="conq-casa">🏅 Conquistas</button>
+        <button class="btn" data-act="bau" id="bau-open" ${state.bau && state.bau.day === clock().day ? 'disabled' : ''}>🧳 Baú do sótão${state.bau && state.bau.day === clock().day ? ' · amanhã tem mais' : ''}</button>
+        <button class="btn" data-act="sheet" data-kind="correio" id="correio-casa">📬 Correio${state.correio.cartas.length ? ` (${state.correio.cartas.length})` : ''}</button></div>
       ${mqBox}
       <p class="label">Móveis · ${c.moveis.length} de ${MOVEIS.length}</p><div class="shop-list">${moveis}</div>
     </aside>`;
@@ -3900,6 +4303,8 @@ function gardenSceneSVG() {
   if (sid === 'verao') s += `<rect x="240" y="150" width="2" height="40" fill="#4E8540"/><rect x="234" y="142" width="14" height="10" fill="#F7D35E"/><rect x="238" y="145" width="6" height="5" fill="#6E4A30"/><rect x="242" y="164" width="6" height="3" fill="#5E9A4E"/>`;
   if (sid === 'inverno') s += `<rect x="232" y="174" width="16" height="16" fill="#FFFFFF"/><rect x="235" y="164" width="10" height="10" fill="#FFFFFF"/><rect x="238" y="167" width="1" height="1" fill="#2E2A33"/><rect x="241" y="167" width="1" height="1" fill="#2E2A33"/><rect x="239" y="169" width="3" height="1" fill="#E07B2E"/><rect x="234" y="173" width="12" height="2" fill="#C8463D"/><rect x="244" y="175" width="2" height="5" fill="#C8463D"/>`;
   if (sid === 'primavera') s += `<rect x="232" y="182" width="16" height="8" fill="#B4563A"/>${[0, 1, 2, 3].map((i) => `<rect x="${233 + i * 4}" y="${176 + (i % 2) * 2}" width="3" height="3" fill="${['#F2A7C6', '#F7D35E', '#B79AD6', '#E58FA6'][i]}"/>`).join('')}`;
+  if (state.up.estufa) s += `<rect x="194" y="70" width="52" height="32" fill="#CFEAF0" opacity=".75"/><path d="M192 70 L220 54 L248 70 Z" fill="#DDF2F5" opacity=".85"/><path d="M192 70 L220 54 L248 70 M194 70 V102 M207 70 V102 M220 56 V102 M233 70 V102 M246 70 V102 M194 86 H246" stroke="#7E9A92" stroke-width="1.2" fill="none"/>${[0, 1, 2, 3].map((i) => `<rect x="${198 + i * 12}" y="94" width="5" height="4" fill="${['#F2A7C6', '#F7D35E', '#B79AD6', '#E8615A'][i]}"/><rect x="${200 + i * 12}" y="98" width="1" height="4" fill="#4E8540"/>`).join('')}`;
+  s += seasonGround(ck, 112, 196, 22);
   if (novSpot() === 'jardim') s += novSVG(-73, 89);
   return bgSVG(s + veil(ck) + rainBits(ck), 'O jardim');
 }
@@ -3980,6 +4385,19 @@ function sceneSVG() {
   return bgSVG(s + (ck.part === 'noite' ? '<rect width="320" height="200" fill="#0B1230" opacity=".18"/>' : ''), 'O ateliê');
 }
 
+/* Season details scattered on the ground */
+function seasonGround(ck, y0, y1, n = 26) {
+  let g = '';
+  const sid = ck.season.id;
+  for (let i = 0; i < n; i++) {
+    const x = (i * 47 + 13) % 316, y = y0 + ((i * 31) % (y1 - y0));
+    if (sid === 'inverno') g += `<rect x="${x}" y="${y}" width="${6 + (i % 3) * 3}" height="2" fill="#FFFFFF" opacity=".9"/><rect x="${x + 2}" y="${y - 1}" width="${3 + (i % 2) * 2}" height="1" fill="#FFFFFF" opacity=".9"/>`;
+    if (sid === 'outono') g += `<rect x="${x}" y="${y}" width="2" height="2" fill="${['#C9783A', '#A65A3A', '#D9A23A'][i % 3]}"/><rect x="${x + 2}" y="${y + 1}" width="2" height="1" fill="${['#D9A23A', '#C9783A', '#A65A3A'][i % 3]}"/>${i % 4 === 0 ? `<rect x="${x + 4}" y="${y - 1}" width="2" height="2" fill="#B4563A"/>` : ''}`;
+    if (sid === 'primavera') g += `<rect x="${x}" y="${y}" width="2" height="1" fill="${['#F2A7C6', '#FFFFFF', '#F7D35E'][i % 3]}"/>${i % 3 === 0 ? `<rect x="${x + 3}" y="${y + 2}" width="1" height="1" fill="#E58FA6"/>` : ''}`;
+    if (sid === 'verao' && i % 2 === 0) g += `<rect x="${x}" y="${y}" width="1" height="2" fill="#5E9A4E"/><rect x="${x - 1}" y="${y - 1}" width="3" height="1" fill="${['#F7D35E', '#FFFFFF'][i % 2 ? 1 : 0]}"/>`;
+  }
+  return g;
+}
 function pracaSceneSVG() {
   const ck = clock();
   const snow = ck.season.id === 'inverno';
@@ -4008,6 +4426,9 @@ function pracaSceneSVG() {
   if (sid === 'primavera') s += `${[0, 1, 2, 3].map((i) => `<rect x="${20 + i * 30}" y="146" width="12" height="4" fill="#8B6A50"/><rect x="${21 + i * 30}" y="142" width="3" height="3" fill="#F2A7C6"/><rect x="${25 + i * 30}" y="141" width="3" height="3" fill="#F7D35E"/><rect x="${29 + i * 30}" y="142" width="3" height="3" fill="#B79AD6"/>`).join('')}`;
   if (ck.festa) { s += `<rect x="0" y="28" width="320" height="1" fill="#6E5D48"/>`; const cs = ['#C8463D', '#E8B931', '#3E6FB0', '#5E9A4E', '#E58FA6']; for (let i = 0; i < 20; i++) s += `<path d="M${i * 16 + 3} 29 h10 l-5 8 Z" fill="${cs[i % 5]}"/>`; }
   if (ck.season.id === 'outono') for (let i = 0; i < 14; i++) s += `<rect x="${(i * 61) % 320}" y="${164 + ((i * 17) % 32)}" width="2" height="1" fill="#C9783A"/>`;
+  const Cl = state.clube;
+  if (Cl && Cl.ultima) { s += `<rect x="184" y="98" width="26" height="1" fill="#6E5D48"/><rect x="185" y="99" width="24" height="24" fill="#3A3040"/>`; Cl.ultima.forEach((k, i) => { s += `<rect x="${186 + (i % 3) * 7.6}" y="${100 + Math.floor(i / 3) * 7.6}" width="7" height="7" fill="${hexOf(k)}"/>`; }); }
+  s += seasonGround(ck, 164, 196);
   return bgSVG(s + veil(ck) + rainBits(ck), 'A praça da vila');
 }
 
@@ -4068,6 +4489,12 @@ function renderSheet() {
   if (s.kind === 'conquistas') { renderConquistas(); return; }
   if (s.kind === 'tarefas') { renderTarefas(); return; }
   if (s.kind === 'etiqueta') { renderEtiqueta(s); return; }
+  if (s.kind === 'aurora') { renderAurora(); return; }
+  if (s.kind === 'bau') { renderBau(); return; }
+  if (s.kind === 'correio') { renderCorreio(); return; }
+  if (s.kind === 'clube') { renderClube(); return; }
+  if (s.kind === 'overloque') { renderOverloque(s); return; }
+  if (s.kind === 'bordadeira') { renderBordadeira(s); return; }
   if (s.kind === 'trico') { renderTrico(s); return; }
   if (s.kind === 'patch') { renderPatch(s); return; }
   if (s.kind === 'casamento') { renderCasamento(); return; }
@@ -4332,6 +4759,34 @@ function ambTick() {
   AMB.next = now + wait;
 }
 setInterval(ambTick, 120);
+function confete(n = 36) {
+  const cols = ['#F2A7C6', '#F7D35E', '#8EC3E6', '#9CC48E', '#B79AD6', '#E8615A'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('span');
+    c.className = 'confete';
+    c.style.left = (Math.random() * 100) + 'vw';
+    c.style.background = cols[i % cols.length];
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    c.style.animationDuration = (1.6 + Math.random() * 1.2) + 's';
+    c.style.setProperty('--rx', (Math.random() * 720 - 360) + 'deg');
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3400);
+  }
+}
+function retalhosVoando(cols) {
+  const cx = innerWidth / 2, cy = innerHeight / 2;
+  for (let i = 0; i < 14; i++) {
+    const r = document.createElement('span');
+    r.className = 'spark retalho';
+    const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 120;
+    r.style.left = cx + 'px'; r.style.top = cy + 'px';
+    r.style.setProperty('--x', Math.cos(a) * d + 'px');
+    r.style.setProperty('--y', Math.sin(a) * d + 'px');
+    r.style.background = cols[i % cols.length] || '#E58FA6';
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 1000);
+  }
+}
 function sparkle(el, n = 12) {
   if (!el) return;
   const r = el.getBoundingClientRect();
@@ -4391,6 +4846,10 @@ function lifeFX(place, ck = clock()) {
   if (place === 'tint') h += [0, 1, 2, 3].map((i) => `<span class="fx-steam" style="left:${44 + i * 4}%;bottom:52%;animation-delay:-${i * 0.7}s"></span>`).join('');
   if (place === 'atelie') h += [0, 1].map((i) => `<span class="fx-steam small" style="left:${61 + i * 1.2}%;bottom:${ck.part === 'noite' ? 41 : 41}%;animation-delay:-${i * 1.1}s"></span>`).join('');
   if (ck.part === 'noite' && place === 'vila') h += '<span class="glow" style="left:54.7%;top:46%"></span>';
+  const fora = ['jardim', 'vila'].includes(place);
+  if (fora && ck.part === 'noite' && !ck.rain) h += [[6, 6], [18, 12], [29, 4], [41, 15], [52, 7], [63, 3], [72, 13], [86, 5], [94, 11], [12, 20], [47, 22], [78, 21]].map(([x, y], i) => `<span class="fx-tw" style="left:${x}%;top:${y}%;animation-delay:-${(i * 0.37) % 2.6}s"></span>`).join('');
+  if (place === 'vila' && ck.part === 'noite') h += '<span class="fx-fio" style="top:15%"></span>' + [8, 20, 32, 44, 56, 68, 80, 92].map((x, i) => `<span class="fx-lant" style="left:${x}%;top:${15.5 + (i % 2) * 1.5}%;--lc:${['#F7D35E', '#F2A7C6', '#F2A65A', '#8EC3E6'][i % 4]};animation-delay:-${i * 0.4}s"></span>`).join('');
+  if (fora && ck.part === 'tarde' && !ck.rain) h += '<span class="fx-sunset"></span>';
   if (ck.part === 'noite' && place === 'atelie') h += '<span class="glow" style="left:50%;top:12%"></span>';
   return h ? `<div class="fx life" aria-hidden="true">${h}</div>` : '';
 }
@@ -4581,6 +5040,18 @@ function uiFrame(now) {
   if (s && s.kind === 'tingir' && !s.done) {
     s.pos = Math.min(1, Math.pow(Math.max(0, now - s.t0) / 2800, 1.4));
     const m = $('gmark'); if (m) m.style.left = (s.pos * 100) + '%';
+  }
+  if (s && s.kind === 'overloque' && s.step === 'go') {
+    const t = (now - s.t0) / 800;
+    s.pos = 1 - Math.abs((t % 2) - 1);
+    const m = $('ov-mark'); if (m) m.style.left = (s.pos * 100) + '%';
+    const f = Math.min(1, (now - s.t0) / OV_MS);
+    const bar = $('ov-time'); if (bar) bar.style.width = (100 - f * 100) + '%';
+    if (f >= 1) finishOverloque(s);
+  }
+  if (s && s.kind === 'bordadeira' && s.step === 'go' && now - s.tLit > 850) {
+    s.k += 1; s.tLit = now;
+    if (s.k >= s.seq.length) finishBordadeira(s); else renderSheet();
   }
   if (s && s.kind === 'trico' && s.step === 'tricotar') {
     const t = (now - s.t0) / Math.max(700, 1150 - s.rows * 50);
@@ -4787,6 +5258,7 @@ function doCut() {
   state.sewing = { kind: 'peca', peca: b.peca, molde: b.molde, z: b.z.map((z) => ({ ...z })), tam: b.tam || 'M', fin };
   b.z.forEach((z) => { if (!(state.cloth[z.cor] > 0)) z.cor = null; });
   cut = null;
+  try { retalhosVoando(state.bench.z.map((z) => hexOf(z.cor)).filter(Boolean)); } catch (e) {}
   $('cut').hidden = true;
   save();
   renderAll();
@@ -5008,7 +5480,7 @@ function finishSew() {
   $('sew-msg').textContent = ['', 'Saiu com defeito… quem é exigente pode recusar.', 'Ficou bonita!', 'Costura perfeita!'][stars];
   $('sew-count').innerHTML = `<span class="stars" aria-label="${stars} de 3 estrelas">${starStr(stars)}</span>`;
   $('sew-btn').textContent = s.kind === 'acc' ? 'Guardar na caixinha' : s.kind === 'reforma' ? 'Devolver pra cliente' : 'Pendurar na arara';
-  if (stars === 3) { state.stats.perfeitas += 1; sfx('chime'); sparkle($('sew-stage'), 16); } else if (stars === 1) sfx('sad');
+  if (stars === 3) { state.stats.perfeitas += 1; sfx('chime'); sparkle($('sew-stage'), 16); confete(); } else if (stars === 1) sfx('sad');
 }
 function closeSew() {
   sew = null;
@@ -5037,11 +5509,23 @@ function tick() {
   }
   if (state.vitrine.some(Boolean) && now >= state.nextPass) { passBy(); changed = true; }
   if (state.lastDay !== ck.day) {
-    if (state.lastDay != null) toast(ck.festa ? `Dia ${ck.day}: hoje tem ${FESTAS[ck.season.id].nome} na praça!` : ck.dayInSeason === 3 ? `Dia ${ck.day}: Madame Lis chegou pro concurso de moda!` : ck.dayInSeason === 1 ? `Começou ${ck.season.art} ${ck.season.nome.toLowerCase()}!` : `Bom dia! Dia ${ck.day}${ck.rain ? ', com chuva' : ''}.`);
+    if (state.lastDay != null) toast(ck.festa ? `Dia ${ck.day}: hoje tem ${FESTAS[ck.season.id].nome} na praça!` : ck.dayInSeason === 3 ? `Dia ${ck.day}: Madame Lis chegou pro concurso de moda!` : clubeHoje(ck) ? `Dia ${ck.day}: hoje tem Clube de costura no ateliê! 🧵` : ck.dayInSeason === 1 ? `Começou ${ck.season.art} ${ck.season.nome.toLowerCase()}!` : `Bom dia! Dia ${ck.day}${ck.rain ? ', com chuva' : ''}.`);
     state.lastDay = ck.day;
     changed = true;
   }
   if (lastPart !== ck.part) { lastPart = ck.part; changed = true; }
+  state.orders.forEach((o) => { if (o.pressa && now > o.pressa && !o.result) { delete o.pressa; toast(`${villager(o.vid).nome}: "Pode ser sem pressa agora, tá?"`); changed = true; } });
+  if (state.served >= 5 && state.correio.cartas.length < 2 && now >= state.correio.next) { novaCarta(now); changed = true; }
+  if (!state.misterio && state.served >= 8) state.misterio = { cap: 0, next: now };
+  const MM = state.misterio;
+  if (MM && MM.cap < 5 && now >= MM.next && !state.orders.some((o) => o.misterio)) {
+    const C = MISTERIO[MM.cap];
+    state.orders.push({ id: 'om' + Math.floor(now) + MM.cap, vid: 'aurora', occ: 0, peca: C.peca, cores: C.cores, line: 0, misterio: MM.cap + 1, due: ck.day + 9 });
+    state.measured.aurora = true;
+    toast('📜 Chegou um bilhete sem assinatura no mural…');
+    changed = true;
+  }
+  if (state.tab === 'vila' && !ui.sheet) { const ps = Math.floor(now / 20000); if (ui.papo !== ps) { if (ui.papo != null) changed = true; ui.papo = ps; } }
   if (now >= state.cat.next) { catEvent(now); changed = true; }
   const nsp = novSpot(now);
   if (ui.novSpot !== nsp) { if (ui.novSpot) changed = true; ui.novSpot = nsp; }
@@ -5053,6 +5537,8 @@ function tick() {
   updatePlots(now);
   const sig = state.plots.map((p) => plotStage(p, now)).join('');
   if (sig !== lastSig) { lastSig = sig; renderTabs(); }
+  const pr = $('pressa-left'), co = curOrder();
+  if (pr && co && co.pressa) pr.textContent = secs(co.pressa - now);
   const pl = $('pass-left');
   if (pl) pl.textContent = secs(state.nextPass - now);
 }
@@ -5099,6 +5585,9 @@ function start(data) {
   state.capas = state.capas || {};
   state.tec = state.tec || 'algodão';
   if (state.tab === 'mata') state.tab = 'jardim';
+  state.correio = { cartas: [], obrigados: [], next: 0, n: 0, ...(state.correio || {}) };
+  state.clube = { quadros: [], colchas: 0, dia: 0, feitos: 0, aprendeu: [], ...(state.clube || {}) };
+  if (state.misterio && state.misterio.cap >= 5) revelaAurora();
   state.myPats = state.myPats || [];
   state.stories = state.stories || {};
   state.visits = state.visits || {};
@@ -5111,6 +5600,12 @@ function start(data) {
     state.t0 = gnow() - (Math.floor(el / OLD_DAY_MS) + (el % OLD_DAY_MS) / OLD_DAY_MS) * DAY_MS;
     state.dayV2 = true;
   }
+  /* In photo mode the first tap anywhere just brings the panels back */
+  document.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('foto') || e.target.closest('#foto-btn')) return;
+    e.stopPropagation(); e.preventDefault();
+    document.body.classList.remove('foto');
+  }, true);
   document.addEventListener('click', (e) => {
     if (SND.amb && (!SND.ctx || SND.ctx.state !== 'running')) actx();
     const el = e.target.closest('[data-act]');
