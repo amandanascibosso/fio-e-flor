@@ -102,8 +102,11 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .badge:empty { display: none; }
 
 /* Scene overlays */
-.plots-field { position: absolute; left: 16%; right: 16%; top: 56%; bottom: 5%; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px 8px; z-index: 2; }
-.plot { position: relative; border: 2px solid var(--edge); border-radius: 6px; background: var(--soil); box-shadow: inset 0 -4px 0 var(--soil-2); padding: 0; display: grid; place-items: center; overflow: hidden; min-height: 0; }
+.plots-field { position: absolute; left: 16%; right: 16%; top: 56%; bottom: 6%; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px 13px; z-index: 2; }
+.twk { animation: twk 3s steps(2) infinite; }
+@keyframes twk { 50% { opacity: .2; } }
+@media (prefers-reduced-motion: reduce) { .twk { animation: none; } }
+.plot { position: relative; border: 2px solid var(--edge); border-radius: 6px; background: repeating-linear-gradient(180deg, transparent 0 7px, rgba(0,0,0,.1) 7px 9px), radial-gradient(circle, rgba(0,0,0,.16) 0 1px, transparent 1.6px) 0 0/11px 9px, radial-gradient(circle, rgba(255,235,200,.12) 0 1px, transparent 1.6px) 5px 4px/13px 11px, var(--soil); box-shadow: 0 0 0 3px #A87448, 0 0 0 4px var(--edge), inset 0 3px 0 rgba(0,0,0,.2), inset 0 -4px 0 var(--soil-2); padding: 0; display: grid; place-items: center; overflow: hidden; min-height: 0; }
 .plot svg { height: 88%; width: auto; max-width: 92%; }
 .plot .bar { position: absolute; left: 6px; right: 6px; bottom: 5px; height: 4px; background: rgba(0,0,0,.3); border-radius: 2px; overflow: hidden; }
 .plot .bar i { display: block; height: 100%; background: #9BE07A; width: 0; }
@@ -4157,8 +4160,10 @@ function casaSceneSVG() {
   const colcha = hexOf(state.casa.colcha) || '#E58FA6';
   let s = `<rect width="320" height="150" fill="#F3E3D3"/><rect y="110" width="320" height="40" fill="#E7CDB8"/><rect y="108" width="320" height="2" fill="#C9A98C"/>`;
   for (let x = 0; x < 320; x += 20) s += `<rect x="${x}" y="0" width="1" height="108" fill="#EAD6C4"/>`;
-  s += `<rect y="150" width="320" height="50" fill="#B98A5E"/>`;
-  for (let y = 158; y < 200; y += 10) s += `<rect y="${y}" width="320" height="1" fill="#A47A52"/>`;
+  for (let y = 8, r = 0; y < 104; y += 12, r++) for (let x = 10 + (r % 2) * 10; x < 320; x += 20) s += `<rect x="${x - 1}" y="${y}" width="3" height="1" fill="#E6C9B2"/><rect x="${x}" y="${y - 1}" width="1" height="3" fill="#E6C9B2"/>`;
+  for (let x = 0; x < 320; x += 16) s += `<rect x="${x}" y="110" width="1" height="40" fill="#D9BBA2"/>`;
+  s += `<rect y="110" width="320" height="2" fill="#F2DCC8"/><rect y="146" width="320" height="4" fill="#C9A98C"/>` + planks(150, 200, '#B98A5E', '#9E7550', 10, 48) + `<rect y="150" width="320" height="2" fill="#8E6A48" opacity=".5"/>`;
+  s += sunBeam(ck, 142, 198, 80, 200, 26);
   s += `<rect x="138" y="28" width="64" height="56" fill="#8B6A50"/><rect x="142" y="32" width="56" height="48" fill="${SKY[ck.part][1]}"/><rect x="142" y="32" width="56" height="20" fill="${SKY[ck.part][0]}"/><rect x="169" y="32" width="2" height="48" fill="#8B6A50"/><rect x="142" y="55" width="56" height="2" fill="#8B6A50"/><rect x="134" y="84" width="72" height="4" fill="#74573F"/>`;
   if (ck.part === 'noite') s += `<rect x="180" y="38" width="6" height="6" fill="#F4E9B8"/>`;
   if (own('cortina')) { const [rod, pano] = movelVar('cortina'); s += `<rect x="128" y="24" width="14" height="66" fill="${pano}"/><rect x="198" y="24" width="14" height="66" fill="${pano}"/><rect x="128" y="22" width="84" height="5" fill="${rod}"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${129 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="${shade(pano, -0.1)}"/><rect x="${199 + (i % 2) * 6}" y="${34 + i * 9}" width="4" height="2" fill="${shade(pano, -0.1)}"/>`).join('')}`; }
@@ -4424,16 +4429,27 @@ const SKY = { 'manhã': ['#8FCBEB', '#CBE9F6'], tarde: ['#EE9C62', '#F8D59B'], n
 const GRASS = { primavera: ['#7DBA5E', '#6AA64E'], verao: ['#93C45A', '#7FB04A'], outono: ['#B59A4E', '#A0863F'], inverno: ['#D7E2E4', '#BFCFD3'] };
 function skyBits(ck, horizon) {
   const sky = SKY[ck.part];
-  let s = `<rect width="320" height="${horizon}" fill="${sky[1]}"/><rect width="320" height="${Math.round(horizon * 0.45)}" fill="${sky[0]}"/>`;
+  // four soft bands from top colour to horizon colour, with a dithered row between each
+  const band = (t) => mixHex(sky[0], sky[1], t);
+  let s = '';
+  for (let b = 0; b < 4; b++) {
+    const y0 = Math.round(horizon * b / 4), y1 = Math.round(horizon * (b + 1) / 4), c = band(b / 3);
+    s += `<rect y="${y0}" width="320" height="${y1 - y0}" fill="${c}"/>`;
+    if (b < 3) for (let x = b % 2; x < 320; x += 2) s += `<rect x="${x}" y="${y1 - 1}" width="1" height="1" fill="${band((b + 1) / 3)}"/>`;
+  }
+  const disc = (cx, cy, r, c) => { let d = ''; for (let y = -r; y <= r; y++) { const w = Math.round(Math.sqrt(r * r - y * y)); d += `<rect x="${cx - w}" y="${cy + y}" width="${w * 2}" height="1" fill="${c}"/>`; } return d; };
   if (ck.part === 'noite') {
-    s += `<rect x="262" y="16" width="14" height="14" fill="#F4E9B8"/><rect x="259" y="15" width="7" height="7" fill="${sky[0]}"/>`;
-    [[30, 14], [70, 30], [120, 10], [180, 24], [220, 8], [300, 34], [150, 40], [96, 46]].forEach(([x, y]) => { s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#fff"/>`; });
+    s += disc(268, 22, 7, '#F4E9B8') + disc(264, 19, 6, sky[0]) + `<rect x="270" y="24" width="2" height="2" fill="#E2D59E"/>`;
+    [[30, 14], [70, 30], [120, 10], [180, 24], [220, 8], [300, 34], [150, 40], [96, 46], [48, 6], [240, 40], [10, 36], [200, 46]].forEach(([x, y], i) => { s += i % 4 === 0 ? `<g class="twk" style="animation-delay:${-i * 0.7}s"><rect x="${x - 1}" y="${y}" width="3" height="1" fill="#fff"/><rect x="${x}" y="${y - 1}" width="1" height="3" fill="#fff"/></g>` : `<rect x="${x}" y="${y}" width="1" height="1" fill="#fff" opacity="${i % 3 ? 1 : 0.6}"/>`; });
   } else if (!ck.rain) {
-    s += `<rect x="${ck.part === 'manhã' ? 34 : 268}" y="${ck.part === 'manhã' ? 14 : 30}" width="14" height="14" fill="${ck.part === 'manhã' ? '#F7D35E' : '#F08A3E'}"/>`;
+    const m = ck.part === 'manhã', sx = m ? 41 : 275, sy = m ? 21 : 37, sc = m ? '#F7D35E' : '#F08A3E';
+    s += disc(sx, sy, 12, m ? '#FFF3C4' : '#F8C08A') + disc(sx, sy, 9, m ? '#FBE38A' : '#F5A866') + disc(sx, sy, 7, sc) + `<rect x="${sx - 4}" y="${sy - 4}" width="3" height="2" fill="#FFF8D8"/>`;
   }
   if (rainbowNow(ck)) RAINBOW.forEach((c, i) => { const r = 150 - i * 6; s += `<path d="M${160 - r} ${horizon} A${r} ${r * 0.62} 0 0 1 ${160 + r} ${horizon}" fill="none" stroke="${c}" stroke-width="6" opacity=".55"/>`; });
-  const cc = ck.rain ? '#AEB8C6' : ck.part === 'noite' ? '#3A4A7E' : '#FFFFFF';
-  const cloud = (x, y) => `<rect x="${x}" y="${y}" width="28" height="6" fill="${cc}"/><rect x="${x + 6}" y="${y - 4}" width="14" height="4" fill="${cc}"/>`;
+  const cc = ck.rain ? '#AEB8C6' : ck.part === 'noite' ? '#3A4A7E' : ck.part === 'tarde' ? '#FFE8D2' : '#FFFFFF';
+  const cs = ck.rain ? '#95A0B0' : ck.part === 'noite' ? '#2E3C6A' : ck.part === 'tarde' ? '#F2C2A0' : '#DCEAF2';
+  // puffy clouds: three bumps on top, a flat shaded base
+  const cloud = (x, y) => `<rect x="${x}" y="${y}" width="30" height="6" fill="${cc}"/><rect x="${x + 4}" y="${y - 4}" width="10" height="4" fill="${cc}"/><rect x="${x + 12}" y="${y - 7}" width="10" height="7" fill="${cc}"/><rect x="${x + 21}" y="${y - 3}" width="6" height="3" fill="${cc}"/><rect x="${x + 2}" y="${y + 4}" width="26" height="2" fill="${cs}"/><rect x="${x + 14}" y="${y - 6}" width="4" height="1" fill="#FFFFFF" opacity=".7"/>`;
   s += cloud(90, 22) + cloud(200, 14) + (ck.rain ? cloud(20, 18) + cloud(140, 30) + cloud(262, 26) : '');
   return s;
 }
@@ -4441,7 +4457,33 @@ const rainBits = (ck) => (ck.rain ? Array.from({ length: 42 }, (_, i) => `<rect 
 const veil = (ck) => (ck.part === 'noite' ? '<rect width="320" height="200" fill="#0B1230" opacity=".34"/>' : ck.part === 'tarde' ? '<rect width="320" height="200" fill="#F08A3E" opacity=".07"/>' : '');
 const bgSVG = (s, label) => `<svg class="bg" viewBox="0 0 320 200" shape-rendering="crispEdges" role="img" aria-label="${label}">${s}</svg>`;
 function tree(x, y, c) { return `<g class="sway">${treeArt(x, y, c)}</g>`; }
-function treeArt(x, y, c) { return `<rect x="${x + 5}" y="${y + 14}" width="4" height="10" fill="#6E4A30"/><rect x="${x}" y="${y + 4}" width="14" height="12" fill="${c}"/><rect x="${x + 3}" y="${y}" width="8" height="4" fill="${c}"/>`; }
+function treeArt(x, y, c) {
+  const d = shade(c, -0.22), l = shade(c, 0.22);
+  return `<rect x="${x + 5}" y="${y + 14}" width="4" height="10" fill="#6E4A30"/><rect x="${x + 7}" y="${y + 14}" width="2" height="10" fill="#57391F"/>`
+    + `<rect x="${x + 4}" y="${y}" width="6" height="2" fill="${c}"/><rect x="${x + 2}" y="${y + 2}" width="10" height="2" fill="${c}"/><rect x="${x}" y="${y + 4}" width="14" height="10" fill="${c}"/><rect x="${x + 1}" y="${y + 14}" width="12" height="2" fill="${d}"/>`
+    + `<rect x="${x + 8}" y="${y + 9}" width="6" height="5" fill="${d}"/><rect x="${x + 10}" y="${y + 6}" width="3" height="3" fill="${d}"/><rect x="${x + 2}" y="${y + 4}" width="3" height="2" fill="${l}"/><rect x="${x + 4}" y="${y + 2}" width="3" height="1" fill="${l}"/><rect x="${x + 1}" y="${y + 7}" width="1" height="2" fill="${l}"/><rect x="${x + 6}" y="${y + 6}" width="2" height="1" fill="${l}"/>`;
+}
+/* Wooden floors: staggered planks with a little tone variation, seams and the odd knot */
+function planks(y0, y1, base, seam, rowH = 8, len = 40) {
+  let s = `<rect y="${y0}" width="320" height="${y1 - y0}" fill="${base}"/>`;
+  for (let y = y0, r = 0; y < y1; y += rowH, r++) {
+    for (let x = (r % 2) * (len / 2) - len; x < 320; x += len) {
+      const t = Math.abs(x * 7 + r * 13) % 5;
+      if (t === 1) s += `<rect x="${x}" y="${y}" width="${len}" height="${rowH - 1}" fill="${shade(base, 0.05)}"/>`;
+      if (t === 3) s += `<rect x="${x}" y="${y}" width="${len}" height="${rowH - 1}" fill="${shade(base, -0.05)}"/>`;
+      if (t === 2) s += `<rect x="${x + 9}" y="${y + Math.floor(rowH / 2) - 1}" width="3" height="1" fill="${seam}"/>`;
+      s += `<rect x="${x}" y="${y}" width="1" height="${rowH - 1}" fill="${seam}"/>`;
+    }
+    s += `<rect y="${y}" width="320" height="1" fill="${shade(base, 0.1)}"/><rect y="${y + rowH - 1}" width="320" height="1" fill="${seam}"/>`;
+  }
+  return s;
+}
+/* Sunlight from a window falling across the wall and floor (soft, only by day) */
+function sunBeam(ck, x0, x1, yTop, yBot, lean) {
+  if (ck.part === 'noite' || ck.rain) return '';
+  const c = ck.part === 'tarde' ? '#FFC98A' : '#FFF4C8';
+  return `<path d="M${x0} ${yTop} L${x1} ${yTop} L${x1 + lean} ${yBot} L${x0 + lean} ${yBot} Z" fill="${c}" opacity=".16"/><path d="M${x0 + 6} ${yTop} L${x0 + 14} ${yTop} L${x0 + 14 + lean} ${yBot} L${x0 + 6 + lean} ${yBot} Z" fill="#FFFFFF" opacity=".08"/>`;
+}
 
 function gardenSceneSVG() {
   const ck = clock();
@@ -4459,6 +4501,9 @@ function gardenSceneSVG() {
   for (let x = 4; x < 250; x += 16) s += `<rect x="${x}" y="95" width="3" height="13" fill="#C2A77F"/>${ck.season.id === 'inverno' ? `<rect x="${x}" y="94" width="3" height="1" fill="#fff"/>` : ''}`;
   s += `<rect x="20" y="112" width="2" height="6" fill="#6E4A30"/><rect x="14" y="108" width="14" height="5" fill="#E6D2AE"/><rect x="16" y="110" width="10" height="1" fill="#8B6A50"/>`;
   const sid = ck.season.id;
+  for (let i = 0; i < 34; i++) { const x = (i * 89 + 31) % 316, y = 110 + ((i * 37) % 86), d = shade(g1, -0.16); s += `<rect x="${x}" y="${y}" width="1" height="2" fill="${d}"/><rect x="${x + 2}" y="${y - 1}" width="1" height="3" fill="${d}"/><rect x="${x + 4}" y="${y}" width="1" height="2" fill="${d}"/>`; }
+  if (sid === 'primavera' || sid === 'verao') for (let x = 10; x < 246; x += 16) s += `<rect x="${x}" y="106" width="1" height="4" fill="#4E8540"/><rect x="${x - 1}" y="104" width="3" height="3" fill="${['#F2A7C6', '#F7D35E', '#FFFFFF', '#B79AD6'][(x / 16) % 4 | 0]}"/><rect x="${x}" y="105" width="1" height="1" fill="#F7D35E"/>`;
+  [[286, 106], [292, 118], [289, 131], [296, 144], [292, 158], [299, 172], [295, 186]].forEach(([x, y], i) => { s += `<ellipse cx="${x}" cy="${y}" rx="${6 - (i < 2 ? 1 : 0)}" ry="3" fill="#B8B0A2"/><rect x="${x - 4}" y="${y - 2}" width="5" height="1" fill="#D2CBBF"/><rect x="${x - 5}" y="${y + 2}" width="10" height="1" fill="#9A9284"/>`; });
   s += garland(256, 64, 56, sid);
   if (sid === 'outono') s += `<rect x="232" y="180" width="12" height="9" fill="#E07B2E"/><rect x="236" y="180" width="1" height="9" fill="#C9682A"/><rect x="240" y="180" width="1" height="9" fill="#C9682A"/><rect x="237" y="177" width="2" height="3" fill="#4E8540"/><rect x="248" y="184" width="8" height="6" fill="#E8A030"/><rect x="251" y="182" width="2" height="2" fill="#4E8540"/>`;
   if (sid === 'verao') s += `<rect x="240" y="150" width="2" height="40" fill="#4E8540"/><rect x="234" y="142" width="14" height="10" fill="#F7D35E"/><rect x="238" y="145" width="6" height="5" fill="#6E4A30"/><rect x="242" y="164" width="6" height="3" fill="#5E9A4E"/>`;
@@ -4473,7 +4518,8 @@ function gardenSceneSVG() {
 function tintSceneSVG() {
   const ck = clock();
   let s = `<rect width="320" height="200" fill="#B9875A"/>`;
-  for (let x = 0; x < 320; x += 20) s += `<rect x="${x}" y="0" width="1" height="160" fill="#9E6F45"/>`;
+  for (let x = 0, i = 0; x < 320; x += 20, i++) s += (i % 3 === 1 ? `<rect x="${x + 1}" y="0" width="19" height="160" fill="#C2915F"/>` : i % 3 === 2 ? `<rect x="${x + 1}" y="0" width="19" height="160" fill="#B07F52"/>` : '') + `<rect x="${x}" y="0" width="1" height="160" fill="#9E6F45"/>` + (i % 4 === 1 ? `<rect x="${x + 8}" y="${50 + (i * 23) % 80}" width="3" height="2" fill="#9E6F45"/>` : '');
+  s += `<rect x="0" y="156" width="320" height="4" fill="#8B6340"/>`;
   s += `<rect x="236" y="40" width="58" height="48" fill="#6E4A30"/><rect x="240" y="44" width="50" height="40" fill="${SKY[ck.part][1]}"/><rect x="264" y="44" width="2" height="40" fill="#6E4A30"/><rect x="240" y="62" width="50" height="2" fill="#6E4A30"/>`;
   if (ck.rain) for (let i = 0; i < 8; i++) s += `<rect x="${242 + i * 6}" y="${46 + (i % 3) * 12}" width="1" height="4" fill="#5C7FA8"/>`;
   s += `<rect x="0" y="20" width="320" height="1" fill="#5E4B3C"/>`;
@@ -4485,10 +4531,15 @@ function tintSceneSVG() {
   s += `<rect x="12" y="98" width="104" height="4" fill="#6E4A30"/><rect x="12" y="70" width="104" height="4" fill="#6E4A30"/>`;
   state.discovered.slice(0, 8).forEach((k, i) => { const x = 16 + i * 12; s += `<rect x="${x}" y="84" width="8" height="14" fill="${hexOf(k)}"/><rect x="${x}" y="82" width="8" height="2" fill="#8B6A50"/><rect x="${x + 1}" y="86" width="1" height="6" fill="rgba(255,255,255,.5)"/>`; });
   FKEYS.filter(flowerOpen).slice(0, 8).forEach((k, i) => { const x = 18 + i * 12; s += `<rect x="${x + 3}" y="60" width="1" height="10" fill="#4E8540"/><rect x="${x + 1}" y="56" width="5" height="5" fill="${FLOWERS[k].petal}"/>`; });
-  s += `<rect x="0" y="160" width="320" height="40" fill="#7A5A40"/>`;
-  for (let x = 0; x < 320; x += 32) s += `<rect x="${x}" y="160" width="1" height="40" fill="#664A34"/>`;
-  s += `<rect x="96" y="150" width="128" height="16" fill="#8E8A86"/>`;
-  for (let i = 0; i < 12; i++) s += `<rect x="${98 + i * 10}" y="${152 + (i % 2) * 6}" width="8" height="5" fill="#A8A39E"/>`;
+  s += planks(160, 200, '#7A5A40', '#664A34', 8, 36) + sunBeam(ck, 242, 288, 84, 200, -46);
+  s += `<ellipse cx="160" cy="154" rx="58" ry="9" fill="#F09A4A" opacity=".18"/><rect x="96" y="150" width="128" height="16" fill="#8E8A86"/><rect x="96" y="150" width="128" height="2" fill="#B5B0AA"/>`;
+  for (let i = 0; i < 12; i++) s += `<rect x="${98 + i * 10}" y="${152 + (i % 2) * 6}" width="8" height="5" fill="#A8A39E"/><rect x="${98 + i * 10}" y="${152 + (i % 2) * 6}" width="8" height="1" fill="#C2BDB6"/>`;
+  [[120, 149, '#F0A33A'], [138, 148, '#F7D35E'], [176, 149, '#F0A33A'], [196, 148, '#E8615A']].forEach(([x, y, c]) => { s += `<rect x="${x}" y="${y}" width="3" height="2" fill="${c}"/>`; });
+  // lantern on the wall and a basket of picked flowers
+  s += `<rect x="214" y="98" width="8" height="2" fill="#5E4B3C"/><rect x="220" y="98" width="2" height="6" fill="#5E4B3C"/><rect x="216" y="104" width="10" height="12" fill="#3A3040"/><rect x="218" y="106" width="6" height="8" fill="${ck.part === 'noite' ? '#F7D35E' : '#E9DCC0'}"/><rect x="215" y="116" width="12" height="2" fill="#3A3040"/>${ck.part === 'noite' ? '<ellipse cx="221" cy="110" rx="22" ry="18" fill="#F7E3A3" opacity=".16"/>' : ''}`;
+  const bk = FKEYS.filter(flowerOpen).slice(0, 5).map((k) => FLOWERS[k].petal);
+  s += `<rect x="40" y="170" width="30" height="16" fill="#C9A06A"/><rect x="40" y="170" width="30" height="2" fill="#E0BD84"/>${[0, 1, 2, 3].map((i) => `<rect x="${42 + i * 7}" y="174" width="1" height="12" fill="#A88350"/>`).join('')}<rect x="40" y="178" width="30" height="1" fill="#A88350"/><rect x="38" y="186" width="34" height="2" fill="#5E4B3C" opacity=".3"/>`
+    + (bk.length ? bk : ['#F2A7C6', '#F7D35E', '#FFFFFF']).map((c, i) => `<rect x="${43 + i * 6}" y="${165 + (i % 2) * 2}" width="5" height="5" fill="${c}"/><rect x="${45 + i * 6}" y="${167 + (i % 2) * 2}" width="1" height="1" fill="#F7D35E"/>`).join('') + `<rect x="46" y="168" width="2" height="3" fill="#4E8540"/><rect x="58" y="168" width="2" height="3" fill="#4E8540"/>`;
   s += `<rect x="252" y="124" width="30" height="40" fill="#8B6A50"/><rect x="252" y="132" width="30" height="3" fill="#5E4B3C"/><rect x="252" y="152" width="30" height="3" fill="#5E4B3C"/><rect x="256" y="118" width="22" height="6" fill="#6E4A30"/>`;
   if (ck.part === 'noite') s += `<rect x="150" y="26" width="10" height="10" fill="#F7D35E"/><rect x="120" y="20" width="70" height="60" fill="#F7E3A3" opacity=".12"/>`;
   return bgSVG(s + (ck.part === 'noite' ? '<rect width="320" height="200" fill="#0B1230" opacity=".22"/>' : ''), 'A tinturaria');
@@ -4504,8 +4555,18 @@ function sceneSVG() {
   if (wall[2] === 'checks') { for (let x = 0; x < 320; x += 20) s += `<rect x="${x}" y="0" width="10" height="154" fill="${wall[1]}" opacity=".6"/>`; for (let y = 0; y < 154; y += 20) s += `<rect x="0" y="${y}" width="320" height="10" fill="${wall[1]}" opacity=".6"/>`; }
   if (wall[2] === 'flowers') for (let y = 8, r = 0; y < 150; y += 16, r++) for (let x = (r % 2) * 11 + 4; x < 320; x += 22) s += `<rect x="${x}" y="${y}" width="3" height="3" fill="${wall[1]}"/><rect x="${x + 1}" y="${y + 1}" width="1" height="1" fill="#E8B931"/>`;
   if (wall[2] === 'plain') s += `<rect x="0" y="120" width="320" height="30" fill="${wall[1]}"/><rect x="0" y="118" width="320" height="2" fill="#C9B79B"/>`;
-  s += `<rect x="0" y="150" width="320" height="4" fill="#B08A68"/><rect x="0" y="154" width="320" height="46" fill="#C79B6D"/>`;
-  for (let x = 20; x < 320; x += 40) s += `<rect x="${x}" y="154" width="1" height="46" fill="#A47A52"/>`;
+  s += `<rect x="0" y="150" width="320" height="4" fill="#B08A68"/><rect x="0" y="150" width="320" height="1" fill="#D2B48E"/>` + planks(154, 200, '#C79B6D', '#A47A52', 8, 44) + `<rect x="0" y="154" width="320" height="2" fill="#9E7650" opacity=".5"/>`;
+  s += sunBeam(ck, 21, 71, 134, 200, 34);
+  // pegboard with thread spools, scissors and a tape measure
+  s += `<rect x="12" y="12" width="56" height="40" fill="#8B6A50"/><rect x="14" y="14" width="52" height="36" fill="#D8B987"/>`;
+  for (let y = 18; y < 50; y += 6) for (let x = 18; x < 66; x += 6) s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#B4935F"/>`;
+  const spoolC = state.discovered.length ? state.discovered.slice(0, 8).map(hexOf) : ['#C8463D', '#E8B931', '#3E6FB0', '#5E9A4E', '#E58FA6', '#B79AD6', '#F2A65A', '#2FA0A8'];
+  for (let i = 0; i < 8; i++) { const x = 17 + (i % 4) * 8, y = i < 4 ? 17 : 32, c = spoolC[i % spoolC.length]; s += `<rect x="${x}" y="${y}" width="6" height="2" fill="#E8D7A8"/><rect x="${x + 1}" y="${y + 2}" width="4" height="7" fill="${c}"/><rect x="${x + 1}" y="${y + 3}" width="1" height="5" fill="${shade(c, 0.3)}"/><rect x="${x + 4}" y="${y + 2}" width="1" height="7" fill="${shade(c, -0.25)}"/><rect x="${x}" y="${y + 9}" width="6" height="2" fill="#C9B07A"/>`; }
+  s += `<rect x="52" y="17" width="2" height="9" fill="#9AA0A8"/><rect x="56" y="17" width="2" height="9" fill="#9AA0A8"/><rect x="51" y="26" width="4" height="4" fill="#C8463D"/><rect x="55" y="26" width="4" height="4" fill="#C8463D"/><rect x="52" y="27" width="2" height="2" fill="#D8B987"/><rect x="56" y="27" width="2" height="2" fill="#D8B987"/>`;
+  s += `<rect x="51" y="33" width="10" height="10" fill="#F2C94C"/><rect x="53" y="35" width="6" height="6" fill="#D8B987"/><rect x="58" y="43" width="3" height="7" fill="#F2C94C"/>${[0, 1, 2].map((i) => `<rect x="${58 + (i % 2)}" y="${44 + i * 2}" width="1" height="1" fill="#6E5D48"/>`).join('')}`;
+  // a fern hanging from the ceiling
+  s += `<rect x="90" y="0" width="1" height="20" fill="#6E5D48"/><rect x="84" y="20" width="13" height="8" fill="#C8663F"/><rect x="84" y="20" width="13" height="2" fill="#E0855A"/><rect x="93" y="22" width="3" height="6" fill="#A44E30"/>`
+    + `<rect x="80" y="18" width="6" height="2" fill="#5E9A4E"/><rect x="95" y="18" width="7" height="2" fill="#4E8A3E"/><rect x="79" y="20" width="2" height="12" fill="#5E9A4E"/><rect x="77" y="31" width="2" height="5" fill="#4E8A3E"/><rect x="98" y="20" width="2" height="14" fill="#4E8A3E"/><rect x="100" y="33" width="2" height="6" fill="#5E9A4E"/><rect x="86" y="28" width="2" height="8" fill="#5E9A4E"/><rect x="85" y="35" width="2" height="4" fill="#4E8A3E"/>`;
   s += `<rect x="158" y="0" width="2" height="18" fill="#5E4B3C"/><rect x="150" y="18" width="18" height="7" fill="#8A3F6B"/><rect x="154" y="25" width="10" height="2" fill="#F7D35E"/>`;
   if (ck.part === 'noite') s += `<rect x="120" y="27" width="78" height="60" fill="#F7E3A3" opacity=".18"/>`;
   s += `<rect x="108" y="38" width="104" height="24" fill="#6E5D48"/><rect x="111" y="41" width="98" height="18" fill="#8B6A50"/><text x="160" y="55" text-anchor="middle" font-family="Pixelify Sans, monospace" font-size="12" font-weight="700" fill="#F6E7C8">FIO &amp; FLOR</text>`;
@@ -4567,6 +4628,10 @@ function pracaSceneSVG() {
   [[170, 64, 40, '#E9C9A4', '#B4563A'], [214, 54, 46, '#CFE0EA', '#5C7FA8'], [262, 66, 34, '#F2D6DE', '#8A3F6B'], [298, 58, 30, '#E6E0B8', '#7A7234']].forEach(([x, y, w, c, r]) => {
     s += `<rect x="${x}" y="${y}" width="${w}" height="${150 - y}" fill="${c}"/><rect x="${x - 3}" y="${y - 6}" width="${w + 6}" height="6" fill="${r}"/><rect x="${x + 3}" y="${y - 11}" width="${w - 6}" height="5" fill="${r}"/>${snow ? `<rect x="${x - 3}" y="${y - 7}" width="${w + 6}" height="2" fill="#fff"/>` : ''}`;
     s += `<rect x="${x + 6}" y="${y + 10}" width="8" height="8" fill="${lit}"/><rect x="${x + w - 14}" y="${y + 10}" width="8" height="8" fill="${lit}"/><rect x="${x + w / 2 - 5}" y="${130}" width="10" height="20" fill="#6E4A30"/>`;
+    // a shaded side, window frames with flower boxes, a door step
+    s += `<rect x="${x + w - 4}" y="${y}" width="4" height="${150 - y}" fill="${shade(c, -0.12)}"/><rect x="${x}" y="${y}" width="${w}" height="2" fill="${shade(c, -0.18)}"/><rect x="${x + 3}" y="${y - 11}" width="${w - 6}" height="1" fill="${shade(r, 0.25)}"/>`;
+    [x + 6, x + w - 14].forEach((wx) => { s += `<rect x="${wx}" y="${y + 13}" width="8" height="1" fill="${shade(c, -0.3)}"/><rect x="${wx + 3}" y="${y + 10}" width="1" height="8" fill="${shade(c, -0.3)}"/><rect x="${wx - 1}" y="${y + 18}" width="10" height="3" fill="#8B5E3C"/>${snow ? `<rect x="${wx - 1}" y="${y + 17}" width="10" height="1" fill="#fff"/>` : ck.season.id === 'outono' ? '' : `<rect x="${wx}" y="${y + 16}" width="2" height="2" fill="#E58FA6"/><rect x="${wx + 3}" y="${y + 16}" width="2" height="2" fill="#F7D35E"/><rect x="${wx + 6}" y="${y + 16}" width="2" height="2" fill="#E8615A"/>`}`; });
+    s += `<rect x="${x + w / 2 - 7}" y="148" width="14" height="2" fill="#A8A39E"/><rect x="${x + w / 2 + 2}" y="140" width="2" height="2" fill="#E8B931"/>`;
   });
   s += `<rect x="4" y="44" width="160" height="10" fill="#8A3F6B"/><rect x="12" y="38" width="144" height="6" fill="#8A3F6B"/>${snow ? '<rect x="4" y="43" width="160" height="2" fill="#fff"/>' : ''}`;
   s += `<rect x="8" y="54" width="152" height="96" fill="#F6EBD3"/><rect x="40" y="58" width="88" height="18" fill="#6E5D48"/><text x="84" y="71" text-anchor="middle" font-family="Pixelify Sans, monospace" font-size="11" font-weight="700" fill="#F6E7C8">FIO &amp; FLOR</text>`;
@@ -4575,12 +4640,15 @@ function pracaSceneSVG() {
   s += `<rect x="134" y="104" width="20" height="46" fill="#8B6A50"/><rect x="149" y="126" width="2" height="2" fill="#E8B931"/>`;
   s += `<rect x="16" y="146" width="114" height="4" fill="#5E9A4E"/>${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => `<rect x="${20 + i * 11}" y="145" width="2" height="2" fill="${['#F2A7C6', '#F7D35E', '#E58FA6'][i % 3]}"/>`).join('')}`;
   s += `<rect y="150" width="320" height="10" fill="#CBBFAF"/><rect y="160" width="320" height="40" fill="#D8CBB5"/>`;
-  for (let i = 0; i < 80; i++) s += `<rect x="${(i * 41) % 320}" y="${162 + ((i * 23) % 36)}" width="4" height="2" fill="#C6B79E"/>`;
+  // cobblestones in staggered rows, a curb and a little shine on each stone
+  s += `<rect y="158" width="320" height="2" fill="#B5A894"/>`;
+  for (let y = 162, r = 0; y < 200; y += 6, r++) for (let x = (r % 2) * 6 - 6; x < 320; x += 12) { const t = Math.abs(x * 3 + r * 7) % 4; s += `<rect x="${x + 1}" y="${y}" width="10" height="5" fill="${t === 0 ? '#CDBFA8' : t === 2 ? '#DED2BE' : '#D5C8B1'}"/><rect x="${x + 1}" y="${y + 4}" width="10" height="1" fill="#BBAC95"/><rect x="${x + 2}" y="${y}" width="4" height="1" fill="#E6DCCB"/>`; }
   s += `<rect x="176" y="96" width="2" height="54" fill="#3A3040"/><rect x="172" y="90" width="10" height="7" fill="#3A3040"/><rect x="174" y="92" width="6" height="4" fill="${ck.part === 'noite' ? '#F7D35E' : '#CFC8B8'}"/>`;
   if (ck.part === 'noite') s += `<rect x="160" y="96" width="34" height="56" fill="#F7E3A3" opacity=".14"/>`;
   s += `<rect x="236" y="148" width="54" height="12" fill="#A8A39E"/><rect x="240" y="146" width="46" height="4" fill="#8EC3E6"/><rect x="260" y="132" width="6" height="16" fill="#A8A39E"/><rect x="256" y="128" width="14" height="4" fill="#A8A39E"/><rect x="262" y="122" width="2" height="6" fill="#8EC3E6"/>`;
   const sid = ck.season.id;
   s += garland(8, 92, 152, sid);
+  if (sid !== 'verao') s += `<rect x="190" y="138" width="34" height="3" fill="#8B5E3C"/><rect x="190" y="138" width="34" height="1" fill="#A87448"/><rect x="190" y="131" width="34" height="2" fill="#8B5E3C"/><rect x="192" y="133" width="2" height="5" fill="#3A3040"/><rect x="220" y="133" width="2" height="5" fill="#3A3040"/><rect x="192" y="141" width="2" height="8" fill="#3A3040"/><rect x="220" y="141" width="2" height="8" fill="#3A3040"/>${snow ? '<rect x="190" y="137" width="34" height="1" fill="#fff"/>' : ''}`;
   if (sid === 'verao') s += `<rect x="208" y="122" width="2" height="30" fill="#6E5D48"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${192 + i * 6}" y="${118 - (i === 0 || i === 5 ? 0 : 3)}" width="6" height="${i === 0 || i === 5 ? 4 : 7}" fill="${i % 2 ? '#FFFFFF' : '#E8615A'}"/>`).join('')}<rect x="200" y="140" width="18" height="3" fill="#B98A5E"/><rect x="204" y="134" width="3" height="6" fill="#F7D35E"/>`;
   if (sid === 'outono') s += `<rect x="120" y="140" width="10" height="9" fill="#E07B2E"/><rect x="123" y="140" width="1" height="9" fill="#C9682A"/><rect x="124" y="137" width="2" height="3" fill="#4E8540"/><rect x="156" y="142" width="8" height="7" fill="#E8A030"/><rect x="159" y="140" width="2" height="2" fill="#4E8540"/>`;
   if (sid === 'inverno' && !ck.festa) { s += `<rect x="0" y="28" width="320" height="1" fill="#6E5D48"/>`; const cs = ['#C8463D', '#E8B931', '#3E6FB0', '#5E9A4E', '#E58FA6']; for (let i = 0; i < 20; i++) s += `<path d="M${i * 16 + 3} 29 h10 l-5 8 Z" fill="${cs[i % 5]}"/>`; }
