@@ -2592,7 +2592,7 @@ function renderGarden() {
     <div class="scene-col"><div class="scene-box">${gardenSceneSVG()}
       ${weatherFX(ck)}<div class="plots-field" style="grid-template-rows:repeat(${n > 6 ? 3 : 2},1fr)">${plots}</div>
       ${state.up.colmeia ? `<div class="hive" aria-hidden="true"></div><div class="fx" aria-hidden="true">${[0, 1, 2, 3, 4].map((i) => `<span class="fx-abelha" style="left:${20 + i * 15}%;top:${55 + (i % 3) * 12}%;animation-delay:-${i * 1.3}s;animation-duration:${5 + i}s"></span>`).join('')}</div>` : ''}
-      ${lifeFX('jardim', ck)}${passerBy('jardim')}${meSpot('me-jardim', REGADOR)}${nav('jardim')}</div></div>
+      ${lifeFX('jardim', ck)}${meSpot('me-jardim', REGADOR)}${nav('jardim')}</div></div>
     <aside class="pnl" aria-labelledby="h-jardim">
       <h2 class="pnl-title" id="h-jardim">Jardim</h2>
       <div class="weather">${clockIcon(ck)}<div><b>${wx[0]}</b><p>${wx[1]}</p></div></div>
@@ -2648,7 +2648,7 @@ function renderTint() {
   const deg = degOpen && state.dyeMode === 'degrade';
   const tecs = Object.entries(TECIDOS).filter(([, T]) => unlocked(T)).map(([k, T]) => `<button class="pat" data-act="tec" data-v="${k}" id="tec-${k}" aria-pressed="${tec === k}">${T.nome} · ${cruOf(k)} m</button>`).join('');
   $('p-tint').innerHTML = `
-    <div class="scene-col"><div class="scene-box">${tintSceneSVG()}<div class="pot-spot">${potSVG(liquid, pot.slots.length > 0)}${pot.slots.length ? '<svg class="colher" viewBox="0 0 10 40" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="2" height="32" fill="#B98A5E"/><rect x="3" y="30" width="4" height="8" fill="#9E6E48"/></svg>' : ''}</div>${pslots}${lifeFX('tint')}${passerBy('tint')}${meSpot('me-tint')}${nav('tint')}</div></div>
+    <div class="scene-col"><div class="scene-box">${tintSceneSVG()}<div class="pot-spot">${potSVG(liquid, pot.slots.length > 0)}${pot.slots.length ? '<svg class="colher" viewBox="0 0 10 40" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="2" height="32" fill="#B98A5E"/><rect x="3" y="30" width="4" height="8" fill="#9E6E48"/></svg>' : ''}</div>${pslots}${lifeFX('tint')}${meSpot('me-tint')}${nav('tint')}</div></div>
     <aside class="pnl" aria-labelledby="h-tint">
       <h2 class="pnl-title" id="h-tint">Tinturaria</h2>
       <p class="will" aria-live="polite">${will}</p>
@@ -4384,13 +4384,6 @@ const meV = (m) => {
 const meSpot = (cls, tool = '') => (state.me ? `<div class="me-spot ${cls}" aria-hidden="true">${figureSVG(meV())}${tool}</div>` : '');
 const REGADOR = '<svg class="tool regador" viewBox="0 0 12 9" shape-rendering="crispEdges"><rect x="2" y="3" width="6" height="5" fill="#B87333"/><rect x="2" y="3" width="6" height="1" fill="#D9955A"/><rect x="8" y="4" width="3" height="1" fill="#B87333"/><rect x="11" y="3" width="1" height="2" fill="#B87333"/><rect x="0" y="4" width="2" height="1" fill="#8E5A2A"/><rect x="0" y="4" width="1" height="3" fill="#8E5A2A"/><rect x="3" y="1" width="4" height="1" fill="#8E5A2A"/></svg>';
 /* Birds, steam and night glows drawn over the pixel scenes */
-function passerBy(place) {
-  const slot = Math.floor(gnow() / 45000);
-  if (slot % 2 || clock().part === 'noite') return '';
-  const vs = activeVillagers();
-  const v = vs[(slot * 7 + place.length) % vs.length];
-  return `<button class="passer" data-act="talk" data-v="${v.id}" id="passer-${place}" aria-label="${v.nome} está passando. Conversar">${figureSVG(v, null, true)}<span class="nm">${v.nome}</span></button>`;
-}
 function lifeFX(place, ck = clock()) {
   let h = '';
   const day = ck.part !== 'noite' && !ck.rain;
