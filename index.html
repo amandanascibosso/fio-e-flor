@@ -372,6 +372,35 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
 .talkbox .want-tag { flex: none; }
 .want-tag { background: #fff; border: 2px solid var(--edge); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); padding: 2px 6px; display: flex; align-items: center; }
 .want-tag svg { width: clamp(28px, 7cqw, 46px); height: clamp(28px, 7cqw, 46px); display: block; }
+.carta-box { left: 4%; max-width: 62%; }
+.carta-box .bubble::before, .carta-box .bubble::after { display: none; }
+.bubble.carta { background: #FFFBEF; background-image: repeating-linear-gradient(transparent 0 1.25em, rgba(138,63,107,.12) 1.25em calc(1.25em + 1px)); }
+.bubble.carta.resposta { background-color: #F2FBEF; }
+.carta-de { display: block; font-family: var(--font-display); color: var(--accent); margin-bottom: 2px; font-size: 1.05em; }
+/* village map */
+.map-box .pixbg { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.map-casa { position: absolute; transform: translateX(-50%); width: 11.5%; background: transparent; border: 0; padding: 0; z-index: 3; cursor: pointer; border-radius: 8px; }
+.map-casa.lugar { width: 15%; }
+.map-casa.jard { width: 9%; }
+.map-casa:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.map-tag { position: absolute; left: 50%; bottom: 0; transform: translate(-50%, 62%); background: #FBF4E6; border: 2px solid var(--edge); border-radius: 7px; padding: 0 .7cqw; font: 800 clamp(8px, 1.65cqw, 12px) var(--font-body, 'Nunito'), sans-serif; color: var(--edge); white-space: nowrap; box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.map-casa.lugar .map-tag { background: #8A3F6B; color: #FBF4E6; }
+.map-casa.vazia .map-tag { font-style: italic; opacity: .85; }
+.map-casa:hover .map-tag { filter: brightness(1.08); transform: translate(-50%, 55%); }
+.map-bub { position: absolute; left: 88%; top: 26%; transform: translate(-50%, -100%); background: #fff; border: 2px solid var(--edge); border-radius: 9px; padding: 0 .7cqw; font: 900 clamp(9px, 1.9cqw, 14px) 'Nunito', sans-serif; color: var(--accent); line-height: 1.25; box-shadow: 0 2px 0 rgba(0,0,0,.3); animation: mapbob 1.8s ease-in-out infinite; white-space: nowrap; }
+.map-bub.zz { background: #E6E0EE; color: #6E5D8E; font-size: clamp(8px, 1.5cqw, 11px); }
+.map-bub.novo { background: #F7D35E; color: var(--edge); }
+.map-bub.esq { left: 14%; }
+@keyframes mapbob { 50% { margin-top: -0.6cqw; } }
+@media (prefers-reduced-motion: reduce) { .map-bub { animation: none; } }
+.vit-list { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0; }
+.vit-list .mq { width: 54px; height: 62px; background: #FBF4E6; border: 2px dashed #CDBFA6; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 3px; }
+.vit-list button.mq { border-style: solid; border-color: var(--edge); cursor: pointer; }
+.vit-list .mq svg { width: 100%; height: 100%; }
+.fora { display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: start; }
+.fora-porta { width: 112px; height: 112px; border-radius: 12px; overflow: hidden; border: 3px solid var(--edge); background: #E6D6B8; }
+.fora-porta img, .fora-porta svg { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.quote.fechado { background: #F2EEF6; font-style: italic; color: #4E4060; }
 .confirm-card { position: absolute; right: 2%; bottom: 3%; width: 32%; z-index: 5; display: flex; align-items: center; gap: 6px; background: var(--paper); border: 3px solid var(--edge); border-radius: 10px; box-shadow: 0 3px 0 var(--edge); padding: 4px 8px 4px 4px; }
 .confirm-card > svg { width: 26%; height: auto; flex: none; }
 .confirm-card > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -2808,6 +2837,13 @@ function act(el) {
   }
   else if (a === 'set-papel') { state.decor.papel = state.decor.papel === el.dataset.v ? null : el.dataset.v; }
   else if (a === 'talk') { talkTo(el.dataset.v); return; }
+  else if (a === 'casa-v') { openCasa(el.dataset.v); return; }
+  else if (a === 'recado') { (state.recados = state.recados || {})[el.dataset.v] = clock().day; sfx('chime'); toast(`Você deixou um recadinho na porta da ${villager(el.dataset.v).nome}. 💌`); save(); renderSheet(); return; }
+  else if (a === 'medir-casa') { const vid = el.dataset.v; goTo('vila'); renderAll(); openCasa(vid); return; }
+  else if (a === 'measure-v') {
+    const o = state.orders.find((x) => !x.result && x.vid === el.dataset.v);
+    if (o) { state.focus = o.id; openSheet({ kind: 'medir', vid: o.vid, band: 10 + Math.random() * 62, t0: performance.now() }); return; }
+  }
   else if (a === 'gift') { giftTo(+el.dataset.i); return; }
   else if (a === 'desfile') { startDesfile(); return; }
   else if (a === 'inscrever') { inscrever(+el.dataset.i); return; }
@@ -3193,7 +3229,7 @@ function renderAtelie() {
   const open = state.orders.filter((o) => !o.result);
 
   let cust;
-  if (!c) cust = `<div class="talkbox" style="left:8%"><div class="bubble quiet">Ninguém no balcão. Os pedidos chegam no mural.</div></div>`;
+  if (!c) cust = `<div class="talkbox carta-box"><div class="bubble quiet">📭 Nenhuma carta com pedido agora. Elas chegam pelo correio da Nina.</div></div>`;
   else {
     const v = villager(c.vid);
     const r = c.result;
@@ -3205,7 +3241,8 @@ function renderAtelie() {
     const waveNow = !r && ui.waved !== c.id;
     if (waveNow) ui.waved = c.id;
     const v2 = c.kind === 'conjunto' ? villager(c.vids[1]) : null;
-    cust = `${v2 ? `<div class="cust-spot cust-2${r ? ` react-${r.mood}` : ''}">${figureSVG(v2, r ? r.mood : null)}</div>` : ''}<div class="cust-spot${r ? ` react-${r.mood}` : ''}">${figureSVG(v, r ? r.mood : null, waveNow)}</div><div class="talkbox"><div class="bubble">${inner}</div>${r ? '' : `<div class="want-tag" role="img" aria-label="O que ela quer">${wantIcon(c)}</div>`}</div>`;
+    const de = c.kind === 'conjunto' ? 'de ' + nomesDe(c.vids) : c.misterio ? 'de alguém sem nome' : 'da ' + v.nome;
+    cust = `<div class="talkbox carta-box"><div class="bubble carta${r ? ' resposta' : ''}"><span class="carta-de">${r ? `📨 Resposta ${de}` : `📩 Carta ${de}`}</span>${inner}</div>${r ? '' : `<div class="want-tag" role="img" aria-label="O que ela quer">${wantIcon(c)}</div>`}</div>`;
   }
   const hot = (k, label, l, t, w, h, extra = '') => `<button class="hot${sub === k ? ' on' : ''}${k === 'retalhos' || k === 'mural' ? ' below' : ''}" data-act="${extra ? 'sheet' : 'subtab'}" ${extra ? `data-kind="${extra}"` : `data-v="${k}"`} id="hot-${k}" style="left:${l}%;top:${t}%;width:${w}%;height:${h}%" aria-label="${label}"><span>${label}</span></button>`;
   /* The counter card on the panel holds the order's buttons, so the speech bubble stays small */
@@ -3217,8 +3254,8 @@ function renderAtelie() {
     const favKnown = (state.hearts[v.id] || 0) >= 3 && !accOrder && !conj;
     const gosta = !accOrder && !conj && (state.hearts[v.id] || 0) >= 4 && VBOTAO[v.id] ? `Gosta de botão de ${BOTOES[VBOTAO[v.id]].nome.toLowerCase()}, linha ${VCONTRASTE[v.id] ? 'colorida' : 'combinando'}${(state.hearts[v.id] || 0) >= 6 && VGOLA[v.id] ? `, ${GOLAS[VGOLA[v.id]].nome.toLowerCase()} e ${BOLSOS[VBOLSO[v.id]].nome.toLowerCase()}` : ''}` : '';
     const info = [c.pressa && gnow() < c.pressa ? `<b>⏱ Com pressa! Bônus se entregar em <span id="pressa-left">${secs(c.pressa - gnow())}</span></b>` : '', gosta, conj ? `Conjunto: ${c.got.length} de ${c.vids.length} peças · cada uma toda ${c.cor}` : !accOrder && !rf && !['trico', 'patch'].includes(c.peca) ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
-    balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>${conj ? nomesDe(c.vids) : v.nome} no balcão</b>${info ? `<span class="help">${info}</span>` : ''}
-      <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${rf ? `<button class="primary sm" data-act="rf-start" id="rf-start">✂️ Reformar${c.tipo === 'cor' ? ` (1 m de ${c.cor})` : ''}</button>` : ''}${needsMeasure ? '<button class="primary sm" data-act="measure" id="measure">Tirar medidas</button>' : ''}${rem || rf ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">Entregar ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
+    balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>Carta ${c.misterio ? 'sem assinatura' : conj ? `de ${nomesDe(c.vids)}` : `da ${v.nome}`}</b>${info ? `<span class="help">${info}</span>` : ''}
+      <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${rf ? `<button class="primary sm" data-act="rf-start" id="rf-start">✂️ Reformar${c.tipo === 'cor' ? ` (1 m de ${c.cor})` : ''}</button>` : ''}${needsMeasure ? `<button class="primary sm" data-act="medir-casa" data-v="${v.id}" id="measure">📏 Medir na casa dela</button>` : ''}${rem || rf ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">📮 Enviar pelo correio: ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
       ${hintBox(c)}
       <button class="linkish" data-act="skip" id="skip">Recusar pedido</button></div></div>`;
   }
@@ -3328,6 +3365,280 @@ function renderCasamento() {
     <p class="quote">${done ? '"Agora a gente vai costurar uma vida inteira juntas!" diz a Nina, rindo.' : '"Aceito!" dizem as duas, ao mesmo tempo. Todo mundo aplaude!'}</p>
     ${done ? '<p class="sub">🎁 +80 moedas e +2 ♥ com todas as moradoras</p>' : '<button class="primary" data-act="petalas" id="petalas">Jogar pétalas! 🌸</button>'}</div></div>`;
 }
+
+/* ---------- painted art (the map): soft vector shapes, shaded with ramps, then pixelated at 2x ---------- */
+const PIXART = (() => {
+  const hx = (h) => { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+  const mix = (a, b, t) => { const A = hx(a), B = hx(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
+  const ramp = (h) => ({ d3: mix(h, '#1E1028', 0.6), d2: mix(h, '#2A1838', 0.42), d: mix(h, '#3A2850', 0.22), b: h, l: mix(h, '#FFF2D8', 0.28), l2: mix(h, '#FFFAF0', 0.55) });
+  let uid = 0;
+  const P = (d, f, x = '') => `<path d="${d}" fill="${f}" ${x}/>`;
+  const R = (x, y, w, h, f) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`;
+  const C = (x, y, r, f) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"/>`;
+  const E = (x, y, rx, ry, f, rot = 0) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${f}"${rot ? ` transform="rotate(${rot} ${x} ${y})"` : ''}/>`;
+  const L = (d, c, w = 1, x = '') => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}"${x.includes('linecap') ? '' : ' stroke-linecap="round"'} stroke-linejoin="round" ${x}/>`;
+  const ell = (x, y, rx, ry) => `M${x - rx} ${y}A${rx} ${ry} 0 1 0 ${x + rx} ${y}A${rx} ${ry} 0 1 0 ${x - rx} ${y}Z`;
+  function piece(d, base, inner = '', line = null, lw = 1.4) {
+    const id = 'pk' + (uid++);
+    return `<clipPath id="${id}"><path d="${d}"/></clipPath><path d="${d}" fill="${base}"/>${inner ? `<g clip-path="url(#${id})">${inner}</g>` : ''}${line ? `<path d="${d}" fill="none" stroke="${line}" stroke-width="${lw}" stroke-linejoin="round"/>` : ''}`;
+  }
+  function flower(x, y, r, pet, mid, n = 5, rot = -90) { let s = ''; for (let i = 0; i < n; i++) { const a = (rot + i * 360 / n) * Math.PI / 180; s += E(x + Math.cos(a) * r * 0.6, y + Math.sin(a) * r * 0.6, r * 0.5, r * 0.4, pet, rot + i * 360 / n); } return s + C(x, y, r * 0.32, mid); }
+  const leaf = (x, y, a, col) => E(x, y, 2.6, 1.2, col, a);
+  function spike(x, y, a, len = 4.4, w = 2.2) { const r = (a * Math.PI) / 180, dx = Math.sin(r), dy = -Math.cos(r), nx = -dy, ny = dx; const pts = [[x + nx * w, y + ny * w], [x + dx * len, y + dy * len], [x - nx * w, y - ny * w]].map((q) => q.map((v) => v.toFixed(2)).join(' ')); return `<path d="M${pts[0]} L${pts[1]} L${pts[2]} Z" fill="#DDE2EA" stroke="#3A3E4A" stroke-width=".8" stroke-linejoin="round"/>`; }
+  const MB = {
+    wall: (l, top, w, h, c, extra = '') => { const r = ramp(c); return piece(`M${l} ${top + h} L${l + w} ${top + h} L${l + w} ${top} L${l} ${top} Z`, r.b, R(l + w - 4, top, 4, h, r.d) + extra, r.d3, 1); },
+    gable: (l, top, w, c, rh = 12, over = 3) => { const r = ramp(c), x = l + w / 2; return piece(`M${l - over} ${top + 1} L${x} ${top - rh} L${l + w + over} ${top + 1} Z`, r.b, P(`M${x} ${top - rh} L${l + w + over} ${top + 1} L${x + w * 0.18} ${top + 1} Z`, r.d) + L(`M${l + 1} ${top - 2.4} L${l + w - 1} ${top - 2.4}`, r.d, 0.6, 'stroke-dasharray="2 1"') + L(`M${l + 5} ${top - 6} L${l + w - 5} ${top - 6}`, r.d, 0.6, 'stroke-dasharray="2 1"'), r.d3, 1); },
+    win: (x, y, w, h, lit, frame = '#FBF7EE', line = '#5A3420', round = false) => piece(round ? ell(x + w / 2, y + h / 2, w / 2, h / 2) : `M${x} ${y} L${x + w} ${y} L${x + w} ${y + h} L${x} ${y + h} Z`, lit ? '#F8D888' : '#BFE3F2', R(x + w / 2 - 0.4, y, 0.8, h, frame) + R(x, y + h / 2 - 0.4, w, 0.8, frame) + (lit ? '' : P(`M${x} ${y} L${x + w * 0.4} ${y} L${x} ${y + h * 0.7} Z`, 'rgba(255,255,255,.5)')), line, 0.6),
+    door: (x, y, w, h, c, arch = true) => piece(arch ? `M${x - w / 2} ${y} L${x - w / 2} ${y - h + w / 2} Q${x} ${y - h - 1} ${x + w / 2} ${y - h + w / 2} L${x + w / 2} ${y} Z` : `M${x - w / 2} ${y} L${x - w / 2} ${y - h} L${x + w / 2} ${y - h} L${x + w / 2} ${y} Z`, c, C(x + w / 2 - 1.2, y - h / 2, 0.55, '#E8B931') + R(x - w / 2, y - h, 1, h, mix(c, '#FFFFFF', 0.2)), mix(c, '#000000', 0.4), 0.7),
+    box: (x, y, w, cols) => piece(`M${x} ${y} L${x + w} ${y} L${x + w - 0.6} ${y + 2.6} L${x + 0.6} ${y + 2.6} Z`, '#C8572E', '', '#7E3418', 0.5) + cols.map((c, i) => flower(x + 1.6 + i * (w - 3.2) / Math.max(1, cols.length - 1), y - 0.4, 1.3, c, '#F6C83A')).join(''),
+    shadow: (x, y, w) => E(x + 2, y + 1, w * 0.62, 3.4, 'rgba(40,60,30,.25)'),
+  };
+  const HOUSES = {
+    // Bia: storybook cottage, mossy rounded roof, climbing roses and a heart window
+    bia: (x, y, N) => { const l = x - 18; let s = MB.shadow(x, y, 36) + MB.wall(l, y - 18, 36, 18, '#FBEFE2');
+      s += piece(`M${l - 4} ${y - 17} Q${l - 2} ${y - 36} ${x} ${y - 38} Q${l + 38} ${y - 36} ${l + 40} ${y - 17} Z`, '#6FA45A', E(x + 8, y - 26, 10, 8, '#5E9A4E') + E(x - 8, y - 32, 6, 3, '#8FC06A') + [[-10, -26], [2, -32], [10, -22], [-4, -22]].map(([dx, dy]) => C(x + dx, y + dy, 1, '#4E8540')).join(''), '#3E6A2E', 1);
+      s += MB.door(x, y, 7, 12, '#E8608A') + MB.win(l + 3, y - 15, 6, 6, N) + piece(`M${l + 30} ${y - 12} Q${l + 27} ${y - 15} ${l + 29} ${y - 16} Q${l + 30} ${y - 16.4} ${l + 30.4} ${y - 15} Q${l + 31} ${y - 16.4} ${l + 32} ${y - 16} Q${l + 34} ${y - 15} ${l + 30.4} ${y - 11} Z`, N ? '#F8D888' : '#F48FB8', '', '#8A3F6B', 0.6);
+      s += [[l + 1, y - 4], [l + 2, y - 9], [l + 1, y - 14], [l + 35, y - 3], [l + 34, y - 8], [x - 5, y - 15], [x + 5, y - 15]].map(([fx, fy], i) => leaf(fx, fy + 1.4, i * 40, '#5E9A4E') + flower(fx, fy, 1.4, i % 2 ? '#F48FB8' : '#C8463D', '#F6C83A')).join('');
+      s += L(`M${l - 6} ${y + 2} L${l - 6} ${y - 6} M${l - 3} ${y + 2} L${l - 3} ${y - 6} M${l - 7} ${y - 3} L${l - 2} ${y - 3}`, '#F6EEDC', 1.2); return s; },
+    // Vó Zezé: tiny lilac cottage with a porch, rocking chair, yarn and a heart of smoke
+    zeze: (x, y, N) => { const l = x - 16; let s = MB.shadow(x, y, 34) + MB.wall(l, y - 17, 32, 17, '#E6DCF2', R(l, y - 6, 32, 0.6, '#CFC2E2'));
+      s += piece(`M${l - 6} ${y - 7} L${l + 38} ${y - 7} L${l + 36} ${y - 10} L${l - 4} ${y - 10} Z`, '#9C7FC4', '', '#5E4A8A', 0.6) + L(`M${l - 4} ${y - 7} L${l - 4} ${y} M${l + 36} ${y - 7} L${l + 36} ${y}`, '#FBF7EE', 1);
+      s += MB.gable(l, y - 17, 32, '#9C7FC4', 12) + piece(`M${l + 22} ${y - 34} L${l + 26} ${y - 34} L${l + 26} ${y - 24} L${l + 22} ${y - 26} Z`, '#B07A5A', '', '#5A3420', 0.6) + P(`M${l + 24} ${y - 38} Q${l + 21} ${y - 41} ${l + 23} ${y - 42} Q${l + 24} ${y - 42.4} ${l + 24.4} ${y - 41} Q${l + 25} ${y - 42.4} ${l + 26} ${y - 42} Q${l + 28} ${y - 41} ${l + 24.4} ${y - 37} Z`, 'rgba(255,255,255,.75)');
+      s += MB.door(x + 4, y, 6, 11, '#8A5A3A') + MB.win(l + 4, y - 15, 6, 6, N, '#FBF7EE', '#5E4A8A', true) + MB.box(l + 3, y - 8.6, 8, ['#F48FB8', '#FFE070', '#FFFFFF']);
+      s += L(`M${l + 26} ${y} Q${l + 30} ${y + 1.6} ${l + 33} ${y} M${l + 27} ${y - 1} L${l + 27} ${y - 6} L${l + 31} ${y - 6} L${l + 32} ${y - 1}`, '#8A5A3A', 0.9) + C(l - 2, y - 1.4, 1.8, '#E8608A') + C(l + 1, y - 1, 1.5, '#8FCFB5') + L(`M${l - 2} ${y - 3} L${l + 1} ${y - 6}`, '#D8CDB8', 0.5); return s; },
+    // Dandara: tall two-storey house with a painted geometric facade, balcony and big plants
+    dandara: (x, y, N) => { const l = x - 17; let s = MB.shadow(x, y, 34) + MB.wall(l, y - 32, 34, 32, '#F0B860');
+      for (let i = 0; i < 7; i++) s += P(`M${l + i * 4.86} ${y - 16} l2.43 3 l2.43 -3 Z`, i % 2 ? '#C8463D' : '#2FA0A8') + P(`M${l + i * 4.86} ${y - 13} l2.43 -3 l2.43 3 Z`, i % 2 ? '#2FA0A8' : '#5E1A2A');
+      s += R(l, y - 31, 34, 2, '#2FA0A8') + piece(`M${l - 3} ${y - 31} L${l + 37} ${y - 31} L${l + 33} ${y - 38} L${l + 1} ${y - 38} Z`, '#2FA0A8', R(l + 1, y - 38, 32, 1.4, '#7FD0D4'), '#16585C', 1);
+      s += MB.win(l + 4, y - 28, 7, 8, N, '#FBF7EE', '#5E1A2A') + MB.win(l + 23, y - 28, 7, 8, N, '#FBF7EE', '#5E1A2A') + L(`M${l + 2} ${y - 19} L${l + 32} ${y - 19}`, '#E8B931', 1.2) + [l + 4, l + 9, l + 14, l + 19, l + 24, l + 29].map((bx) => L(`M${bx} ${y - 19} L${bx} ${y - 22.4}`, '#E8B931', 0.6)).join('') + L(`M${l + 2} ${y - 22.4} L${l + 32} ${y - 22.4}`, '#E8B931', 0.8);
+      s += MB.door(x, y, 8, 11, '#5E1A2A') + [l - 1, l + 35].map((px) => piece(`M${px - 3} ${y} L${px + 3} ${y} L${px + 2} ${y - 5} L${px - 2} ${y - 5} Z`, '#C8572E', '', '#7E3418', 0.5) + [[-3, -9], [0, -12], [3, -9]].map(([dx, dy]) => E(px + dx, y + dy, 2.4, 1.4, '#3E8A4E', dx * 14)).join('')).join(''); return s; },
+    // Teca: garage-house with stickers, the roll-up door open on a drum kit, fairy lights
+    teca: (x, y, N) => { const l = x - 19; let s = MB.shadow(x, y, 38) + MB.wall(l, y - 20, 38, 20, '#3B3A40', [[l + 3, y - 18, '#E8608A'], [l + 30, y - 6, '#F0C040'], [l + 33, y - 17, '#8A5AD8']].map(([sx, sy, c]) => R(sx, sy, 3, 2.4, c)).join(''));
+      s += piece(`M${l - 3} ${y - 19} L${l + 41} ${y - 19} L${l + 38} ${y - 27} L${l} ${y - 27} Z`, '#8A5AD8', R(l, y - 27, 38, 1.4, '#B79AF0') + [l + 6, l + 14, l + 22, l + 30].map((sx) => spike(sx, y - 27, 0, 3, 1.2)).join(''), '#4A2A8A', 1);
+      s += piece(`M${l + 4} ${y} L${l + 4} ${y - 14} L${l + 24} ${y - 14} L${l + 24} ${y} Z`, '#1E1820', R(l + 4, y - 14, 20, 3, '#5A5462') + [0, 1].map((i) => L(`M${l + 4} ${y - 13 + i} L${l + 24} ${y - 13 + i}`, '#7A7480', 0.4)).join('') + piece(ell(l + 12, y - 4, 3.6, 3), '#C8463D', E(l + 12, y - 4, 2.4, 1.8, '#E8E0E8'), '#7A1E18', 0.5) + E(l + 18, y - 7, 2.4, 0.8, '#D9B24A') + R(l + 6, y - 9, 3, 9, '#2A2430'), '#14101A', 0.8);
+      s += MB.door(l + 31, y, 6, 11, '#C8463D', false) + P(`M${l + 30} ${y - 26} L${l + 34} ${y - 26} L${l + 31.6} ${y - 22.6} L${l + 35} ${y - 22.6} L${l + 29.6} ${y - 18} L${l + 31.4} ${y - 21.4} L${l + 28.6} ${y - 21.4} Z`, '#F0C040');
+      s += L(`M${l} ${y - 19} Q${x} ${y - 15} ${l + 38} ${y - 19}`, '#5A5462', 0.5) + [0.1, 0.25, 0.4, 0.55, 0.7, 0.85].map((t, i) => C(l + 38 * t, y - 19 + 4 * 4 * t * (1 - t) * 0.9, 0.8, N ? ['#FFE070', '#F48FB8', '#8FCFB5'][i % 3] : ['#E8C35A', '#E8608A', '#6FB09A'][i % 3])).join(''); return s; },
+    // Dona Cida: sweet-shop cottage with a striped awning, jars of doce in the window and pumpkins
+    cida: (x, y, N) => { const l = x - 17; let s = MB.shadow(x, y, 34) + MB.wall(l, y - 20, 34, 20, '#F8D8B8');
+      s += MB.gable(l, y - 20, 34, '#E07B2E', 13) + piece(`M${l + 4} ${y - 36} L${l + 8} ${y - 36} L${l + 8} ${y - 28} L${l + 4} ${y - 30} Z`, '#B07A5A', '', '#5A3420', 0.6);
+      s += piece(`M${l + 2} ${y - 14} L${l + 18} ${y - 14} L${l + 18} ${y - 5} L${l + 2} ${y - 5} Z`, N ? '#F8D888' : '#CDE6F0', [5, 9.4, 13.8].map((jx, i) => piece(`M${l + jx} ${y - 5} L${l + jx + 3} ${y - 5} L${l + jx + 3} ${y - 10} L${l + jx} ${y - 10} Z`, ['#E07B2E', '#C8463D', '#F0C040'][i], R(l + jx, y - 11, 3, 1.2, '#FFFFFF'), '#7A3418', 0.4)).join(''), '#7A3418', 0.7);
+      for (let i = 0; i < 5; i++) s += piece(`M${l + 1 + i * 3.6} ${y - 17} L${l + 4.6 + i * 3.6} ${y - 17} L${l + 4.6 + i * 3.6} ${y - 14.4} Q${l + 2.8 + i * 3.6} ${y - 13} ${l + 1 + i * 3.6} ${y - 14.4} Z`, i % 2 ? '#FFFFFF' : '#C8463D', '', '#7A1E18', 0.4);
+      s += MB.door(l + 27, y, 7, 12, '#B3264F') + [[l - 3, y], [l + 37, y - 0.4], [l + 40, y + 1]].map(([px, py], i) => piece(ell(px, py - 2, 3.2 - i * 0.4, 2.6 - i * 0.3), '#E07B2E', L(`M${px} ${py - 4.4} L${px} ${py + 0.4}`, '#C05A1E', 0.5), '#9A4A18', 0.5) + L(`M${px} ${py - 4.6} l0.6 -1.4`, '#4E8540', 0.8)).join(''); return s; },
+    // Dona Joana: farmhouse with sunflowers, raised vegetable beds and a scarecrow
+    joana: (x, y, N) => { const l = x - 14; let s = MB.shadow(x - 4, y, 40) + MB.wall(l, y - 18, 28, 18, '#F2E6D2', [y - 14, y - 10, y - 6].map((wy) => R(l, wy, 28, 0.6, '#E2D2B8')).join(''));
+      s += MB.gable(l, y - 18, 28, '#8A5A3A', 11) + MB.door(x + 6, y, 6, 11, '#5E9A4E', false) + MB.win(l + 3, y - 15, 7, 6, N) + MB.box(l + 2, y - 8.4, 9, ['#FFE070', '#F48FB8']);
+      s += [[l - 14, y - 1], [l - 14, y - 9]].map(([bx, by]) => piece(`M${bx} ${by} L${bx + 12} ${by} L${bx + 12} ${by + 5} L${bx} ${by + 5} Z`, '#6E4A32', [2, 6, 10].map((d) => E(bx + d, by + 1.6, 1.6, 1.4, '#5E9A4E') + (d === 6 ? C(bx + d, by + 2.4, 0.9, '#C8463D') : '')).join(''), '#4A2C1A', 0.5)).join('');
+      s += [l + 30, l + 33].map((sx, i) => L(`M${sx} ${y} L${sx} ${y - 14 - i * 3}`, '#4E8540', 0.9) + flower(sx, y - 15 - i * 3, 2.4, '#F0C040', '#8A5A3A', 8)).join('');
+      s += L(`M${l - 8} ${y - 10} L${l - 8} ${y - 26} M${l - 13} ${y - 21} L${l - 3} ${y - 21}`, '#8A5A3A', 1) + piece(ell(l - 8, y - 25, 2.4, 2.4), '#E6CF9A', '', '#9A7A48', 0.5) + P(`M${l - 12} ${y - 26} L${l - 4} ${y - 26} L${l - 8} ${y - 30} Z`, '#C8463D') + piece(`M${l - 11} ${y - 21} L${l - 5} ${y - 21} L${l - 6} ${y - 14} L${l - 10} ${y - 14} Z`, '#3E6FB0', '', '#1E3A6A', 0.5); return s; },
+    // Prof.ª Helena: little schoolhouse with a bell tower, a chalkboard and a telescope on the roof
+    helena: (x, y, N) => { const l = x - 19; let s = MB.shadow(x, y, 38) + MB.wall(l, y - 20, 38, 20, '#E2EEF4');
+      s += MB.gable(l, y - 20, 38, '#3E6FB0', 12) + piece(`M${x - 4} ${y - 40} L${x + 4} ${y - 40} L${x + 4} ${y - 30} L${x - 4} ${y - 30} Z`, '#FBF7EE', piece(ell(x, y - 35, 1.8, 2.2), '#E8B931', '', '#9A7420', 0.5), '#5A6270', 0.7) + P(`M${x - 6} ${y - 40} L${x + 6} ${y - 40} L${x} ${y - 46} Z`, '#2E5A94');
+      s += MB.door(x, y, 7, 12, '#8A5A3A') + MB.win(l + 3, y - 16, 8, 7, N) + MB.win(l + 27, y - 16, 8, 7, N);
+      s += piece(`M${l - 8} ${y} L${l - 8} ${y - 10} L${l} ${y - 10} L${l} ${y} Z`, '#2E4A3E', L(`M${l - 6.6} ${y - 7} L${l - 1.6} ${y - 7} M${l - 6.6} ${y - 4.6} L${l - 3} ${y - 4.6}`, '#FBF7EE', 0.6) + R(l - 8, y - 1.4, 8, 1.4, '#8A5A3A'), '#1E2A24', 0.6);
+      s += L(`M${l + 30} ${y - 22} L${l + 37} ${y - 30}`, '#3B3A40', 1.8) + L(`M${l + 33} ${y - 20} L${l + 33} ${y - 25} M${l + 31} ${y - 20} L${l + 33} ${y - 25} L${l + 35} ${y - 20}`, '#3B3A40', 0.6) + piece(ell(l - 2, y - 15, 2.6, 2.6), '#3E6FB0', P(`M${l - 3.4} ${y - 16} l1 -1 l1.4 0.6 l-0.6 1.6 Z`, '#5E9A4E'), '#1E3A6A', 0.5); return s; },
+    // Mel: pink bakery with a scalloped awning, cakes in the window and a giant cupcake on the roof
+    mel: (x, y, N) => { const l = x - 18; let s = MB.shadow(x, y, 36) + MB.wall(l, y - 20, 36, 20, '#FDE4EC', R(l, y - 20, 36, 1.6, '#F8C2D4'));
+      s += piece(`M${l - 3} ${y - 19} L${l + 39} ${y - 19} L${l + 36} ${y - 28} L${l} ${y - 28} Z`, '#F48FB8', R(l, y - 28, 36, 1.4, '#F8B8CE'), '#C8608A', 1);
+      s += piece(`M${x - 6} ${y - 28} L${x + 6} ${y - 28} L${x + 4.6} ${y - 35} L${x - 4.6} ${y - 35} Z`, '#F7D35E', [-3, 0, 3].map((d) => L(`M${x + d} ${y - 28.4} L${x + d * 0.8} ${y - 34.6}`, '#D9A441', 0.5)).join(''), '#9A7420', 0.7) + piece(`M${x - 7} ${y - 34} Q${x - 8} ${y - 41} ${x} ${y - 43} Q${x + 8} ${y - 41} ${x + 7} ${y - 34} Z`, '#F48FB8', E(x - 2, y - 39, 2.4, 1.2, '#FFD0E2') + [[-3, -37], [2, -38], [4, -35]].map(([dx, dy], i) => R(x + dx, y + dy, 1, 0.6, ['#FFE070', '#8FCFB5', '#FFFFFF'][i])).join(''), '#C8608A', 0.7) + C(x, y - 44, 1.6, '#C8463D');
+      for (let i = 0; i < 9; i++) s += piece(`M${l + i * 4} ${y - 17} L${l + 4 + i * 4} ${y - 17} L${l + 4 + i * 4} ${y - 14.4} Q${l + 2 + i * 4} ${y - 13} ${l + i * 4} ${y - 14.4} Z`, i % 2 ? '#FFFFFF' : '#E8608A', '', '#9A3A5A', 0.4);
+      s += piece(`M${l + 2} ${y - 12} L${l + 20} ${y - 12} L${l + 20} ${y - 3} L${l + 2} ${y - 3} Z`, N ? '#F8D888' : '#CDE6F0', piece(`M${l + 5} ${y - 3} L${l + 10} ${y - 3} L${l + 10} ${y - 7} L${l + 5} ${y - 7} Z`, '#F8D6E0', R(l + 5, y - 5.4, 5, 0.8, '#E8608A') + C(l + 7.5, y - 7.6, 0.8, '#C8463D'), '#C07890', 0.4) + piece(`M${l + 13} ${y - 3} Q${l + 13} ${y - 7} ${l + 16} ${y - 7} Q${l + 19} ${y - 7} ${l + 19} ${y - 3} Z`, '#8A5A3A', '', '#5A3420', 0.4), '#9A3A5A', 0.7);
+      s += MB.door(l + 28, y, 7, 12, '#E8608A') + L(`M${l} ${y - 24} Q${x} ${y - 20} ${l + 36} ${y - 24}`, '#FFFFFF', 0.4); return s; },
+    // Nina: post office with an envelope sign, a red mailbox, a bike and letters in the air
+    nina: (x, y, N) => { const l = x - 17; let s = MB.shadow(x, y, 36) + MB.wall(l, y - 20, 34, 20, '#F6E8C0', R(l, y - 9, 34, 2, '#C8463D'));
+      s += MB.gable(l, y - 20, 34, '#C8463D', 12) + piece(`M${x - 7} ${y - 30} L${x + 7} ${y - 30} L${x + 7} ${y - 22} L${x - 7} ${y - 22} Z`, '#FBF7EE', L(`M${x - 7} ${y - 30} L${x} ${y - 25.4} L${x + 7} ${y - 30}`, '#C9BFA8', 0.7) + C(x, y - 25, 1.2, '#C8463D'), '#9A8E7A', 0.6);
+      s += MB.door(x, y, 7, 12, '#3E6FB0') + MB.win(l + 3, y - 17, 7, 6, N) + MB.win(l + 24, y - 17, 7, 6, N);
+      s += piece(`M${l + 37} ${y} L${l + 37} ${y - 8} Q${l + 40} ${y - 11} ${l + 43} ${y - 8} L${l + 43} ${y} Z`, '#C8463D', R(l + 37.6, y - 6, 5, 1, '#F0C040'), '#7A1E18', 0.6);
+      s += `<circle cx="${l - 8}" cy="${y - 2.4}" r="2.6" fill="none" stroke="#2FA0A8" stroke-width=".9"/><circle cx="${l - 1}" cy="${y - 2.4}" r="2.6" fill="none" stroke="#2FA0A8" stroke-width=".9"/>` + L(`M${l - 8} ${y - 2.4} L${l - 5} ${y - 6} L${l - 1} ${y - 2.4} M${l - 5} ${y - 6} L${l - 2} ${y - 6.4} M${l - 6} ${y - 7} L${l - 4} ${y - 7}`, '#2FA0A8', 0.8) + piece(`M${l - 6.6} ${y - 9.4} L${l - 2.6} ${y - 9.4} L${l - 2.6} ${y - 6.6} L${l - 6.6} ${y - 6.6} Z`, '#C9873E', '', '#6A4A2A', 0.4);
+      s += [[l + 4, y - 36, -14], [l + 30, y - 40, 12]].map(([ex, ey, a]) => `<g transform="rotate(${a} ${ex} ${ey})">` + piece(`M${ex - 3} ${ey - 2} L${ex + 3} ${ey - 2} L${ex + 3} ${ey + 2} L${ex - 3} ${ey + 2} Z`, '#FBF7EE', L(`M${ex - 3} ${ey - 2} L${ex} ${ey} L${ex + 3} ${ey - 2}`, '#C9BFA8', 0.5), '#9A8E7A', 0.5) + '</g>').join(''); return s; },
+    // Rita: tin-roofed workshop, big doors open on the tools, a radio mast with signal waves, tyres
+    rita: (x, y, N) => { const l = x - 19; let s = MB.shadow(x, y, 40) + MB.wall(l, y - 20, 38, 20, '#9AA0A8', Array.from({ length: 12 }, (_, i) => R(l + 1 + i * 3.2, y - 20, 0.8, 20, '#7A808A')).join(''));
+      s += piece(`M${l - 3} ${y - 19} L${l + 41} ${y - 19} L${l + 36} ${y - 27} L${l + 2} ${y - 27} Z`, '#3E6FB0', Array.from({ length: 10 }, (_, i) => L(`M${l + 2 + i * 4} ${y - 27} L${l - 1 + i * 4.4} ${y - 19}`, '#2E5A94', 0.6)).join(''), '#1E3A6A', 1);
+      s += piece(`M${l + 4} ${y} L${l + 4} ${y - 15} L${l + 26} ${y - 15} L${l + 26} ${y} Z`, '#3A3440', R(l + 6, y - 13, 18, 0.8, '#7A808A') + L(`M${l + 8} ${y - 12} L${l + 8} ${y - 8} M${l + 12} ${y - 12} L${l + 12} ${y - 7} M${l + 16} ${y - 12} L${l + 16} ${y - 9} M${l + 20} ${y - 12} L${l + 20} ${y - 7}`, '#C9CED6', 0.8) + piece(`M${l + 7} ${y} L${l + 23} ${y} L${l + 23} ${y - 4} L${l + 7} ${y - 4} Z`, '#C8463D', '', '#7A1E18', 0.4), '#14101A', 0.8);
+      s += piece(`M${l + 29} ${y} L${l + 29} ${y - 6} L${l + 36} ${y - 6} L${l + 36} ${y} Z`, '#E07B2E', '', '#7E3418', 0.5) + L(`M${l + 32} ${y - 27} L${l + 32} ${y - 42} M${l + 29} ${y - 38} L${l + 35} ${y - 38} M${l + 30} ${y - 34} L${l + 34} ${y - 34}`, '#3B3A40', 0.9) + [3, 5.4].map((r) => `<path d="M${l + 32 - r} ${y - 44 + r * 0.3} Q${l + 32} ${y - 44 - r} ${l + 32 + r} ${y - 44 + r * 0.3}" fill="none" stroke="#E8608A" stroke-width=".8"/>`).join('');
+      s += [[l - 5, y - 3], [l - 5, y - 9]].map(([tx, ty]) => piece(ell(tx, ty, 4, 3), '#2A2430', E(tx, ty, 1.6, 1.2, '#7A808A'), '#14101A', 0.5)).join(''); return s; },
+    // Lua: gothic house with a pointed turret, moon weathervane, an easel outside and dark roses
+    lua: (x, y, N) => { const l = x - 15; let s = MB.shadow(x, y, 34) + MB.wall(l, y - 22, 30, 22, '#4A3A5E', [y - 16, y - 8].map((wy) => R(l, wy, 30, 0.6, '#3A2C4E')).join(''));
+      s += MB.gable(l, y - 22, 30, '#2A2230', 13) + piece(`M${l + 22} ${y - 22} L${l + 32} ${y - 22} L${l + 32} ${y - 34} L${l + 22} ${y - 34} Z`, '#4A3A5E', MB.win(l + 25, y - 31, 4, 6, N, '#6E5A82', '#2A2230', true), '#2A2230', 0.8) + P(`M${l + 20.6} ${y - 34} L${l + 33.4} ${y - 34} L${l + 27} ${y - 46} Z`, '#2A2230') + L(`M${l + 27} ${y - 46} L${l + 27} ${y - 50}`, '#9AA0A8', 0.6) + P(`M${l + 27.6} ${y - 53} Q${l + 25} ${y - 51} ${l + 27.6} ${y - 49} Q${l + 26.4} ${y - 51} ${l + 27.6} ${y - 53} Z`, '#F4EEC8');
+      s += MB.door(l + 10, y, 7, 13, '#9B2D56') + piece(`M${l + 2} ${y - 18} L${l + 6} ${y - 18} L${l + 6} ${y - 12} L${l + 2} ${y - 12} Z`, N ? '#F8D888' : '#6E5A82', N ? C(l + 4, y - 14, 0.8, '#FFB84A') : '', '#2A2230', 0.6) + MB.win(l + 18, y - 17, 6, 7, N, '#6E5A82', '#2A2230');
+      s += [[l - 2, y - 2], [l + 1, y - 4], [l + 31, y - 2]].map(([rx, ry]) => E(rx, ry + 1.4, 2.4, 1.4, '#2E4A3A') + C(rx, ry, 1.2, '#9B2D56')).join('');
+      s += L(`M${l + 38} ${y} L${l + 40} ${y - 10} M${l + 44} ${y} L${l + 42} ${y - 10} M${l + 39} ${y - 4} L${l + 43} ${y - 4}`, '#8A5A3A', 0.8) + piece(`M${l + 37.6} ${y - 14} L${l + 44.4} ${y - 14} L${l + 44.4} ${y - 8} L${l + 37.6} ${y - 8} Z`, '#F4EEE4', R(l + 38.6, y - 12, 2.4, 2, '#B79AD6') + R(l + 41, y - 11, 2.6, 2.4, '#8FCFB5'), '#8A5A3A', 0.5); return s; },
+    // Iara: stilt house standing in the river, with a ladder, a boat, plants and lily pads
+    iara: (x, y, N) => { const l = x - 14; let s = E(x, y + 4, 22, 3, 'rgba(30,60,90,.25)') + [l + 2, l + 14, l + 26].map((px) => L(`M${px} ${y - 8} L${px} ${y + 4}`, '#6E4428', 1.6)).join('') + R(l - 2, y - 9, 32, 2, '#8A5A3A');
+      s += MB.wall(l, y - 25, 28, 16, '#8FCFB5', [y - 21, y - 17, y - 13].map((wy) => R(l, wy, 28, 0.6, '#6FB09A')).join('')) + MB.gable(l, y - 25, 28, '#3E8A72', 11) + MB.door(x + 6, y - 9, 6, 10, '#8A5A3A') + MB.win(l + 3, y - 22, 7, 6, N) + MB.box(l + 2, y - 15.4, 9, ['#FFFFFF', '#F48FB8']);
+      s += L(`M${l + 30} ${y - 9} L${l + 32} ${y + 4} M${l + 33} ${y - 9} L${l + 35} ${y + 4}`, '#8A5A3A', 0.6) + [y - 6, y - 2, y + 2].map((ry) => L(`M${l + 30.6 + (ry - y + 9) * 0.15} ${ry} L${l + 33.6 + (ry - y + 9) * 0.15} ${ry}`, '#8A5A3A', 0.5)).join('');
+      s += piece(`M${l - 14} ${y + 6} L${l} ${y + 6} L${l - 3} ${y + 10} L${l - 11} ${y + 10} Z`, '#C8572E', R(l - 13, y + 6, 12, 1, '#E07B4E'), '#7E3418', 0.6) + [[l + 34, y + 8], [l + 40, y + 4]].map(([px, py]) => E(px, py, 3, 1.4, '#5E9A4E') + flower(px + 1, py - 0.6, 1, '#FFFFFF', '#F6C83A')).join('') + piece(ell(l - 6, y - 26, 5, 2), '#FFFFFF', '', '#C8DCEA', 0.4); return s; },
+    // Aurora: a lone tower in the mist, a star-shaped window glowing and a crow on top
+    aurora: (x, y, N) => { let s = E(x, y, 22, 7, 'rgba(230,226,240,.6)') + piece(`M${x - 9} ${y} L${x + 9} ${y} L${x + 7} ${y - 40} L${x - 7} ${y - 40} Z`, '#8A80A0', R(x + 3, y - 40, 5, 40, '#6E6488') + [y - 30, y - 18, y - 8].map((yy) => R(x - 8, yy, 16, 0.6, '#6E6488')).join(''), '#3A2848', 1);
+      s += P(`M${x} ${y - 30} l1.2 2.6 l2.8 0.4 l-2 2 l0.6 2.8 l-2.6 -1.4 l-2.6 1.4 l0.6 -2.8 l-2 -2 l2.8 -0.4 Z`, '#F8E08A') + MB.door(x, y, 6, 10, '#2A2230') + piece(`M${x - 11} ${y - 39} L${x + 11} ${y - 39} L${x} ${y - 58} Z`, '#3A2848', P(`M${x} ${y - 58} L${x + 11} ${y - 39} L${x + 4} ${y - 39} Z`, '#2A1E36'), '#1E1428', 1);
+      s += P(`M${x - 1} ${y - 58} Q${x + 2} ${y - 62} ${x + 5} ${y - 60} L${x + 6} ${y - 59} L${x + 3} ${y - 58.6} Z`, '#1E1820') + E(x, y + 2, 26, 5, 'rgba(230,226,240,.75)') + E(x - 14, y - 6, 8, 3, 'rgba(230,226,240,.55)'); return s; },
+  };
+  // the shared places
+  const PLACES = {
+    atelie: (x, y, N) => { const l = x - 24; let s = MB.shadow(x, y, 48) + MB.wall(l, y - 22, 48, 22, '#FBEFE2');
+      s += piece(`M${l - 4} ${y - 21} L${l + 52} ${y - 21} L${l + 48} ${y - 33} L${l} ${y - 33} Z`, '#8A3F6B', [y - 30, y - 26].map((ry) => L(`M${l + 2} ${ry} L${l + 46} ${ry}`, '#6E2E54', 0.6, 'stroke-dasharray="3 1"')).join(''), '#4A1A36', 1);
+      s += piece(`M${x - 10} ${y - 31} L${x + 10} ${y - 31} L${x + 10} ${y - 25} L${x - 10} ${y - 25} Z`, '#6E4428', piece(`M${x - 2} ${y - 30} L${x + 2} ${y - 30} L${x + 2} ${y - 26} L${x - 2} ${y - 26} Z`, '#E8608A', '', '#9A3A5A', 0.3) + flower(x - 6, y - 28, 1.4, '#F48FB8', '#F6C83A') + flower(x + 6, y - 28, 1.4, '#FFE070', '#F6C83A'), '#3A2010', 0.6);
+      for (let i = 0; i < 12; i++) s += piece(`M${l + i * 4} ${y - 19} L${l + 4 + i * 4} ${y - 19} L${l + 4 + i * 4} ${y - 16.4} Q${l + 2 + i * 4} ${y - 15} ${l + i * 4} ${y - 16.4} Z`, i % 2 ? '#FFFFFF' : '#E8608A', '', '#9A3A5A', 0.4);
+      s += piece(`M${l + 3} ${y - 13} L${l + 28} ${y - 13} L${l + 28} ${y - 3} L${l + 3} ${y - 3} Z`, N ? '#F4D898' : '#CDE6F0', piece(`M${l + 7} ${y - 3} Q${l + 9} ${y - 10} ${l + 11} ${y - 3} Z`, '#F2C4D4', '', '#B87090', 0.4) + [16, 20, 24].map((dx, i) => R(l + dx, y - 12, 2.4, 6, ['#2FA0A8', '#F0C040', '#B79AD6'][i])).join(''), '#6E4428', 0.8) + MB.door(l + 38, y, 8, 13, '#8A5A3A') + MB.box(l + 3, y - 3, 25, ['#F48FB8', '#FFE070', '#FFFFFF', '#B79AD6', '#F48FB8']); return s; },
+    casa: (x, y, N) => { const l = x - 15; let s = MB.shadow(x, y, 32) + MB.wall(l, y - 18, 30, 18, '#F4E6CC') + MB.gable(l, y - 18, 30, '#C8572E', 12) + piece(`M${l + 21} ${y - 33} L${l + 25} ${y - 33} L${l + 25} ${y - 25} L${l + 21} ${y - 27} Z`, '#B07A5A', '', '#5A3420', 0.6);
+      s += MB.door(x + 6, y, 6, 11, '#5E9A4E') + MB.win(l + 3, y - 15, 7, 6, N) + MB.box(l + 2, y - 8.4, 9, ['#F48FB8', '#FFE070']) + `<circle cx="${x + 6}" cy="${y - 13}" r="2" fill="none" stroke="#5E9A4E" stroke-width="1"/>`;
+      s += [[l - 16, y - 8], [l - 16, y - 1], [l + 34, y - 8], [l + 34, y - 1]].map(([bx, by], i) => piece(`M${bx} ${by} L${bx + 12} ${by} L${bx + 12} ${by + 5} L${bx} ${by + 5} Z`, '#A87448', piece(`M${bx + 1} ${by + 1} L${bx + 11} ${by + 1} L${bx + 11} ${by + 4} L${bx + 1} ${by + 4} Z`, '#6E4A32', [3, 6, 9].map((d) => flower(bx + d, by + 1.6, 1.3, ['#C8463D', '#FFFFFF', '#F0C040', '#B79AD6'][i], '#F6C83A')).join(''), '#4A2C1A', 0.4), '#5A3420', 0.5)).join(''); return s; },
+    tint: (x, y, N) => { const l = x - 17; let s = MB.shadow(x, y, 36) + MB.wall(l, y - 20, 34, 20, '#B07A4A', Array.from({ length: 9 }, (_, i) => R(l + 1 + i * 3.8, y - 20, 0.7, 20, '#8A5A3A')).join(''));
+      s += MB.gable(l, y - 20, 34, '#6E4428', 11) + MB.door(x + 7, y, 7, 12, '#3E6A2E', false) + MB.win(l + 3, y - 16, 7, 6, N);
+      s += L(`M${l - 6} ${y - 24} L${l - 6} ${y} M${l + 40} ${y - 24} L${l + 40} ${y}`, '#8A5A3A', 0.8) + L(`M${l - 6} ${y - 22} Q${x} ${y - 30} ${l + 40} ${y - 22}`, '#E6D6B8', 0.5) + ['#E8608A', '#F0C040', '#2FA0A8', '#B79AD6', '#E07B2E'].map((c, i) => { const t = (i + 0.7) / 5.4, fx = l - 6 + 46 * t, fy = y - 22 - 8 * 4 * t * (1 - t) * 0.5; return R(fx - 1.6, fy, 3.4, 6, c); }).join('');
+      s += piece(ell(l + 10, y - 1, 5, 2), '#3A3440', E(l + 10, y - 1.4, 3.6, 1.2, '#2FA0A8'), '#14101A', 0.6) + L(`M${l + 10} ${y - 4} Q${l + 8} ${y - 8} ${l + 10} ${y - 11}`, 'rgba(255,255,255,.7)', 1); return s; },
+  };
+  // map layout (bottom-centre of each building)
+  const POS = { aurora: [20, 64], bia: [68, 50], zeze: [120, 46], dandara: [214, 50], casa: [46, 102], atelie: [150, 88], tint: [230, 100], teca: [36, 148], cida: [94, 150], nina: [208, 152], lua: [256, 150], joana: [44, 194], helena: [106, 196], mel: [164, 194], rita: [226, 196], iara: [302, 128] };
+  
+  const GRAMA = { primavera: '#94CC74', verao: '#A6D06A', outono: '#C2B868', inverno: '#DDE8EA' };
+  const ARVORE = { primavera: '#5E9A4E', verao: '#4E9A44', outono: '#D08A3A', inverno: '#7A9A8E' };
+  function mapa(o) {
+    const N = o.part === 'noite', inv = o.season === 'inverno';
+    uid = 0;
+    let s = `<defs><filter id="vazia"><feColorMatrix type="saturate" values=".15"/></filter></defs>`;
+    const g = ramp(N ? mix(GRAMA[o.season] || GRAMA.primavera, '#203040', 0.45) : (GRAMA[o.season] || GRAMA.primavera));
+    s += R(0, 0, 320, 200, g.b);
+    for (let i = 0; i < 40; i++) s += E((i * 83) % 320, (i * 47) % 200, 10 + (i % 4) * 4, 5 + (i % 3) * 2, i % 2 ? g.l : mix(g.b, g.d, 0.4));
+    for (let i = 0; i < 160; i++) { const x = (i * 53 + 7) % 320, y = (i * 31 + 11) % 200; s += L(`M${x} ${y} l-0.8 -2.4 M${x + 1.2} ${y} l0 -2.8 M${x + 2.4} ${y} l0.8 -2.4`, i % 2 ? g.d : g.l, 0.6); }
+    if (!inv) for (let i = 0; i < 40; i++) s += flower((i * 97 + 31) % 320, (i * 59 + 17) % 200, 1.2, o.season === 'outono' ? ['#E8A040', '#C8572E', '#F0C040', '#B79AD6'][i % 4] : ['#FFFFFF', '#F48FB8', '#FFE070', '#B79AD6'][i % 4], '#F6C83A');
+    else for (let i = 0; i < 90; i++) s += C((i * 61 + 13) % 320, (i * 43 + 7) % 200, 0.9, '#FFFFFF');
+    const tc = N ? '#2E5A44' : ARVORE[o.season] || ARVORE.primavera;
+    const tree = (x, y, k = 1) => { const r = ramp(tc); return E(x + 1, y + 1, 6 * k, 2, 'rgba(40,60,30,.25)') + R(x - 1 * k, y - 4 * k, 2 * k, 5 * k, '#6E4428') + piece(ell(x, y - 9 * k, 7 * k, 7 * k), r.b, E(x + 2.4 * k, y - 7 * k, 4 * k, 4.4 * k, r.d) + E(x - 2.4 * k, y - 12 * k, 2.4 * k, 1.6 * k, inv ? '#FFFFFF' : r.l), r.d3, 0.8); };
+    const pine = (x, y, k = 1) => { const c = N ? '#24483A' : '#3E7A4A'; return R(x - 1, y - 3, 2, 3, '#6E4428') + P(`M${x - 6 * k} ${y - 3} L${x} ${y - 18 * k} L${x + 6 * k} ${y - 3} Z`, c) + P(`M${x} ${y - 18 * k} L${x + 6 * k} ${y - 3} L${x + 1} ${y - 3} Z`, mix(c, '#000000', 0.2)) + (inv ? P(`M${x - 3 * k} ${y - 11 * k} L${x} ${y - 18 * k} L${x + 3 * k} ${y - 11 * k} Z`, '#FFFFFF') : ''); };
+    [[4, 30], [10, 16], [38, 22], [30, 40], [4, 78], [42, 72], [24, 8]].forEach(([x, y], i) => { s += pine(x, y, 0.9 + (i % 3) * 0.12); });
+    const rv = N ? '#2E4A72' : inv ? '#A8D4E8' : '#6FC0E0';
+    s += P('M272 0 Q262 40 278 78 Q296 112 282 150 Q272 176 288 200 L318 200 Q300 176 310 150 Q324 110 304 74 Q290 40 302 0 Z', '#C9B98E');
+    s += P('M278 0 Q268 40 284 78 Q302 112 288 150 Q278 176 294 200 L312 200 Q294 176 304 150 Q318 110 298 74 Q284 40 296 0 Z', rv);
+    s += [[284, 20], [292, 60], [300, 100], [292, 140], [300, 182]].map(([x, y]) => L(`M${x - 4} ${y} q2 -1.4 4 0 q2 1.4 4 0`, N ? '#5A7AA8' : '#BEE6F4', 0.8)).join('');
+    const rd = '#E6D6B0', rdE = '#C9B48A';
+    const road = (d, w) => L(d, rdE, w + 2) + L(d, rd, w);
+    s += road('M0 112 Q60 108 120 116 L180 116 Q240 116 296 128', 8) + road('M150 0 L150 200', 8) + road('M150 116 Q110 150 70 170', 6) + road('M150 116 Q200 150 216 176', 6) + road('M150 92 Q110 70 80 56', 5) + road('M150 92 Q190 70 214 56', 5);
+    s += piece(ell(150, 116, 22, 14), rd, `<ellipse cx="150" cy="116" rx="22" ry="14" fill="none" stroke="${rdE}" stroke-width="1"/>` + Array.from({ length: 24 }, (_, i) => C(150 + Math.cos(i / 24 * 6.28) * 17, 116 + Math.sin(i / 24 * 6.28) * 10.4, 1.2, rdE)).join(''), rdE, 1);
+    s += piece(ell(150, 118, 9, 4.4), '#C8C0B0', E(150, 117.4, 7, 3, N ? '#3E6A8A' : '#7FC4E0'), '#8A8070', 0.8) + piece('M148.4 117 L151.6 117 L151 108 L149 108 Z', '#C8C0B0', '', '#8A8070', 0.6) + L('M150 108 Q146 106 145 112 M150 108 Q154 106 155 112', N ? '#5A8AA8' : '#BEE6F4', 0.8);
+    if (o.festa) { for (let i = 0; i < 20; i++) { const a = i / 20 * 6.283, x = 150 + Math.cos(a) * 24, y = 112 + Math.sin(a) * 15; s += P(`M${x - 2} ${y} L${x + 2} ${y} L${x} ${y + 3.4} Z`, ['#E8608A', '#F0C040', '#8FCFB5', '#B79AD6'][i % 4]); } s += [[128, 104], [172, 104], [136, 128], [164, 128]].map(([x, y]) => L(`M${x} ${y + 6} L${x} ${y - 4}`, '#6E4428', 0.8) + C(x, y - 5, 2, N ? '#FFE08A' : '#F4A6C0')).join(''); }
+    [[120, 76], [184, 76], [70, 84], [196, 30], [128, 132], [176, 132], [10, 196], [76, 178], [140, 168], [250, 186], [244, 72], [64, 126], [312, 30]].forEach(([x, y], i) => { s += tree(x, y, 0.75 + (i % 3) * 0.12); });
+    const order = Object.keys(POS).sort((a, b) => POS[a][1] - POS[b][1]);
+    for (const k of order) {
+      const [x, y] = POS[k], art = (HOUSES[k] || PLACES[k])(x, y, N);
+      if (HOUSES[k] && k !== 'aurora' && o.vazias && o.vazias.includes(k)) s += `<g filter="url(#vazia)" opacity=".7">${art}</g>` + piece(`M${x - 7} ${y - 6} L${x + 7} ${y - 6} L${x + 7} ${y - 1} L${x - 7} ${y - 1} Z`, '#E6CF9A', L(`M${x - 5} ${y - 3.6} L${x + 5} ${y - 3.6}`, '#8A5A3A', 0.7), '#8A5A3A', 0.6);
+      else s += art;
+    }
+    return s;
+  }
+  // the door of each house, with a note pinned on it, for when she's out
+  const PORTAS = { bia: ['#FBEFE2', '#E8608A'], zeze: ['#E6DCF2', '#8A5A3A'], dandara: ['#F0B860', '#5E1A2A'], teca: ['#3B3A40', '#C8463D'], cida: ['#F8D8B8', '#B3264F'], joana: ['#F2E6D2', '#5E9A4E'], helena: ['#E2EEF4', '#8A5A3A'], mel: ['#FDE4EC', '#E8608A'], nina: ['#F6E8C0', '#3E6FB0'], rita: ['#9AA0A8', '#3A3440', 'oficina'], lua: ['#4A3A5E', '#9B2D56'], iara: ['#8FCFB5', '#8A5A3A'], aurora: ['#8A80A0', '#2A2230'] };
+  function porta(k, bilhete = true) {
+    uid = 0;
+    const [w, d, kind] = PORTAS[k] || ['#F4E6CC', '#8A5A3A'], wr = ramp(w), dr = ramp(d);
+    let s = R(0, 0, 48, 48, wr.b);
+    if (kind === 'oficina') {
+      s += Array.from({ length: 12 }, (_, i) => R(i * 4, 0, 1, 48, wr.d)).join('');
+      s += piece('M6 6 L42 6 L42 48 L6 48 Z', dr.b, Array.from({ length: 10 }, (_, i) => R(6, 8 + i * 4, 36, 1.2, dr.l) + R(6, 9.2 + i * 4, 36, 0.8, dr.d2)).join('') + R(6, 6, 36, 3, '#5A5462'), '#14101A', 1.2);
+      s += L('M4 40 L10 34', '#9AA0A8', 2) + piece(ell(10.6, 33.4, 2.4, 2.4), '#9AA0A8', C(11, 33, 1, wr.b), '#5A6270', 0.6);
+    } else {
+      s += [8, 18, 28, 38].map((y) => R(0, y, 48, 0.8, wr.d)).join('');
+      s += piece('M12 48 L12 14 Q24 4 36 14 L36 48 Z', dr.b, R(15, 18, 18, 12, dr.l) + R(15, 32, 18, 14, dr.l) + R(31, 14, 5, 34, dr.d) + C(32.4, 33, 1.3, '#E8B931'), dr.d3, 1.2);
+      s += piece('M4 44 L12 44 L12 48 L4 48 Z', '#C8572E', '', '#7E3418', 0.6) + flower(6, 43, 1.8, '#F48FB8', '#F6C83A') + flower(10, 43, 1.8, '#FFE070', '#F6C83A');
+    }
+    if (bilhete) s += '<g transform="rotate(-6 24 26)">' + piece('M14 15 L34 15 L34 37 L14 37 Z', '#FFFBEF', [20, 23.4, 26.8, 30.2].map((y, i) => L(`M17 ${y} L${i === 3 ? 26 : 31} ${y}`, '#7A6A8A', 0.9)).join('') + P('M29 32 Q27.6 30.4 28.8 30 Q29.6 29.8 29.8 30.8 Q30 29.8 30.8 30 Q32 30.4 30.6 32 L29.8 33 Z', '#E8608A'), '#C9BFA8', 0.7) + R(20, 12.6, 8, 3.6, 'rgba(240,210,120,.85)') + '</g>';
+    return s;
+  }
+  /* pixelate: render big, take the most common colour of each cell, outline the edges */
+  const K = 4;
+  async function pixelate(svgInner, w, h, vb) {
+    const big = document.createElement('canvas'); big.width = w * K; big.height = h * K;
+    const img = new Image();
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w * K}" height="${h * K}" viewBox="${vb}">${svgInner}</svg>`);
+    await img.decode();
+    const bx = big.getContext('2d'); bx.drawImage(img, 0, 0);
+    const d = bx.getImageData(0, 0, w * K, h * K).data;
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const o = cv.getContext('2d'), out = o.createImageData(w, h), grid = new Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const cnt = new Map(); let a = 0, best = 0, bk = 0;
+      for (let j = 1; j < K - 1; j++) for (let i = 1; i < K - 1; i++) { const p = ((y * K + j) * w * K + x * K + i) * 4; if (d[p + 3] < 128) continue; a++; const key = (d[p] >> 2) << 12 | (d[p + 1] >> 2) << 6 | (d[p + 2] >> 2); const n = (cnt.get(key) || 0) + 1; cnt.set(key, n); if (n > best) { best = n; bk = key; } }
+      grid[y * w + x] = a ? [((bk >> 12) & 63) << 2, ((bk >> 6) & 63) << 2, (bk & 63) << 2] : null;
+    }
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const g = grid[y * w + x]; if (g) out.data.set([g[0], g[1], g[2], 255], (y * w + x) * 4); }
+    o.putImageData(out, 0, 0);
+    return cv.toDataURL();
+  }
+  /* a small cache: draw each picture once, then reuse it */
+  const cache = new Map(), busy = new Set();
+  function img(key, w, h, vb, draw, cls) {
+    if (cache.has(key)) return `<img class="${cls}" src="${cache.get(key)}" alt="" draggable="false">`;
+    if (!busy.has(key)) {
+      busy.add(key);
+      setTimeout(() => pixelate(draw(), w, h, vb).then((url) => { cache.set(key, url); busy.delete(key); if (cache.size > 24) cache.delete(cache.keys().next().value); document.querySelectorAll(`[data-pix="${key}"]`).forEach((el) => { el.outerHTML = `<img class="${cls}" src="${url}" alt="" draggable="false">`; }); }).catch(() => busy.delete(key)), 30);
+    }
+    return `<svg class="${cls}" data-pix="${key}" viewBox="${vb}" preserveAspectRatio="none" aria-hidden="true">${draw()}</svg>`;
+  }
+  return {
+    mapa: (o) => img(`mapa-${o.part}-${o.season}-${o.festa ? 1 : 0}-${(o.vazias || []).join('.')}`, 640, 400, '0 0 320 200', () => mapa(o), 'pixbg'),
+    porta: (k) => img(`porta-${k}`, 64, 64, '0 0 48 48', () => porta(k), 'pixporta'),
+    POS,
+  };
+})();
+
+/* ---------- the village map: every resident has her own house, and her own rhythm ---------- */
+const HK = { tito: 'teca', joaquim: 'joana' };
+const hk = (id) => HK[id] || id;
+const CASA_NOME = { bia: 'Chalé da Bia', tito: 'Garagem da Teca', cida: 'Doceria da Dona Cida', joaquim: 'Sítio da Dona Joana', lua: 'Casa da Lua', helena: 'Escolinha da Prof.ª Helena', mel: 'Confeitaria da Mel', nina: 'Correio da Nina', dandara: 'Casa da Dandara', iara: 'Palafita da Iara', rita: 'Oficina da Rita', zeze: 'Casinha da Vó Zezé', aurora: 'Torre da neblina' };
+/* Days away from home: each one has her own reasons, and the others talk about it */
+const RITMO = {
+  bia: { a: (d) => d % 9 === 6, onde: 'foi tocar violão num sarau na cidade vizinha', fut: 'vai tocar num sarau na cidade vizinha', nota: 'Fui tocar num sarau na cidade vizinha! Volto amanhã com música nova.' },
+  tito: { a: (d) => d % 5 === 3, onde: 'saiu de barco pra pescar no rio grande', fut: 'vai pescar no rio grande', nota: 'Fui pescar no rio grande. Volto amanhã com peixe (talvez)!' },
+  cida: { a: (d) => d % 10 === 8, onde: 'foi visitar a neta na capital', fut: 'vai visitar a neta na capital', nota: 'Fui visitar minha neta na capital. Deixei doce de abóbora na janela pra quem passar.' },
+  joaquim: { a: (d) => d % 6 === 4, onde: 'foi vender verdura na feira da cidade', fut: 'vai vender verdura na feira da cidade', nota: 'Fui pra feira vender as verduras da horta. Se passar, rega as plantinhas!' },
+  lua: { a: (d) => d % 7 === 2, onde: 'subiu a serra pra pintar o nascer do sol', fut: 'vai subir a serra pra pintar o nascer do sol', nota: 'Subi a serra pra pintar o nascer do sol. Volto amanhã cheia de tinta.' },
+  helena: { a: (d) => d % 6 === 1, onde: 'levou a turma numa excursão ao museu', fut: 'vai levar a turma numa excursão ao museu', nota: 'Excursão com a turma no museu da capital! Volto amanhã com 20 crianças cansadas.' },
+  mel: { a: (d) => d % 8 === 5, onde: 'foi entregar um bolo de casamento na cidade vizinha', fut: 'vai entregar um bolo de casamento na cidade vizinha', nota: 'Fui entregar um bolo de casamento enorme! Volto amanhã com as sobras.' },
+  nina: { a: (d) => d % 11 === 7, onde: 'tirou folga e foi tomar banho de cachoeira', fut: 'vai tirar uma folga', nota: 'Folga! Fui pra cachoeira. As cartas de hoje ficam com o carteiro da cidade vizinha.' },
+  dandara: { a: (d) => d % 6 === 0, onde: 'foi dar uma oficina de dança na cidade vizinha', fut: 'vai dar uma oficina de dança na cidade vizinha', nota: 'Fui dar oficina de dança na cidade vizinha. Volto amanhã!' },
+  iara: { a: (d) => d % 8 === 3 || d % 8 === 4, onde: 'está acampada estudando a nascente do rio', fut: 'vai acampar na nascente do rio', nota: 'Estou acampada na nascente do rio por dois dias, contando garças.' },
+  rita: { a: (d) => d % 4 === 1, onde: 'foi buscar peças na cidade vizinha', fut: 'vai buscar peças na cidade vizinha', nota: 'Fui buscar peças na cidade vizinha. Volto amanhã!' },
+  zeze: { a: (d) => d % 10 === 3, onde: 'foi ao médico na capital', fut: 'vai ao médico na capital', nota: 'Fui ao médico ver essas juntas. Nada grave, minha filha. Volto amanhã.' },
+};
+const ASSINA = { tito: 'Teca', joaquim: 'Joana', cida: 'Cida', zeze: 'Zezé', helena: 'Helena' };
+const foraHoje = (v, day = clock().day) => day >= 3 && !!RITMO[v.id] && RITMO[v.id].a(day);
+const dormindo = (v, part = clock().part) => v.id === 'zeze' && part === 'noite';
+const daCasa = (v) => (v.nome.startsWith('Dona') || v.nome.startsWith('Vó') || v.nome.startsWith('Prof') ? 'a ' : 'a ') + v.nome;
+/* Gossip for today's chat: who is away today, or who is leaving tomorrow */
+function fofoca(v, c) {
+  if ((c.day + v.id.length) % 2) return null;
+  const vs = activeVillagers().filter((x) => x.id !== v.id && RITMO[x.id]);
+  const hoje = vs.filter((x) => foraHoje(x, c.day)), amanha = vs.filter((x) => foraHoje(x, c.day + 1) && !foraHoje(x, c.day));
+  const ami = amigaDe(v.id);
+  if (hoje.length) { const x = hoje.find((y) => y.id === ami) || hoje[c.day % hoje.length]; return x.id === ami ? `Minha amiga ${x.nome} ${RITMO[x.id].onde}. Já tô com saudade!` : `Você soube? ${daCasa(x).replace(/^a/, 'A')} ${RITMO[x.id].onde}. Volta amanhã.`; }
+  if (amanha.length) { const x = amanha[c.day % amanha.length]; return `Amanhã ${daCasa(x)} ${RITMO[x.id].fut}. Se precisar falar com ela, é hoje!`; }
+  return null;
+}
+function openCasa(vid) {
+  const v = villager(vid), c = clock();
+  if (!v) return;
+  if (v.id === 'aurora' && v.fora) { openSheet({ kind: 'torre' }); return; }
+  if (!activeVillagers().includes(v)) { toast(`Casa vazia. Alguém se muda pra cá quando você juntar ${v.need} ♥.`); return; }
+  if (foraHoje(v, c.day) || dormindo(v, c.part)) { openSheet({ kind: 'fora', vid }); return; }
+  talkTo(vid);
+}
+function renderFora(s) {
+  const v = villager(s.vid), c = clock(), dorme = dormindo(v, c.part), R0 = RITMO[v.id];
+  const deixou = state.recados && state.recados[v.id] === c.day;
+  $('gen-title').textContent = v.nome;
+  $('gen-body').innerHTML = `<div class="fora"><div class="fora-porta">${PIXART.porta(hk(v.id))}</div><div class="talk-txt">
+      <p class="help" style="margin:0">🏠 ${CASA_NOME[v.id] || 'Casa de ' + v.nome}</p>
+      <p class="quote fechado">${dorme ? 'As luzes estão apagadas e dá pra ouvir um ronquinho lá de dentro. Ela foi dormir cedinho.' : `A porta está fechada. Tem um bilhete: “${R0.nota} — ${ASSINA[v.id] || v.nome}”`}</p>
+      <p class="help" style="margin:0"><span class="hrt">♥</span> ${state.hearts[v.id] || 0} de carinho</p>
+      ${dorme ? '' : `<button class="btn" data-act="recado" data-v="${v.id}" id="recado-${v.id}" style="align-self:flex-start" ${deixou ? 'disabled' : ''}>${deixou ? 'Recado deixado 💌' : '💌 Deixar um recado'}</button>`}
+    </div></div>`;
+}
+function renderTorre() {
+  $('gen-title').textContent = 'Torre da neblina';
+  $('gen-body').innerHTML = `<div class="fora"><div class="fora-porta">${PIXART.porta('aurora')}</div><div class="talk-txt">
+    <p class="quote fechado">Uma torre velha no meio do bosque, sempre coberta de neblina. Ninguém sabe quem mora aqui… mas às vezes uma janela em forma de estrela acende à noite.</p>
+    <p class="help" style="margin:0">${state.misterio && state.misterio.cap ? `Já chegaram ${state.misterio.cap} bilhete${state.misterio.cap > 1 ? 's' : ''} sem assinatura no correio.` : 'Dizem que quem mora aqui manda bilhetes sem assinatura…'}</p></div></div>`;
+}
+/* The map screen */
 function renderVila() {
   const c = clock();
   const vs = activeVillagers();
@@ -3335,25 +3646,30 @@ function renderVila() {
   const vit = state.vitrine.map((it, i) => (it
     ? `<button class="mq" data-act="from-vitrine" data-i="${i}" id="vit-${i}" aria-label="Devolver ${moldeOf(it.peca, it.molde).nome} pra arara" title="${moldeOf(it.peca, it.molde).nome} (${it.tam || 'M'}) · toque pra devolver">${pieceSVG(it.peca, it.molde, it.z, null, it.acc, it.bordado, it.fin)}</button>`
     : '<span class="mq"></span>')).join('');
-  const POS = [[47, 3], [57.5, 3], [68, 3], [78.5, 3], [89, 3], [52, 17], [62.5, 17], [73, 17], [83.5, 17], [42, 17], [93.5, 17], [37, 3], [26, 17]];
   const isConc = c.dayInSeason === 3;
-  const waveAll = ui.wave === 'vila';
-  ui.wave = null;
-  const presentes = vs.filter((v) => !ausente(v, c.part));
-  const pos = {};
-  presentes.forEach((v, i) => { pos[v.id] = POS[i % POS.length]; });
-  const pares = AMIGAS.filter(([a, b]) => pos[a] && pos[b]);
-  const pslot = Math.floor(gnow() / 20000);
-  let papo = '';
-  if (pares.length && pslot % 3 !== 2) {
-    const [a, b] = pares[pslot % pares.length], L = PAPOS[a + '|' + b] || [], k = pslot % L.length, quem = k % 2 ? b : a;
-    if (L[k]) papo = `<div class="papo" style="left:${pos[quem][0]}%;bottom:${pos[quem][1] + 37}%"><b>${villager(quem).nome}:</b> ${L[k]}</div>`;
-  }
-  const crowd = papo + presentes.map((v, i) => ({ v, i, p: POS[i % POS.length] })).sort((a, b) => b.p[1] - a.p[1]).map(({ v, i, p }) => {
-    const novo = state.talked[v.id] !== c.day;
-    const dx = ((i * 37) % 9 - 4) * 1.4;
-    return `<button class="crowd-v${p[1] > 10 ? ' back' : ''}" data-act="talk" data-v="${v.id}" id="talk-${v.id}" style="left:${p[0]}%;bottom:${p[1]}%;--dx:${dx}cqw;--dur:${9 + (i * 3) % 8}s" aria-label="Conversar com ${v.nome}">${novo ? '<span class="chat" aria-hidden="true">…</span>' : ''}${figureSVG(v, (c.part === 'noite' && i % 3 === 0) || (humorOf(v) === 'sonolenta' && c.part !== 'tarde') ? 'sono' : humorOf(v) === 'animada' && i % 2 ? 'feliz' : null, waveAll && i % 2 === 0)}${petSVG(v.id)}<span class="nm">${v.nome}</span></button>`;
-  }).join('') + (isConc ? `<button class="crowd-v jurada" data-act="sheet" data-kind="concurso" id="talk-lis" style="left:36%;bottom:3%;--dx:0cqw;--dur:10s" aria-label="Falar com Madame Lis, a jurada">${state.concursos[c.day] ? '' : '<span class="chat" aria-hidden="true">!</span>'}${figureSVG(JURADA)}<span class="nm">Madame Lis</span></button>` : '');
+  const moradoras = VILLAGERS.filter((v) => CASA_NOME[v.id] && v.id !== 'aurora');
+  const vazias = moradoras.filter((v) => !vs.includes(v)).map((v) => hk(v.id));
+  const ALT = { aurora: 62, bia: 40, zeze: 44, dandara: 40, teca: 30, cida: 36, nina: 42, lua: 54, joana: 32, helena: 48, mel: 46, rita: 46, iara: 38 };
+  const pct = (x, y) => `left:${(x / 320 * 100).toFixed(2)}%;top:${(y / 200 * 100).toFixed(2)}%`;
+  const P = PIXART.POS;
+  const precisaMedir = (vid) => state.orders.some((o) => !o.result && o.vid === vid && !state.measured[vid] && !['acessorio', 'conjunto', 'remendo', 'reforma'].includes(o.kind) && !['trico', 'patch'].includes(o.peca));
+  let over = '';
+  [...moradoras, AURORA].forEach((v) => {
+    const k = hk(v.id), [x, y] = P[k], h = ALT[k] || 40, ativa = vs.includes(v) || (v.id === 'aurora');
+    const fora = ativa && v.id !== 'aurora' && foraHoje(v, c.day), dorme = ativa && dormindo(v, c.part);
+    let bub = '';
+    if (v.id === 'aurora') bub = v.fora ? (state.orders.some((o) => o.misterio && !o.result) ? '<span class="map-bub novo">?</span>' : '') : '';
+    else if (!ativa) bub = '';
+    else if (fora) bub = '<span class="map-bub zz">fora</span>';
+    else if (dorme) bub = '<span class="map-bub zz">zz</span>';
+    else if (precisaMedir(v.id)) bub = '<span class="map-bub novo">📏</span>';
+    else if (state.talked[v.id] !== c.day) bub = '<span class="map-bub">…</span>';
+    const nome = v.id === 'aurora' ? (v.fora ? '?' : v.nome) : ativa ? v.nome : 'Casa vazia';
+    if (x > 280) bub = bub.replace('class="map-bub', 'class="map-bub esq');
+    over += `<button class="map-casa${ativa ? '' : ' vazia'}" data-act="casa-v" data-v="${v.id}" id="casa-${v.id}" style="${pct(x, y - h)};height:${(h / 200 * 100).toFixed(2)}%" aria-label="${nome}${fora ? ', fora hoje' : ''}">${bub}<span class="map-tag">${nome}</span></button>`;
+  });
+  [['atelie', 'Ateliê', 'atelie', 34], ['casa', 'Sua casa', 'casa', 34], ['tint', 'Tinturaria', 'tint', 32]].forEach(([k, nome, go, h]) => { const [x, y] = P[k]; over += `<button class="map-casa lugar" data-act="go" data-v="${go}" id="map-${k}" style="${pct(x, y - h)};height:${(h / 200 * 100).toFixed(2)}%" aria-label="Ir para ${nome}"><span class="map-tag">${nome}</span></button>`; });
+  over += `<button class="map-casa lugar jard" data-act="go" data-v="jardim" id="map-jardim" style="${pct(21, 93)};height:6%" aria-label="Ir para o jardim"><span class="map-tag">Jardim</span></button>`;
   const F = FESTAS[c.season.id];
   const ready = vs.filter((v) => festaMatch(v, F)).length;
   const left = SEASON_DAYS - c.dayInSeason;
@@ -3371,21 +3687,23 @@ function renderVila() {
   const pass = filled
     ? `${state.lastPass ? `<p class="pass">${state.lastPass}</p>` : ''}<p class="pass">Alguém passa na frente da loja em <span id="pass-left">${secs(state.nextPass - gnow())}</span>.</p>`
     : `<p class="pass">${state.lastPass ? state.lastPass + ' ' : ''}A vitrine está vazia. Leve peças da arara do ateliê pra quem passa poder comprar.</p>`;
-  const mor = vs.map((v) => `<button class="mor" data-act="talk" data-v="${v.id}" id="mor-${v.id}">${avatarSVG(v)}<span><b>${v.nome}</b> ${HUMORES[humorOf(v)].emo} <span class="hrt">♥</span> ${state.hearts[v.id] || 0}${ausente(v, c.part) ? `<br><small>🕐 Agora está ${ROTINA[v.id][1]}</small>` : ''}${state.measured[v.id] ? ` · veste ${v.tam}` : ''}<br><small>${likesText(v)}</small></span></button>`).join('');
-  const next = VILLAGERS.filter((v) => v.need && bestHearts() < v.need).sort((a, b) => a.need - b.need)[0];
+  const status = (v) => (foraHoje(v, c.day) ? `🧳 Hoje ${RITMO[v.id].onde}` : dormindo(v, c.part) ? '😴 Já foi dormir' : precisaMedir(v.id) ? '📏 Esperando você tirar as medidas' : state.talked[v.id] === c.day ? '✓ Já conversaram hoje' : '💬 Tem novidade pra contar');
+  const mor = vs.filter((v) => CASA_NOME[v.id]).map((v) => `<button class="mor" data-act="casa-v" data-v="${v.id}" id="mor-${v.id}">${avatarSVG(v)}<span><b>${v.nome}</b> ${HUMORES[humorOf(v)].emo} <span class="hrt">♥</span> ${state.hearts[v.id] || 0}${state.measured[v.id] ? ` · veste ${v.tam}` : ''}<br><small>${status(v)}</small><br><small>${likesText(v)}</small></span></button>`).join('');
+  const next = VILLAGERS.filter((v) => v.need && bestHearts() < v.need && CASA_NOME[v.id]).sort((a, b) => a.need - b.need)[0];
   const nextRow = next ? `<div class="mor soon"><span class="q" aria-hidden="true">?</span><span><b>Casa vazia</b><br><small>Alguém se muda pra vila quando você juntar ${next.need} ♥.</small></span></div>` : '';
   $('p-vila').innerHTML = `
-    <div class="scene-col"><div class="scene-box">${pracaSceneSVG()}${casamentoHoje() || (state.casamento && state.casamento.dia === c.day) ? ARCO : ''}${weatherFX(c)}<div class="vit-field">${vit}</div>${lifeFX('vila', c)}${crowd}${meSpot('me-praca')}${nav('vila')}</div></div>
+    <div class="scene-col"><div class="scene-box map-box">${PIXART.mapa({ part: c.part, season: c.season.id, festa: !!(c.festa || casamentoHoje()), vazias })}${weatherFX(c)}${lifeFX('vila', c)}${over}${nav('vila')}</div></div>
     <aside class="pnl" aria-labelledby="h-vila">
-      <h2 class="pnl-title" id="h-vila">Praça</h2>
-      ${casamentoHoje() || (state.casamento && state.casamento.fase === 3 && state.casamento.dia === c.day) ? `<div class="festa on"><b>💒 Hoje é o casamento da Lua e da Nina!</b><p>A praça está toda enfeitada de flores.</p><button class="primary" data-act="sheet" data-kind="casamento" id="casorio-btn" style="align-self:flex-start">${state.casamento.fase >= 3 ? 'Ver de novo' : 'Ir à cerimônia'}</button></div>` : state.casamento && state.casamento.fase === 1 ? `<div class="festa"><b>💍 Casamento à vista!</b><p>A Lua e a Nina vão se casar. Faltam ${3 - state.casamento.got} de 3 encomendas do casamento.</p></div>` : ''}
+      <h2 class="pnl-title" id="h-vila">Vila</h2>
+      <p class="help" style="margin:0">Toque numa casinha pra visitar quem mora lá.</p>
+      ${casamentoHoje() || (state.casamento && state.casamento.fase === 3 && state.casamento.dia === c.day) ? `<div class="festa on"><b>💒 Hoje é o casamento da Lua e da Nina!</b><p>A pracinha do chafariz está toda enfeitada de flores.</p><button class="primary" data-act="sheet" data-kind="casamento" id="casorio-btn" style="align-self:flex-start">${state.casamento.fase >= 3 ? 'Ver de novo' : 'Ir à cerimônia'}</button></div>` : ''}
       ${clubeHoje(c) ? '<div class="festa on"><b>🧵 Hoje tem Clube de costura!</b><p>As moradoras estão no ateliê esperando você.</p><button class="primary" data-act="sheet" data-kind="clube" id="clube-vila" style="align-self:flex-start">Ir ao clube</button></div>' : ''}
       <div class="deliver-row"><button class="btn" data-act="sheet" data-kind="correio" id="correio-vila">📬 Correio${state.correio.cartas.length ? ` (${state.correio.cartas.length})` : ''}</button></div>
       ${concBox}
       ${festaBox}
-      <div class="festa${state.capas[seasonIdx()] && state.capas[seasonIdx()].ok ? ' on' : ''}"><b>📰 Revista Moda da Capital</b><p>${state.capas[seasonIdx()] ? (state.capas[seasonIdx()].ok ? 'Sua peça é capa desta estação!' : 'Você já tentou nesta estação. Tem tema novo na próxima!') : `Tema da estação: ${revistaTema(seasonIdx()).map((c) => c.txt).join(' e ')}.`}</p><button class="btn" data-act="sheet" data-kind="revista" id="rev-open" style="align-self:flex-start">${state.capas[seasonIdx()] ? 'Ver a revista' : 'Enviar uma peça'}</button></div>
-      <div class="group"><p class="label">Vitrine · ${filled} de ${state.vitrine.length}</p>${pass}</div>
-      <div class="group"><p class="label">Moradoras · toque pra conversar</p><div class="mor-list">${mor}${nextRow}</div></div>
+      <div class="festa${state.capas[seasonIdx()] && state.capas[seasonIdx()].ok ? ' on' : ''}"><b>📰 Revista Moda da Capital</b><p>${state.capas[seasonIdx()] ? (state.capas[seasonIdx()].ok ? 'Sua peça é capa desta estação!' : 'Você já tentou nesta estação. Tem tema novo na próxima!') : `Tema da estação: ${revistaTema(seasonIdx()).map((x) => x.txt).join(' e ')}.`}</p><button class="btn" data-act="sheet" data-kind="revista" id="rev-open" style="align-self:flex-start">${state.capas[seasonIdx()] ? 'Ver a revista' : 'Enviar uma peça'}</button></div>
+      <div class="group"><p class="label">Vitrine do ateliê · ${filled} de ${state.vitrine.length}</p><div class="vit-list">${vit}</div>${pass}</div>
+      <div class="group"><p class="label">Moradoras · toque pra visitar</p><div class="mor-list">${mor}${nextRow}</div></div>
     </aside>`;
 }
 
@@ -3569,6 +3887,7 @@ const VTALK = {
   dandara: ['Ginga é igual costura: tudo é ritmo!', 'Roupa de dança tem que girar bonito. Saia rodada é minha paixão.', 'Vem pra roda de capoeira no sábado!'],
   iara: ['Hoje vi uma garça pescando no rio. Que elegância!', 'Sabia que a hortelã gosta de terra úmida?', 'Uso roupa verde-água pra combinar com o rio. Bobeira minha.'],
   rita: ['Bicicleta boa é igual roupa boa: bem costurada… quer dizer, bem parafusada!', 'Cabelo raspado é prático. E fresquinho no verão!', 'Se precisar de qualquer conserto, me chama.'],
+  aurora: ['A torre fica fria no inverno, mas a vista da vila inteira compensa.', 'Esse ateliê já foi meu. Agora é seu, e tá mais bonito do que nunca.', 'Ainda guardo o primeiro molde que eu cortei, sabia?'],
   zeze: ['Esse cachecol aqui eu tricotei em 1987.', 'Menina, você tem mãos de fada.', 'Quando eu era moça, florzinha era a estampa mais pedida da vila.'],
 };
 const SEASON_LINES = { primavera: 'A primavera chegou! A vila tá toda florida.', verao: 'Esse calor pede roupa leve, né?', outono: 'Gosto do outono. As folhas parecem tecido ferrugem.', inverno: 'Brr, que frio! Um cachecol cairia bem.' };
@@ -3580,6 +3899,9 @@ function petLine(v) {
 }
 function talkLine(v) {
   const c = clock();
+  if (ui.recado === v.id) return 'Achei seu recadinho na porta quando voltei! Guardei na caixinha das coisas boas. 💌';
+  const fof = fofoca(v, c);
+  if (fof) return fof;
   const pool = [...VTALK[v.id], SEASON_LINES[c.season.id]];
   if (c.rain) pool.push('Que chuva, hein? Dia bom pra ficar em casa costurando.');
   if (c.part === 'noite') pool.push('Já tá tarde… mas a vila fica linda à noite.');
@@ -3590,6 +3912,9 @@ function talkLine(v) {
 function talkTo(vid) {
   const c = clock();
   const v = villager(vid);
+  const rec = state.recados && state.recados[vid] != null && state.recados[vid] < c.day;
+  ui.recado = null;
+  if (rec) { delete state.recados[vid]; gainHeart(vid, 1); ui.recado = vid; setTimeout(() => toast(`${v.nome} achou seu recadinho na porta! +1 ♥`), 600); }
   if (state.talked[vid] !== c.day) {
     state.talked[vid] = c.day;
     const nh = humorOf(v) === 'animada' ? 2 : 1;
@@ -3626,6 +3951,7 @@ function renderTalk(s) {
   const c = clock();
   const done = state.gifted[v.id] === c.day;
   $('gen-title').textContent = v.nome;
+  const precisa = state.orders.some((o) => !o.result && o.vid === v.id && !['acessorio', 'conjunto', 'remendo', 'reforma'].includes(o.kind) && !['trico', 'patch'].includes(o.peca)) && !state.measured[v.id];
   const gifts = state.box.length
     ? state.box.map((x, i) => `<button class="piece" data-act="gift" data-i="${i}" id="gift-${i}" ${done ? 'disabled' : ''}>${accSVG(x.tipo, x.cor)}${ACCS[x.tipo].nome}<span class="price">${x.cor}</span></button>`).join('')
     : `<p class="help" style="margin:0;grid-column:1/-1">A caixinha está vazia. Faça acessórios na aba Retalhos do ateliê.</p>`;
@@ -3633,7 +3959,7 @@ function renderTalk(s) {
   const T = trocaDe(v), trocou = state.trocas && state.trocas[v.id] === c.day;
   const trocaBox = `<div class="festa"><b>🔄 Troca do dia</b><p>${v.nome} te dá <b>${trocaTxt(T.da)}</b> em troca de <b>${trocaTxt(T.por)}</b>.</p>${trocou ? '<p>Vocês já trocaram hoje. Amanhã tem outra!</p>' : `<button class="btn" data-act="troca" data-v="${v.id}" id="troca-${v.id}" style="align-self:flex-start" ${trocaPode(T) ? '' : 'disabled'}>${trocaPode(T) ? 'Trocar' : 'Falta o que ela pede'}</button>`}</div>`;
   $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, talkMood(v, line), true)}${petSVG(v.id)}</div>
-      <div class="talk-txt"><p class="quote">${line}</p>${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}${(() => { const hm = humorOf(v), H = HUMORES[hm]; return `<p class="help" style="margin:0">${H.emo} ${H.txt}: ${hm === 'pensativa' ? `"Ando pensando em ${v.cores[c.day % v.cores.length]}…"` : H.efeito}.</p>`; })()}${(() => { const m = (state.memorias || []).filter((x) => x.vid === v.id).pop(); return m ? `<p class="help" style="margin:0">📖 ${motivoDepois(m)}</p>` : ''; })()}${amigaDe(v.id) && villager(amigaDe(v.id)) ? `<p class="help" style="margin:0">💞 Melhor amiga: ${villager(amigaDe(v.id)).nome}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
+      <div class="talk-txt">${CASA_NOME[v.id] ? `<p class="help" style="margin:0">🏠 ${CASA_NOME[v.id]}</p>` : ''}<p class="quote">${line}</p>${precisa ? `<button class="primary" data-act="measure-v" data-v="${v.id}" id="measure-${v.id}" style="align-self:flex-start">📏 Tirar as medidas dela</button>` : ''}${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}${(() => { const hm = humorOf(v), H = HUMORES[hm]; return `<p class="help" style="margin:0">${H.emo} ${H.txt}: ${hm === 'pensativa' ? `"Ando pensando em ${v.cores[c.day % v.cores.length]}…"` : H.efeito}.</p>`; })()}${(() => { const m = (state.memorias || []).filter((x) => x.vid === v.id).pop(); return m ? `<p class="help" style="margin:0">📖 ${motivoDepois(m)}</p>` : ''; })()}${amigaDe(v.id) && villager(amigaDe(v.id)) ? `<p class="help" style="margin:0">💞 Melhor amiga: ${villager(amigaDe(v.id)).nome}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
     <p class="label">Dar um presente${done ? ' · ela já ganhou um hoje' : ' · um por dia'}</p><div class="box">${gifts}</div>${trocaBox}`;
 }
 
@@ -4409,7 +4735,7 @@ function casaSceneSVG() {
 function casaVisitor() {
   const ck = clock();
   if (ck.part === 'noite') return null;
-  const pool = activeVillagers().filter((v) => (state.hearts[v.id] || 0) >= 6);
+  const pool = activeVillagers().filter((v) => (state.hearts[v.id] || 0) >= 6 && !foraHoje(v, ck.day));
   if (!pool.length) return null;
   const h = ((ck.day + 3) * 2654435761) >>> 0;
   if (h % 3 === 0) return null;
@@ -4622,7 +4948,7 @@ function renderCasa() {
 }
 
 /* ---------- lugares, setas e cenários em pixel art (320x200) ---------- */
-const LOCS = [{ id: 'casa', nome: 'Casa' }, { id: 'jardim', nome: 'Jardim' }, { id: 'tint', nome: 'Tinturaria' }, { id: 'atelie', nome: 'Ateliê' }, { id: 'vila', nome: 'Praça' }];
+const LOCS = [{ id: 'casa', nome: 'Casa' }, { id: 'jardim', nome: 'Jardim' }, { id: 'tint', nome: 'Tinturaria' }, { id: 'atelie', nome: 'Ateliê' }, { id: 'vila', nome: 'Vila' }];
 const ARROW = (dir) => `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor">${dir < 0
   ? '<rect x="1" y="3" width="1" height="2"/><rect x="2" y="2" width="1" height="4"/><rect x="3" y="1" width="1" height="6"/><rect x="4" y="3" width="3" height="2"/>'
   : '<rect x="6" y="3" width="1" height="2"/><rect x="5" y="2" width="1" height="4"/><rect x="4" y="1" width="1" height="6"/><rect x="1" y="3" width="3" height="2"/>'}</svg>`;
@@ -4921,6 +5247,8 @@ function renderSheet() {
   if (s.kind === 'inv') { renderInv(); return; }
   if (s.kind === 'cartela') { renderCartela(); return; }
   if (s.kind === 'talk') { renderTalk(s); return; }
+  if (s.kind === 'fora') { renderFora(s); return; }
+  if (s.kind === 'torre') { renderTorre(); return; }
   if (s.kind === 'desfile') { renderDesfile(s); return; }
   if (s.kind === 'tingir') { renderTingir(s); return; }
   if (s.kind === 'estampa') { renderEstampa(s); return; }
@@ -5309,10 +5637,9 @@ function lifeFX(place, ck = clock()) {
   if (day && ['jardim', 'vila', 'mata'].includes(place)) h += [0, 1, 2].map((i) => `<span class="fx-bird" style="top:${8 + i * 7}%;animation-delay:-${i * 4.5}s;animation-duration:${16 + i * 3}s"></span>`).join('');
   if (place === 'tint') h += [0, 1, 2, 3].map((i) => `<span class="fx-steam" style="left:${44 + i * 4}%;bottom:52%;animation-delay:-${i * 0.7}s"></span>`).join('');
   if (place === 'atelie') h += [0, 1].map((i) => `<span class="fx-steam small" style="left:${61 + i * 1.2}%;bottom:${ck.part === 'noite' ? 41 : 41}%;animation-delay:-${i * 1.1}s"></span>`).join('');
-  if (ck.part === 'noite' && place === 'vila') h += '<span class="glow" style="left:54.7%;top:46%"></span>';
   const fora = ['jardim', 'vila'].includes(place);
-  if (fora && ck.part === 'noite' && !ck.rain) h += [[6, 6], [18, 12], [29, 4], [41, 15], [52, 7], [63, 3], [72, 13], [86, 5], [94, 11], [12, 20], [47, 22], [78, 21]].map(([x, y], i) => `<span class="fx-tw" style="left:${x}%;top:${y}%;animation-delay:-${(i * 0.37) % 2.6}s"></span>`).join('');
-  if (place === 'vila' && ck.part === 'noite') h += '<span class="fx-fio" style="top:15%"></span>' + [8, 20, 32, 44, 56, 68, 80, 92].map((x, i) => `<span class="fx-lant" style="left:${x}%;top:${15.5 + (i % 2) * 1.5}%;--lc:${['#F7D35E', '#F2A7C6', '#F2A65A', '#8EC3E6'][i % 4]};animation-delay:-${i * 0.4}s"></span>`).join('');
+  if (place === 'jardim' && ck.part === 'noite' && !ck.rain) h += [[6, 6], [18, 12], [29, 4], [41, 15], [52, 7], [63, 3], [72, 13], [86, 5], [94, 11], [12, 20], [47, 22], [78, 21]].map(([x, y], i) => `<span class="fx-tw" style="left:${x}%;top:${y}%;animation-delay:-${(i * 0.37) % 2.6}s"></span>`).join('');
+  /* the village is a map now: no street lights strung across it */
   if (fora && ck.part === 'tarde' && !ck.rain) h += '<span class="fx-sunset"></span>';
   if (ck.part === 'noite' && place === 'atelie') h += '<span class="glow" style="left:50%;top:12%"></span>';
   return h ? `<div class="fx life" aria-hidden="true">${h}</div>` : '';
@@ -5420,16 +5747,16 @@ function renderMedir(s) {
 }
 function renderPedidos() {
   const open = state.orders.filter((o) => !o.result);
-  $("gen-title").textContent = `Mural de pedidos · ${open.length}`;
+  $("gen-title").textContent = `Cartas com pedidos · ${open.length}`;
   const cur = curOrder();
   const cards = open.map((o) => {
     const v = villager(o.vid);
     return `<div class="ord${cur && cur.id === o.id ? ' on' : ''}">${avatarSVG(v)}
       <div class="ord-txt"><b>${v.nome}</b><p>${requestText(o)}</p></div>
       <span class="want-tag">${wantIcon(o)}</span>
-      <button class="btn" data-act="focus" data-v="${o.id}" id="foc-${o.id}" ${cur && cur.id === o.id ? 'disabled' : ''}>${cur && cur.id === o.id ? 'No balcão' : 'Chamar'}</button></div>`;
+      <button class="btn" data-act="focus" data-v="${o.id}" id="foc-${o.id}" ${cur && cur.id === o.id ? 'disabled' : ''}>${cur && cur.id === o.id ? 'Aberta' : 'Abrir carta'}</button></div>`;
   }).join('');
-  $('gen-body').innerHTML = `<p class="help">Sem pressa: os pedidos esperam você. Chame uma moradora pro balcão pra ver o pedido e entregar.</p>
+  $('gen-body').innerHTML = `<p class="help">Sem pressa: os pedidos chegam por carta e esperam você. Abra uma carta pra ver o pedido; quando a peça ficar pronta, a Nina leva pelo correio.</p>
     <div class="ords">${cards || '<p class="empty">Nenhum pedido no mural agora. Logo chega mais.</p>'}</div>`;
 }
 
@@ -6171,8 +6498,8 @@ function tick() {
     const o = state.fila.length ? state.fila.shift() : newOrder();
     state.orders.push(o);
     state.nextOrder = now + 25000;
-    if (o.misterio) toast('📜 Chegou um bilhete sem assinatura no mural…');
-    else if (state.served > 0) toast(`${villager(o.vid).nome} deixou um pedido no mural.`);
+    if (o.misterio) toast('📜 Chegou um bilhete sem assinatura pelo correio…');
+    else if (state.served > 0) { toast(`📬 Chegou uma carta da ${villager(o.vid).nome} com um pedido!`); sfx('chime'); }
     changed = true;
   }
   if (state.vitrine.some(Boolean) && now >= state.nextPass) { passBy(); changed = true; }
