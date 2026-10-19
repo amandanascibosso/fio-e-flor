@@ -283,7 +283,7 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .row > div { display: flex; flex-wrap: wrap; gap: 8px; }
 #gen-body { display: flex; flex-direction: column; gap: 10px; }
 #sew-stage { display: grid; place-items: center; background: var(--paper-2); border-radius: 10px; padding: 6px; touch-action: manipulation; cursor: pointer; }
-#sew-stage svg { width: 100%; max-width: 280px; height: auto; aspect-ratio: 1; }
+#sew-stage svg { width: 100%; max-width: 320px; height: auto; aspect-ratio: 1; }
 .sew-status { display: flex; justify-content: space-between; gap: 8px; font-weight: 800; font-variant-numeric: tabular-nums; min-height: 20px; }
 #sew-msg { color: var(--accent); }
 .miss { animation: shake .25s; }
@@ -428,7 +428,7 @@ button.fold:hover:not(:disabled) { border-color: var(--accent); }
   .sheet-card { padding: 10px 14px; gap: 8px; }
   .sheet-card h2 { font-size: 20px; }
   .sheet-card > .help { display: none; }
-  #sew-stage svg { max-height: 44vh; }
+  #sew-stage svg { max-height: 50vh; }
   #cut-svg { max-height: 54vh; }
   .arrow { padding: 4px 4px 3px; font-size: 10px; }
   .arrow svg { width: 18px; height: 18px; }
@@ -721,7 +721,7 @@ html.deitado .pnl-title { font-size: 20px; }
 html.deitado .sheet-card { padding: 10px 14px; gap: 8px; }
 html.deitado .sheet-card h2 { font-size: 20px; }
 html.deitado .sheet-card > .help { display: none; }
-html.deitado #sew-stage svg { max-height: 44vw; }
+html.deitado #sew-stage svg { max-height: 50vw; }
 html.deitado #cut-svg { max-height: 54vw; }
 html.deitado .arrow { padding: 4px 4px 3px; font-size: 10px; }
 html.deitado .arrow svg { width: 18px; height: 18px; }
@@ -8319,9 +8319,9 @@ function openObra() {
   $('sew').hidden = false;
   renderObra();
 }
-function obraArt(s, extra = '') {
+function obraArt(s, extra = '', vb = '-6 -6 112 112') {
   const m = moldeOf(s.peca, s.molde), L = pieceLayers(m, s.z, true);
-  return `<svg viewBox="-6 -6 112 112" class="obra-svg" style="touch-action:none"><defs>${L.defs}</defs>${L.body}<path id="ob-seam" d="${m.d.split(' M')[0]}" fill="none" stroke="none"/>${extra}</svg>`;
+  return `<svg viewBox="${vb}" class="obra-svg" style="touch-action:none"><defs>${L.defs}</defs>${L.body}<path id="ob-seam" d="${m.d.split(' M')[0]}" fill="none" stroke="none"/>${extra}</svg>`;
 }
 function renderObra() {
   const s = state.sewing;
@@ -8419,17 +8419,27 @@ function seamPoints(n, pad = 0.04) {
   return Array.from({ length: n }, (_, i) => path.getPointAtLength(L * (pad + (1 - 2 * pad) * i / (n - 1 || 1))));
 }
 /* Pin: tap every pin spot along the seam */
+/* Fingers are big and the piece is small: a tap goes to the nearest target still to do, within reach */
+function obraAlvo(svg, e, pts, ok, reach = 16) {
+  const m = svg.getScreenCTM();
+  if (!m) return -1;
+  const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+  let best = -1, bd = reach;
+  pts.forEach((p, i) => { if (!ok(i)) return; const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < bd) { bd = d; best = i; } });
+  return best;
+}
 function obraAlfinetar(s, help) {
   help.textContent = 'Toque em cada pontinho pra prender os alfinetes antes de costurar.';
-  $('sew-stage').innerHTML = obraArt(s, '<g id="ob-pins"></g>');
+  $('sew-stage').innerHTML = obraArt(s, '<g id="ob-pins"></g>', '-3 -3 106 106');
   const pts = seamPoints(6), feito = new Set();
   const cores = ['#E8615A', '#F7D35E', '#8EC3E6', '#B864B8', '#5E9A4E', '#F2A7C6'];
-  const draw = () => { $('ob-pins').innerHTML = pts.map((p, i) => (feito.has(i) ? `<line x1="${p.x - 3}" y1="${p.y + 3}" x2="${p.x + 2}" y2="${p.y - 2}" stroke="#9AA0A8" stroke-width="1"/><circle cx="${p.x + 2}" cy="${p.y - 2}" r="2.2" fill="${cores[i]}" stroke="#3A3040" stroke-width=".6"/>` : `<circle class="ob-alvo" data-pin="${i}" cx="${p.x}" cy="${p.y}" r="4.5" fill="rgba(255,255,255,.75)" stroke="#3A3040" stroke-width=".8" stroke-dasharray="1.5 1"/>`)).join(''); $('sew-count').textContent = `${feito.size} de ${pts.length} alfinetes`; };
+  const draw = () => { $('ob-pins').innerHTML = pts.map((p, i) => (feito.has(i) ? `<line x1="${p.x - 3}" y1="${p.y + 3}" x2="${p.x + 2}" y2="${p.y - 2}" stroke="#9AA0A8" stroke-width="1"/><circle cx="${p.x + 2}" cy="${p.y - 2}" r="2.2" fill="${cores[i]}" stroke="#3A3040" stroke-width=".6"/>` : `<circle class="ob-alvo" data-pin="${i}" cx="${p.x}" cy="${p.y}" r="6" fill="rgba(255,255,255,.8)" stroke="#3A3040" stroke-width=".9" stroke-dasharray="1.6 1"/><circle cx="${p.x}" cy="${p.y}" r="1.3" fill="#C2537F"/>`)).join(''); $('sew-count').textContent = `${feito.size} de ${pts.length} alfinetes`; };
   draw();
-  $('sew-stage').querySelector('svg').addEventListener('pointerdown', (e) => {
-    const t = e.target.closest('[data-pin]');
-    if (!t) return;
-    feito.add(+t.dataset.pin); sfx('tap'); draw();
+  const svg = $('sew-stage').querySelector('svg');
+  svg.addEventListener('pointerdown', (e) => {
+    const i = obraAlvo(svg, e, pts, (k) => !feito.has(k));
+    if (i < 0) return;
+    feito.add(i); sfx('tap'); draw();
     if (feito.size === pts.length) obraNota(1, 'Tudo alfinetado!');
   });
 }
@@ -8458,15 +8468,15 @@ function obraPassar(s, help) {
 function obraBotoes(s, help) {
   const B = BOTOES[(s.fin && s.fin.botao) || 'madeira'];
   help.textContent = `Toque 3 vezes em cada botão de ${B.nome.toLowerCase()} pra pregar.`;
-  const bt = [[50, 30], [50, 40]], pontos = [0, 0];
-  $('sew-stage').innerHTML = obraArt(s, '<g id="ob-bts"></g>');
-  const draw = () => { $('ob-bts').innerHTML = bt.map(([x, y], i) => `<g data-bt="${i}"><circle cx="${x}" cy="${y}" r="${pontos[i] >= 3 ? 2.6 : 4.5}" fill="${pontos[i] >= 3 ? B.c : 'rgba(255,255,255,.75)'}" stroke="#3A3040" stroke-width=".7" ${pontos[i] >= 3 ? '' : 'stroke-dasharray="1.5 1"'}/>${[0, 1, 2].slice(0, pontos[i]).map((k) => `<line x1="${x - 1.4}" y1="${y - 1.4 + k * 0.6}" x2="${x + 1.4}" y2="${y + 1.4 - k * 0.6}" stroke="${(s.fin && s.fin.linha) || '#3A3040'}" stroke-width=".6"/>`).join('')}</g>`).join(''); $('sew-count').textContent = `${pontos.filter((p) => p >= 3).length} de ${bt.length} botões`; };
+  const bt = [[50, 30], [50, 40]], pontos = [0, 0], btp = bt.map(([x, y]) => ({ x, y }));
+  /* close up on the front, where the buttons go */
+  $('sew-stage').innerHTML = obraArt(s, '<g id="ob-bts"></g>', '26 11 48 48');
+  const draw = () => { $('ob-bts').innerHTML = bt.map(([x, y], i) => `<g data-bt="${i}"><circle cx="${x}" cy="${y}" r="${pontos[i] >= 3 ? 2.6 : 4.8}" fill="${pontos[i] >= 3 ? B.c : 'rgba(255,255,255,.8)'}" stroke="#3A3040" stroke-width=".7" ${pontos[i] >= 3 ? '' : 'stroke-dasharray="1.5 1"'}/>${[0, 1, 2].slice(0, pontos[i]).map((k) => `<line x1="${x - 1.4}" y1="${y - 1.4 + k * 0.6}" x2="${x + 1.4}" y2="${y + 1.4 - k * 0.6}" stroke="${(s.fin && s.fin.linha) || '#3A3040'}" stroke-width=".6"/>`).join('')}</g>`).join(''); $('sew-count').textContent = `${pontos.filter((p) => p >= 3).length} de ${bt.length} botões`; };
   draw();
-  $('sew-stage').querySelector('svg').addEventListener('pointerdown', (e) => {
-    const t = e.target.closest('[data-bt]');
-    if (!t) return;
-    const i = +t.dataset.bt;
-    if (pontos[i] >= 3) return;
+  const svg = $('sew-stage').querySelector('svg');
+  svg.addEventListener('pointerdown', (e) => {
+    const i = obraAlvo(svg, e, btp, (k) => pontos[k] < 3, 22);
+    if (i < 0) return;
     pontos[i] += 1; sfx('stitch'); draw();
     if (pontos.every((p) => p >= 3)) obraNota(1, 'Botões pregados!');
   });
