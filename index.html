@@ -2174,6 +2174,26 @@ function longSleeves(m, rib) {
   return strand(ARM, 10, 8, m, { seg: rib ? 2 : 0, lw: 1.1 }) + strand(armR(), 10, 8, m, { seg: rib ? 2 : 0, base: m.d, noHl: true, lw: 1.1 })
     + strand(cuff(ARM), 9, 9, m, { base: m.d, seg: rib ? 1 : 0, noHl: true, lw: 0.9 }) + strand(cuff(armR()), 9, 9, m, { base: m.d, seg: rib ? 1 : 0, noHl: true, lw: 0.9 });
 }
+// a peasant sleeve: puffs out along the arm and gathers into an elastic cuff with a little frill at the elbow
+function puffSleeve(A, m, pat, far) {
+  const at = (t) => { const n = A.length - 1, f = Math.min(t * n, n - 1e-6), i = Math.floor(f), u = f - i, a = A[i], b = A[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy); return [a[0] + dx * u, a[1] + dy * u, -dy / l, dx / l]; };
+  const T1 = 0.56, N = 12, W = (u) => (u < 0.6 ? 6 + 4 * Math.sin((u / 0.6) * Math.PI / 2) : 10 - ((u - 0.6) / 0.4) * 5.2);
+  const P1 = [], P2 = [];
+  for (let k = 0; k <= N; k++) { const [x, y, nx, ny] = at((k / N) * T1), w = W(k / N); P1.push([x + nx * w, y + ny * w]); P2.push([x - nx * w, y - ny * w]); }
+  const [x0, y0] = at(0), [xe, ye, nxe, nye] = at(T1), out = A[0][0] < 90 ? -1 : 1;
+  const f = (p) => p[0].toFixed(2) + ' ' + p[1].toFixed(2);
+  const d = `M${f(P1[0])} Q${f([x0 + out * 2, y0 - 9])} ${f(P2[0])} L${P2.slice(1).map(f).join(' L')} Q${f([xe, ye + 2.4])} ${f(P1[N])} L${P1.slice(0, N).reverse().map(f).join(' L')} Z`;
+  const base = far ? m.d : m.b;
+  const [xm, ym] = at(T1 * 0.45);
+  let inner = (pat || '') + E(xm - out * 5.6, ym + 2, 2.6, 11, far ? m.d2 : m.d) + E(xm + out * 2.6, ym - 4, 1.8, 6, far ? m.b : m.l);
+  for (let j = -2; j <= 2; j++) inner += L(`M${(xe + j * 1.7).toFixed(2)} ${(ye - 0.6).toFixed(2)} Q${(xe + j * 2.6).toFixed(2)} ${(ye - 5).toFixed(2)} ${(xe + j * 3.4).toFixed(2)} ${(ye - 9).toFixed(2)}`, far ? m.d2 : m.d, 0.8);
+  inner += L(`M${f(P1[2])} Q${f([x0 + out * 1.4, y0 + 2])} ${f(P2[2])}`, far ? m.d2 : m.d, 0.8);
+  let s = piece(d, base, inner, m.d3, 1.1);
+  const cuff = `M${(xe - 5.2).toFixed(2)} ${(ye - 1.2).toFixed(2)} L${(xe + 5.2).toFixed(2)} ${(ye - 1.2).toFixed(2)} L${(xe + 5).toFixed(2)} ${(ye + 1.4).toFixed(2)} L${(xe - 5).toFixed(2)} ${(ye + 1.4).toFixed(2)} Z`;
+  s += piece(cuff, far ? m.d2 : m.d, '', m.d3, 0.8);
+  for (let i = -2; i <= 2; i++) s += piece(ell(xe + i * 2.1, ye + 2.6, 1.5, 1.4), far ? m.b : m.l, '', m.d2, 0.6);
+  return s;
+}
 function gTop(t, S) {
   const r = ramp(t.c1), m = ramp(t.c2), pt = patt(t.pat, r); let s = '';
   if (t.kind === 'camiseta') {
@@ -2181,11 +2201,11 @@ function gTop(t, S) {
     const sl = inward(piece('M61 88 Q60 76 70 75 Q77 76 77 84 L76 93 Q68 95 61 92 Z', m.b, patt(t.pat, m) + E(74, 88, 4, 7, m.d) + L('M61.6 90 Q68 92.6 76.2 90.6', m.d, 1), m.d3, 1.1));
     s += sl + mirU(sl) + (t.collar ? peterPan() : '') + (t.buttons ? btnCol(86, 112, '#FFFFFF') : '');
   } else if (t.kind === 'bata') {
+    const pt2 = patt(t.pat, m);
     const B = 'M68 76 Q90 70 112 76 Q118 80 117 90 L115 124 Q90 129 65 124 L63 90 Q62 80 68 76 Z';
     s += piece(B, r.b, pt + shR(r) + P('M79 75 Q90 86 101 75 Z', S.b) + E(90, 76, 10, 3, S.d) + [84, 90, 96].map((x) => L(`M${x} 86 L${x + (x - 90) * 0.2} 98`, r.d, 0.9)).join('') + L('M66 120 Q90 125 114 120', r.d, 1), r.d3, 1.2);
     s += L('M78.6 75.4 Q90 87 101.4 75.4', r.d2, 1.1) + [[81, 79.6], [85, 83], [90, 84.6], [95, 83], [99, 79.6]].map(([x, y], i) => flower(x, y, 1.7, i % 2 ? m.l : m.b, '#F7D35E')).join('');
-    const sl = inward(piece('M50 94 Q46 76 64 74 Q78 76 78 90 Q76 110 67 116 Q57 118 52 110 Z', m.b, E(74, 96, 6, 14, m.d) + L('M56 80 Q58 96 56 110', m.d, 1) + L('M63 77 Q66 96 63 114', m.d, 1) + L('M53 108 Q60 114 70 112', m.d2, 1.2), m.d3, 1.1));
-    s += sl + mirU(sl);
+    s += puffSleeve(ARM, m, pt2, false) + puffSleeve(armR(), m, pt2, true);
   } else if (t.kind === 'botoes') {
     s += longSleeves(m, false);
     s += piece(TORSO, r.b, pt + shR(r) + P('M84 74 L90 84 L96 74 Z', S.b) + L('M90 84 L90 122', r.d, 1) + R(68, 98, 10, 9, r.d + 'aa'), r.d3, 1.2);
