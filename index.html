@@ -158,7 +158,7 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .drop { animation: fall .6s steps(3) infinite; }
 @keyframes fall { to { transform: translateY(12px); } }
 .cat { cursor: pointer; }
-.nov-layer { pointer-events: none; }
+.nov-layer { position: absolute; z-index: 4; overflow: visible; pointer-events: none; }
 .nov-layer .cat { pointer-events: auto; }
 .cat:focus { outline: none; }
 .cat .tail { animation: swish 1.4s steps(2) infinite; }
@@ -6265,7 +6265,11 @@ function novLayer(where) {
   if (where === 'atelie' && NOV_AT[ns]) at = NOV_PE[ns];
   if (where === 'casa' && ns === 'casa') at = state.casa.moveis.includes('caminha-gato') ? [112, 169] : [112, 175];
   if (where === 'jardim' && ns === 'jardim') at = NOV_PE.jardim;
-  return at ? `<svg class="bg nov-layer" viewBox="0 0 320 200" preserveAspectRatio="none">${novSVG(at[0], at[1])}</svg>` : '';
+  if (!at) return '';
+  /* only the little corner where he is, so the layer never sits over the arrows or the hotspots */
+  const [bx, by, bw, bh] = [at[0] - 18, at[1] - 30, 38, 33];
+  const pc = (v, t) => (v / t * 100).toFixed(2) + '%';
+  return `<svg class="nov-layer" viewBox="${bx} ${by} ${bw} ${bh}" preserveAspectRatio="none" style="left:${pc(bx, 320)};top:${pc(by, 200)};width:${pc(bw, 320)};height:${pc(bh, 200)}">${novSVG(at[0], at[1])}</svg>`;
 }
 const NOV_ONDE = { pilha: 'dormindo nos rolos de tecido do ateliê', caixa: 'em cima da caixa de retalhos', chao: 'debaixo da mesa do ateliê', casa: 'na caminha dele, lá em casa', jardim: 'tomando sol no jardim' };
 function novSpot(now = gnow()) {
