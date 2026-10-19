@@ -5674,75 +5674,9 @@ const PIXART = (() => {
   }
 
   const hsh = (o) => { const t = JSON.stringify(o); let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h.toString(36); };
-  /* ---------- Novelo, painted like the rooms: curled up asleep or sitting up awake ---------- */
-  function novelo(o) {
-    uid = 0;
-    const F = ramp('#EE9A4E'), CR = ramp('#FFF1DC'), PK = '#F4A0B4', INK = '#3A2430', LN = F.d3;
-    const acc = o.acc, A = acc ? ramp(acc.hex) : null, AB = acc ? ramp(mix(acc.hex, '#FFFFFF', 0.2)) : null;
-    let s = '';
-    if (o.part === 'tail') {
-      if (o.awake) {
-        s += L('M24.6 28.8 Q37.4 29.4 37.6 20.4 Q37.4 14.2 33.8 13.6', LN, 5.6) + L('M24.6 28.8 Q37.4 29.4 37.6 20.4 Q37.4 14.2 33.8 13.6', F.b, 3.6);
-        s += L('M35.8 25.8 L37.8 25.2 M37 20.8 L39 20.8', F.d, 1.1) + C(34, 13.8, 1.9, CR.b);
-      } else {
-        s += L('M33 27.6 Q34.4 31.6 26 31.8 Q14 32 9.6 30.6', LN, 5.4) + L('M33 27.6 Q34.4 31.6 26 31.8 Q14 32 9.6 30.6', F.b, 3.4);
-        s += L('M27 30.6 L27.6 32.8 M21 30.8 L21.4 33 M15 30.6 L15.2 32.8', F.d, 1) + C(10, 30.6, 1.8, CR.b);
-      }
-      return s;
-    }
-    const ear = (x, y, flip, tilt = 0) => { const d = flip ? -1 : 1; return piece(`M${x - 3.4 * d} ${y + 3} L${x + 0.6 * d + tilt} ${y - 4.6} L${x + 3.6 * d} ${y + 2} Z`, F.b, P(`M${x - 1.6 * d} ${y + 2} L${x + 0.6 * d + tilt * 0.6} ${y - 2.2} L${x + 2 * d} ${y + 1.6} Z`, PK), LN, 0.9); };
-    if (o.awake) {
-      // sitting up, looking at you
-      s += piece('M12.4 30 Q11.6 22 14.6 18.6 Q19.4 15.4 24.4 18.6 Q27.6 22 26.8 30 Z', F.b, E(25.4, 25, 4, 7, F.d) + E(13.6, 23, 1.6, 4, F.l) + L('M14.6 21 Q16 20.4 16.6 22 M23 21 Q24.6 20.6 25 22.4', F.d, 0.9), LN, 1);
-      s += piece('M16.4 30 Q15.6 24 19.6 21 Q23.6 24 22.8 30 Z', CR.b, E(21.6, 27, 1.8, 3, CR.d), CR.d3, 0.8);
-      s += piece(ell(16.4, 29.6, 2.6, 1.7), CR.b, E(17, 30.2, 1.6, 0.8, CR.d), CR.d3, 0.8) + piece(ell(22.8, 29.6, 2.6, 1.7), CR.b, E(23.4, 30.2, 1.6, 0.8, CR.d), CR.d3, 0.8);
-      s += L('M15.6 30.6 L15.6 29.6 M17.2 30.6 L17.2 29.6 M22 30.6 L22 29.6 M23.6 30.6 L23.6 29.6', CR.d2, 0.5);
-      s += ear(13.4, 7, false, -0.6) + ear(25.6, 7, true, 0.6);
-      s += piece(ell(19.6, 12.6, 8.4, 6.8), F.b, E(25.6, 14, 4, 6, F.d) + E(15.6, 9.6, 3, 2, F.l) + L('M18.2 6.6 L18.6 9 M19.8 6.2 L19.8 8.8 M21.4 6.6 L21 9', F.d, 1) + E(19.6, 16, 4.4, 2.8, CR.b), LN, 1);
-      [16.2, 23].forEach((x) => { s += piece(ell(x, 12.6, 1.9, 2.2), INK, C(x - 0.6, 11.8, 0.7, '#FFFFFF') + C(x + 0.6, 13.4, 0.35, '#FFFFFF'), INK, 0.4); });
-      s += E(14.4, 15.4, 1.7, 0.9, mix(F.b, PK, 0.7)) + E(24.8, 15.4, 1.7, 0.9, mix(F.b, PK, 0.7));
-      s += P('M18.8 14.6 L20.4 14.6 L19.6 15.6 Z', '#E8607A') + L('M19.6 15.6 Q19.6 16.8 18.6 16.8 M19.6 15.6 Q19.6 16.8 20.6 16.8', INK, 0.5);
-      s += L('M13 14.8 L9.6 14.2 M13 15.8 L9.8 16.4 M26.2 14.8 L29.6 14.2 M26.2 15.8 L29.4 16.4', '#FFFFFF', 0.45);
-    } else {
-      // curled up asleep, chin on paws
-      s += piece('M9.6 27 Q9.6 17.6 21 17 Q33.4 16.6 34.4 25.6 Q34.6 30 30 30.6 L13 30.6 Q9.6 30.4 9.6 27 Z', F.b, E(24, 29, 11, 3.4, F.d) + E(22, 19.6, 7, 2, F.l) + [[20, 18.2], [24, 18], [28, 18.8]].map(([x, y]) => L(`M${x} ${y} Q${x + 0.8} ${y + 1.6} ${x} ${y + 3}`, F.d, 1)).join(''), LN, 1);
-      s += ear(6.6, 15.6, false, -1) + ear(14.2, 14.6, true, 0.6);
-      s += piece(ell(10.8, 21.6, 6.8, 5.6), F.b, E(14.6, 23.4, 3, 4, F.d) + E(8.4, 19.4, 2.4, 1.6, F.l) + L('M9.4 16.4 L9.8 18.4 M11 16.2 L11 18.2 M12.6 16.6 L12.2 18.4', F.d, 0.9) + E(10.4, 24.4, 3.8, 2.2, CR.b), LN, 1);
-      [8, 13.2].forEach((x) => { s += L(`M${x - 1.4} 21.6 Q${x} 23 ${x + 1.4} 21.6`, INK, 0.75); });
-      s += E(6.6, 23.4, 1.4, 0.8, mix(F.b, PK, 0.7)) + E(14.6, 23.4, 1.4, 0.8, mix(F.b, PK, 0.7));
-      s += P('M9.8 23.2 L11.2 23.2 L10.5 24 Z', '#E8607A');
-      s += piece(ell(9, 27.6, 3, 1.7), CR.b, E(9.6, 28.2, 1.8, 0.8, CR.d), CR.d3, 0.8) + piece(ell(14.4, 28.2, 3, 1.7), CR.b, E(15, 28.8, 1.8, 0.8, CR.d), CR.d3, 0.8);
-    }
-    // what you made for him
-    if (acc) {
-      const t = acc.tipo, aw = o.awake;
-      const [hx, hy] = aw ? [25.4, 6.6] : [13.8, 15], [nx, ny] = aw ? [19.6, 18.8] : [12.4, 26.2];
-      if (t === 'laco') s += bow(hx, hy, AB, 0.3);
-      if (t === 'tiara') s += L(aw ? 'M12.4 9.6 Q19.6 2.6 26.8 9.6' : 'M5.4 19 Q10.8 13.2 16.4 18.2', A.d3, 2.2) + L(aw ? 'M12.4 9.6 Q19.6 2.6 26.8 9.6' : 'M5.4 19 Q10.8 13.2 16.4 18.2', A.b, 1.3) + C(aw ? 19.6 : 10.8, aw ? 5 : 15.4, 1.1, A.l2);
-      if (t === 'presilha') s += piece(`M${hx - 3} ${hy + 1.6} L${hx + 1} ${hy - 0.4} L${hx + 1.6} ${hy + 0.8} L${hx - 2.4} ${hy + 2.8} Z`, A.b, '', A.d3, 0.6);
-      if (t === 'lencinho' || t === 'capinha') s += piece(aw ? `M14.4 18 Q19.6 20.6 24.8 18 L23.6 20.4 Q21.4 25 19.6 25.6 Q17.8 25 15.6 20.4 Z` : `M7 25.6 Q11 27.8 15.4 25.2 L14.6 27.6 Q12.4 30 10.8 30 Q9 29.6 7.8 27.6 Z`, A.b, E(aw ? 21.6 : 13, aw ? 21.4 : 27.4, 2, 2.4, A.d) + C(aw ? 18 : 9.6, aw ? 21 : 27.2, 0.6, A.l2) + C(aw ? 20.4 : 11.4, aw ? 22.6 : 28.4, 0.6, A.l2), A.d3, 0.8);
-      if (t === 'capinha' && aw) s += piece('M14.6 18.4 Q12 24 12.6 29.6 L16 29.6 Q16 23 19.6 19.6 Z', A.d, '', A.d3, 0.7) + piece('M24.6 18.4 Q27.2 24 26.6 29.6 L23.2 29.6 Q23.2 23 19.6 19.6 Z', A.d, '', A.d3, 0.7);
-      if (t === 'gravatinha') s += bow(nx, ny + 0.6, AB, 0.2);
-      if (t === 'colar' || t === 'pulseira') for (let k = 0; k < 7; k++) { const a = Math.PI * (0.15 + 0.7 * k / 6); s += C(nx - Math.cos(a) * 4.6, ny - 1.4 + Math.sin(a) * 1.8, 0.7, k % 2 ? A.b : A.l); }
-      if (t === 'broche' || t === 'fuxico') s += flower(nx + (aw ? 0 : 1), ny + (aw ? 1.2 : 0), 1.8, A.b, A.l2, 6);
-      if (t === 'bolsinha') s += piece(`M${nx + 2} ${ny + 2} L${nx + 6} ${ny + 2} L${nx + 5.6} ${ny + 5.4} L${nx + 2.4} ${ny + 5.4} Z`, A.b, '', A.d3, 0.6);
-    }
-    return s;
-  }
-  // the same picture in pixels, for an <image> inside an SVG (swapped in when it's ready)
-  function pixHref(key, w, h, vb, draw) {
-    if (cache.has(key)) return cache.get(key);
-    if (!busy.has(key)) {
-      busy.add(key);
-      setTimeout(() => pixelate(draw(), w, h, vb).then((url) => { cache.set(key, url); busy.delete(key); document.querySelectorAll(`image[data-pk="${key}"]`).forEach((el) => el.setAttribute('href', url)); }).catch(() => busy.delete(key)), 30);
-    }
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w * 2}" height="${h * 2}" viewBox="${vb}">${draw()}</svg>`);
-  }
-  const novImg = (o) => { const key = 'nov-' + hsh(o); return `<image data-pk="${key}" href="${pixHref(key, 88, 68, '0 0 44 34', () => novelo(o))}" width="44" height="34" preserveAspectRatio="none" image-rendering="optimizeSpeed" style="image-rendering:pixelated"/>`; };
   const cena = (nome, fn) => (o) => img(`${nome}-${hsh(o)}`, 640, 400, '0 0 320 200', () => fn(o), 'pixbg');
 
   return {
-    novImg, novelo,
     praca: cena('praca', (o) => { uid = 0; return scenePraca(o); }),
     atelie: cena('atelie', atelie), tint: cena('tint', tint), casa: cena('casa', casa), jardim: cena('jardim', jardim), tOf,
     mapa: (o) => img(`mapa-${o.part}-${o.season}-${o.festa ? 1 : 0}-${(o.vazias || []).join('.')}`, 640, 400, '0 0 320 200', () => mapa(o), 'pixbg'),
@@ -6204,20 +6138,118 @@ function renderConfig() {
 /* Novelo strolls around the house: the fabric pile, the scrap box, under the table, his bed at home, the garden */
 const NOV_SPOTS = ['pilha', 'caixa', 'chao', 'pilha', 'casa', 'jardim', 'caixa', 'casa', 'pilha', 'jardim'];
 const NOV_AT = { pilha: [0, 0], caixa: [-110, -4], chao: [-138, 13] };
-/* Novelo on his layer: a pixel picture (body + a swishing tail), little z's when he sleeps,
+/* Novelo as hand-placed pixel art: parts are filled on a grid, shaded by position, outlined, then the face is placed pixel by pixel */
+const NOVPX = (() => {
+  const PAL = { a: '#EE9A4E', b: '#D97C3A', c: '#B85E2C', l: '#F8BC7E', s: '#C4622A', w: '#FFF4E4', v: '#EAD2B8', u: '#D6B898', p: '#F4A6B6', n: '#E07084', k: '#2E1E1C', h: '#FFFFFF', g: '#A9B84C', y: '#E6B23C', o: '#5A2E1E', O: '#8A4524', m: '#7A3A2A' };
+  function grid(W, H) {
+    const c = Array.from({ length: H }, () => Array(W).fill(null)), part = Array.from({ length: H }, () => Array(W).fill(null));
+    const set = (x, y, col, pt) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < W && y < H) { c[y][x] = col; if (pt !== undefined) part[y][x] = pt; } };
+    const shadeOf = (x, y, cx, cy, rx, ry, base) => {
+      if (base !== 'a') return base;
+      const dx = (x - cx) / rx, dy = (y - cy) / ry;
+      if (dx + dy * 0.4 > 0.62) return 'c';
+      if (dx + dy * 0.3 > 0.22) return 'b';
+      if (dx < -0.25 && dy < -0.3) return 'l';
+      return 'a';
+    };
+    const ell = (cx, cy, rx, ry, col, pt, shade = true, clipY = H) => { for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) { if (y >= clipY) continue; const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2; if (d <= 1) set(x, y, shade ? shadeOf(x, y, cx, cy, rx, ry, col) : col, pt); } };
+    const poly = (pts, col, pt, sh) => { const ys = pts.map((q) => q[1]), y0 = Math.floor(Math.min(...ys)), y1 = Math.ceil(Math.max(...ys));
+      for (let y = y0; y <= y1; y++) { const xs = []; for (let i = 0; i < pts.length; i++) { const [ax, ay] = pts[i], [bx, by] = pts[(i + 1) % pts.length]; if ((ay <= y + 0.5 && by > y + 0.5) || (by <= y + 0.5 && ay > y + 0.5)) xs.push(ax + (y + 0.5 - ay) / (by - ay) * (bx - ax)); } xs.sort((m, n) => m - n);
+        for (let i = 0; i < xs.length; i += 2) for (let x = Math.ceil(xs[i] - 0.5); x <= Math.floor(xs[i + 1] - 0.5); x++) set(x, y, sh ? sh(x, y) : col, pt); } };
+    const curve = (P, w, colF, pt) => { for (let i = 0; i <= 80; i++) { const t = i / 80, n = P.length - 1; let q = P.slice(); for (let k = 0; k < n; k++) q = q.slice(0, -1).map((a, j) => [a[0] + (q[j + 1][0] - a[0]) * t, a[1] + (q[j + 1][1] - a[1]) * t]); const [x, y] = q[0], ww = typeof w === 'function' ? w(t) : w; for (let dy = -ww; dy <= ww; dy++) for (let dx = -ww; dx <= ww; dx++) if (dx * dx + dy * dy <= ww * ww + 0.3) set(x + dx, y + dy, colF(t, dx, dy), pt); } };
+    const px = (str, x0, y0) => str.split('|').forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') set(x0 + i, y0 + j, ch); }));
+    // a dark line where one part sits on top of another (the head over the body, a leg over the chest)
+    const seam = (top, under, col = 'O') => { const marks = []; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (part[y][x] === under && [[0, -1], [-1, 0], [1, 0], [0, 1]].some(([dx, dy]) => part[y + dy] && part[y + dy][x + dx] === top)) marks.push([x, y]); marks.forEach(([x, y]) => { c[y][x] = col; }); };
+    const outline = () => { const add = []; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (!c[y][x] && [[0, -1], [-1, 0], [1, 0], [0, 1]].some(([dx, dy]) => c[y + dy] && c[y + dy][x + dx] && c[y + dy][x + dx] !== 'h')) add.push([x, y]); add.forEach(([x, y]) => { c[y][x] = 'o'; }); };
+    return { c, part, set, ell, poly, curve, px, seam, outline, W, H };
+  }
+  // sitting up, facing you; the tail curls up on the right, its base hidden behind the haunch
+  function sit(eyes, o = {}) {
+    const G = grid(54, 46), { ell, poly, curve, px, set } = G;
+    curve([[36, 40], [47, 42], [50, 33], [44, 27]], (t) => (t < 0.85 ? 2.2 : 1.6), (t, dx, dy) => (t > 0.86 ? 'w' : dx + dy > 1 ? 'b' : (t * 10 | 0) % 3 === 1 ? 's' : 'a'), 'tail');
+    ell(27, 34, 12, 10.5, 'a', 'body', true, 44);
+    ell(17, 38.5, 6.4, 5.8, 'a', 'body', true, 44); ell(37, 38.5, 6.4, 5.8, 'a', 'body', true, 44);
+    poly([[25, 33], [29, 33], [29, 41], [25, 41]], 'b', 'body', (x) => (x > 27 ? 'c' : 'b'));
+    ell(27, 30, 6, 5.4, 'w', 'bib', false);
+    [[22, 31.6], [24, 33.6], [26, 34.4], [28, 34.4], [30, 33.6], [32, 31.6]].forEach(([x, y]) => set(x, y + 1, 'w', 'bib'));
+    poly([[20.4, 32], [25, 32], [25, 43], [20.4, 43]], 'a', 'leg', (x, y) => (y > 39 ? 'w' : x > 23.6 ? 'b' : 'a'));
+    poly([[29, 32], [33.6, 32], [33.6, 43], [29, 43]], 'b', 'leg', (x, y) => (y > 39 ? 'v' : x > 32 ? 'c' : 'b'));
+    ell(22.7, 42.6, 3, 1.7, 'w', 'paw', false, 45); ell(31.3, 42.6, 3, 1.7, 'v', 'paw', false, 45);
+    set(22, 43, 'u'); set(24, 43, 'u'); set(30, 43, 'u'); set(32, 43, 'u');
+    // ears, head, cheek fluff
+    poly([[12, 13], [13, 1.5], [22, 8]], 'a', 'ear', (x, y) => (x > 14 && y > 5 && x < 19 && y < 11 ? 'p' : x < 14 ? 'l' : 'a'));
+    poly([[32, 8], [41, 1.5], [42, 13]], 'a', 'ear', (x, y) => (x < 40 && y > 5 && x > 35 && y < 11 ? 'p' : x > 40 ? 'b' : 'a'));
+    ell(27, 15.5, 14, 10.5, 'a', 'head');
+    ell(26.5, 21, 6.4, 3.8, 'w', 'head', false); poly([[22, 22], [32, 22], [30, 25], [24, 25]], 'w', 'head', (x) => (x > 29 ? 'v' : 'w'));
+    G.seam('head', 'body'); G.seam('head', 'bib', 'u'); G.seam('leg', 'bib', 'u'); G.seam('leg', 'body'); G.seam('paw', 'leg', 'u');
+    // stripes: the M on the forehead, cheeks, back of the haunches
+    px('s.s.s|s.s.s|..s..', 24, 6); px('ss|.s', 14, 15); px('ss|s.', 38, 15);
+    px('.s|s.|s.', 41, 34); px('s.|.s|.s', 11, 34);
+    // face
+    const E = { aberto: '.kkkk.|kkkhhk|kkkkhk|kkkkkk|kgggkk|.kggk.', redondo: '.kkkk.|khhkkk|khkkkk|kkkkkk|kkkkkk|.kkkk.', feliz: '......|......|.kkkk.|k....k|......|......', calma: '......|kkkkkk|kkkkkk|kkkkhk|kgggkk|.kkkk.' }[eyes];
+    if (E) { px(E, 18, 11); px(E, 30, 11); }
+    px('nnnnnn|.nnnn.', 24, 18); px('mm', 26, 20); set(25, 21, 'm'); set(28, 21, 'm');
+    G.outline();
+    return G;
+  }
+  // curled up asleep, chin on the paws, tail wrapped round the front
+  function sleep(o = {}) {
+    const G = grid(58, 48), { ell, poly, curve, px, set } = G;
+    ell(32, 35.5, 18.5, 9.4, 'a', 'body', true, 44);
+    poly([[7, 30], [9, 18.5], [17, 25]], 'a', 'ear', (x, y) => (x > 9 && y > 22 && x < 13 ? 'p' : 'l'));
+    poly([[17, 24], [24, 17], [26, 28]], 'a', 'ear', (x, y) => (x > 20 && y > 22 && x < 24 ? 'p' : 'a'));
+    ell(16, 32, 10.6, 8.6, 'a', 'head');
+    ell(16, 36.6, 5.6, 3.2, 'w', 'head', false);
+    ell(11, 41.6, 3.6, 2, 'w', 'paw', false, 45); ell(19.4, 42.2, 3.6, 2, 'v', 'paw', false, 45);
+    curve([[47, 40], [53, 44.4], [36, 44.6], [22, 44]], (t) => (t < 0.85 ? 2.2 : 1.8), (t, dx, dy) => (t > 0.88 ? 'w' : dy > 1 ? 'b' : (t * 10 | 0) % 3 === 1 ? 's' : 'a'), 'tail');
+    G.seam('head', 'body'); G.seam('paw', 'head'); G.seam('tail', 'body'); G.seam('tail', 'paw');
+    px('s.s.s|s.s.s', 14, 24); px('.s..s..s..s|s..s..s..s.', 28, 27);
+    px('.....|k...k|.kkk.', 8, 30); px('.....|k...k|.kkk.', 17, 30);
+    px('nnn|.n.', 15, 34); px('m', 16, 36);
+    G.outline();
+    return G;
+  }
+  // accessories, placed by pose
+  function wear(G, acc, aw) {
+    if (!acc) return;
+    const A = acc.hex, d = shadeHex(A, -0.3), l = shadeHex(A, 0.35), set = (x, y, c) => { if (G.c[y] && x >= 0 && x < G.W) G.c[y][x] = c; };
+    const blk = (str, x0, y0) => str.split('|').forEach((row, j) => [...row].forEach((ch, i) => { if (ch === '1') set(x0 + i, y0 + j, A); if (ch === '2') set(x0 + i, y0 + j, d); if (ch === '3') set(x0 + i, y0 + j, l); if (ch === 'o') set(x0 + i, y0 + j, '#3A2430'); }));
+    const t = acc.tipo, [hx, hy] = aw ? [36, 4] : [21, 19], [nx, ny] = aw ? [27, 26] : [16, 39];
+    if (t === 'laco') blk('oo...oo|o3oo o3o|o112211o|o3oo o3o|oo...oo'.replace(/ /g, 'o'), hx - 2, hy);
+    if (t === 'presilha') blk('ooooo|o3112|ooooo', hx - 1, hy + 2);
+    if (t === 'tiara') { const y = aw ? 6 : 22; for (let x = (aw ? 15 : 8); x <= (aw ? 39 : 24); x++) set(x, y + Math.round(Math.abs(x - (aw ? 27 : 16)) * 0.25), A); blk('o3o|o1o', aw ? 26 : 15, y - 2); }
+    if (t === 'lencinho' || t === 'capinha') blk(aw ? 'oooooooooooo|o1111111112o|.o11131112o.|..o111112o..|...o1112o...|....o12o....|.....oo.....' : 'ooooooooo|o1111112o|.o13112o.|..o112o..|...ooo...', nx - (aw ? 6 : 4), ny - (aw ? 1 : 2));
+    if (t === 'gravatinha') blk('oo.oo|o1o1o|o121o|o1o1o|oo.oo', nx - 2, ny);
+    if (t === 'colar' || t === 'pulseira') for (let i = -4; i <= 4; i += 2) set(nx + i, ny + (Math.abs(i) < 3 ? 1 : 0), i % 4 ? A : l);
+    if (t === 'broche' || t === 'fuxico') blk('.1.|131|.1.', nx - 1, ny + 1);
+    if (t === 'bolsinha') blk('oooo|o11o|o12o|oooo', nx + 4, ny + 3);
+  }
+  const shadeHex = (hex, a) => '#' + [1, 3, 5].map((i) => { const v = parseInt(hex.slice(i, i + 2), 16); return Math.round(a > 0 ? v + (255 - v) * a : v * (1 + a)).toString(16).padStart(2, '0'); }).join('');
+  const cache = new Map();
+  function url(o) {
+    const key = JSON.stringify(o);
+    if (cache.has(key)) return cache.get(key);
+    const G = o.awake ? sit(o.eyes || 'aberto', o) : sleep(o);
+    wear(G, o.acc, o.awake);
+    const cv = document.createElement('canvas'); cv.width = 58; cv.height = 48; const x = cv.getContext('2d');
+    G.c.forEach((row, y) => row.forEach((ch, i) => { if (ch) { x.fillStyle = PAL[ch] || ch; x.fillRect(i, y, 1, 1); } }));
+    const u = cv.toDataURL(); cache.set(key, u); return u;
+  }
+  return { url, W: 58, H: 48 };
+})();
+/* Novelo on his layer: the pixel sheet (asleep, breathing, with little z's, or sitting up awake),
    a ball of yarn to chase when he's awake, and whatever you made for him to wear */
-function novSVG(x, y, k = 0.78) {
+function novSVG(x, y, k = 0.6) {
   const cat = state.cat || {}, aw = !!cat.awake;
   const acc = cat.acc ? { tipo: cat.acc.tipo, hex: hexOf(cat.acc.cor) || '#C8463D' } : null;
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const tail = PIXART.novImg({ part: 'tail', awake: aw, acc: null });
-  const body = PIXART.novImg({ part: 'body', awake: aw, acc });
-  const swish = calm ? '' : aw ? '<animateTransform attributeName="transform" type="rotate" values="0 25 29;7 25 29;0 25 29;-4 25 29;0 25 29" dur="2.2s" repeatCount="indefinite"/>' : '<animateTransform attributeName="transform" type="rotate" values="0 32 28;-3 32 28;0 32 28" dur="3.4s" repeatCount="indefinite"/>';
-  const breathe = calm || aw ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 -0.5;0 0" dur="3s" repeatCount="indefinite"/>';
+  // where his paws touch the ground on each sheet
+  const [cx, gy] = aw ? [27, 44] : [28, 45];
+  const breathe = calm || aw ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 -0.6;0 0" dur="3s" repeatCount="indefinite"/>';
   const yc = hexOf((clothKeys('cloth')[0]) || 'rosa') || '#E58FA6';
-  const yarn = aw ? `<g class="yarn"><circle cx="4" cy="29" r="3.4" fill="${yc}" stroke="${shade(yc, -0.45)}" stroke-width=".8"/><path d="M1.6 27.6 Q4 30 6.6 28 M2 30.4 Q4.4 27.6 6.8 30" fill="none" stroke="${shade(yc, -0.25)}" stroke-width=".6"/><path d="M7 30.6 Q10 32 12.4 31" fill="none" stroke="${yc}" stroke-width=".7"/></g>` : '';
-  const zz = aw ? '' : '<text x="18" y="12" class="zzz">z</text><text x="23" y="7" class="zzz z2">z</text>';
-  return `<g transform="translate(${(x - 20 * k).toFixed(1)} ${(y - 31 * k).toFixed(1)}) scale(${k})">${yarn}<g data-act="cat" id="cat" class="cat" role="button" tabindex="0" aria-label="Novelo, o gatinho"><g>${swish}${tail}</g><g>${breathe}${body}</g>${zz}<rect x="2" y="2" width="38" height="31" fill="transparent"/></g></g>`;
+  const yarn = aw ? `<g class="yarn"><circle cx="${x - 13}" cy="${y - 2.4}" r="2.6" fill="${yc}" stroke="${shade(yc, -0.45)}" stroke-width=".6"/><path d="M${x - 15} ${y - 3.4} Q${x - 13} ${y - 1.4} ${x - 11} ${y - 3}" fill="none" stroke="${shade(yc, -0.25)}" stroke-width=".5"/><path d="M${x - 10.6} ${y - 1.2} Q${x - 8} ${y} ${x - 5} ${y - 0.6}" fill="none" stroke="${yc}" stroke-width=".6"/></g>` : '';
+  const zz = aw ? '' : `<text x="${x - 2}" y="${y - 16}" class="zzz">z</text><text x="${x + 2}" y="${y - 21}" class="zzz z2">z</text>`;
+  return `${yarn}<g data-act="cat" id="cat" class="cat" role="button" tabindex="0" aria-label="Novelo, o gatinho"><g transform="translate(${(x - cx * k).toFixed(1)} ${(y - gy * k).toFixed(1)}) scale(${k})"><g>${breathe}<image href="${NOVPX.url({ awake: aw, eyes: 'aberto', acc })}" width="58" height="48" preserveAspectRatio="none" image-rendering="optimizeSpeed" style="image-rendering:pixelated"/></g><rect x="4" y="4" width="50" height="42" fill="transparent"/></g>${zz}</g>`;
 }
 /* Novelo lives on his own layer above the painted rooms, so he can still be petted and dressed up */
 const NOV_PE = { chao: [38, 167], pilha: [212, 162], caixa: [168, 146], jardim: [298, 159] };
