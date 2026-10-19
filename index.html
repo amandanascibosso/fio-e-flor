@@ -3980,6 +3980,12 @@ function plotStage(p, now) {
   const t = (now - p.at) / pdur(p);
   return t >= 1 ? 3 : t >= 0.6 ? 2 : t >= 0.2 ? 1 : 0;
 }
+/* Colours (with their tone) you've already had as fabric: scrap orders only ask for these */
+function marcaFeito(k) {
+  const s = stripTec(k);
+  state.feitos = state.feitos || [];
+  if (colorDef(baseOf(s)) && !state.feitos.includes(s)) state.feitos.push(s);
+}
 function makeableColors() {
   const open = FKEYS.filter(flowerOpen);
   return Object.keys(COLORS).filter((c) => !COLORS[c].barro && !COLORS[c].especial && !COLORS[c].natural && COLORS[c].receita.every((f) => open.includes(f)));
@@ -4057,9 +4063,11 @@ function newOrderRaw() {
       o = { vid: v.id, kind: 'reforma', ...pick(opts), line };
     } else if (state.served >= 3 && Math.random() < 0.2) {
       o = { vid: v.id, kind: 'livre', line };
-    } else if (state.served >= 3 && Math.random() < 0.22) {
+    } else if (state.served >= 3 && (scrapCols.length || (state.feitos || []).length) && Math.random() < 0.22) {
       const petT = AKEYS.filter((k) => ACCS[k].pet && unlocked(ACCS[k]));
-      o = { vid: v.id, kind: 'acessorio', acc: { tipo: PETS[v.id] && petT.length && Math.random() < 0.45 ? pick(petT) : pick(tipos), cor: scrapCols.length && Math.random() < 0.7 ? pick(scrapCols) : tone(pick(pool)) }, line };
+      const feitos = state.feitos || [];
+      const cor = stripTec(scrapCols.length && (Math.random() < 0.7 || !feitos.length) ? pick(scrapCols) : pick(feitos));
+      o = { vid: v.id, kind: 'acessorio', acc: { tipo: PETS[v.id] && petT.length && Math.random() < 0.45 ? pick(petT) : pick(tipos), cor }, line };
     } else {
       const sid = clock().season.id;
       const occ = pick(OCCASIONS.map((x, i) => i).filter((i) => (!OCCASIONS[i].est || OCCASIONS[i].est.includes(sid)) && OCCASIONS[i].pecas.some(pieceOpen)));
@@ -4446,6 +4454,7 @@ function act(el) {
     const m = !deg && state.up.tacho && cruOf(tec) >= 2 ? 2 : 1;
     addCru(tec, -m);
     state.cloth[key] = (state.cloth[key] || 0) + m * MCOLS;
+    marcaFeito(key);
     taskEv('tingir');
     state.pot.slots = [];
     const isNew = !deg && !state.discovered.includes(base);
@@ -5008,7 +5017,7 @@ function renderAtelie() {
     const rem = c.kind === 'remendo', rf = c.kind === 'reforma';
     const needsMeasure = !accOrder && !conj && !rem && !rf && !['trico', 'patch'].includes(c.peca) && !state.measured[v.id];
     const favKnown = (state.hearts[v.id] || 0) >= 3 && !accOrder && !conj;
-    const gosta = !accOrder && !conj && (state.hearts[v.id] || 0) >= 4 && VBOTAO[v.id] ? `Gosta de botão de ${BOTOES[VBOTAO[v.id]].nome.toLowerCase()}, linha ${VCONTRASTE[v.id] ? 'colorida' : 'combinando'}${(state.hearts[v.id] || 0) >= 6 && VGOLA[v.id] ? `, ${GOLAS[VGOLA[v.id]].nome.toLowerCase()} e ${BOLSOS[VBOLSO[v.id]].nome.toLowerCase()}` : ''}` : '';
+    const gosta = !accOrder && !conj && (state.hearts[v.id] || 0) >= 4 && VBOTAO[v.id] ? `${['camisa', 'casaco', 'macacao', 'vestido'].includes(c.peca) ? `Gosta de botão de ${BOTOES[VBOTAO[v.id]].nome.toLowerCase()}, linha` : 'Gosta de linha'} ${VCONTRASTE[v.id] ? 'colorida' : 'combinando'}${(state.hearts[v.id] || 0) >= 6 && VGOLA[v.id] ? `, ${GOLAS[VGOLA[v.id]].nome.toLowerCase()} e ${BOLSOS[VBOLSO[v.id]].nome.toLowerCase()}` : ''}` : '';
     const info = [c.pressa && gnow() < c.pressa ? `<b>⏱ Com pressa! Bônus se entregar em <span id="pressa-left">${secs(c.pressa - gnow())}</span></b>` : '', gosta, conj ? `Conjunto: ${c.got.length} de ${c.vids.length} peças · cada uma toda ${c.cor}` : !accOrder && !rf && !['trico', 'patch'].includes(c.peca) ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
     balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>Carta ${c.misterio ? 'sem assinatura' : conj ? `de ${nomesDe(c.vids)}` : `da ${v.nome}`}</b>${info ? `<span class="help">${info}</span>` : ''}
       <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${rf ? `<button class="primary sm" data-act="rf-start" id="rf-start">✂️ Reformar${c.tipo === 'cor' ? ` (1 m de ${c.cor})` : ''}</button>` : ''}${needsMeasure ? `<button class="primary sm" data-act="medir-casa" data-v="${v.id}" id="measure">📏 Medir na casa dela</button>` : ''}${rem || rf ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">${c.misterio ? '📮 Enviar pelo correio' : '👗 Chamar pra provar'}: ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
@@ -6355,6 +6364,8 @@ function moldeBox(m) {
   BOX.set(m.d, b);
   return b;
 }
+/* Only pieces that really close with buttons get them */
+const temBotao = (peca, molde) => (peca === 'camisa' && ['botoes', 'colete'].includes(molde)) || peca === 'casaco' || peca === 'macacao' || (peca === 'vestido' && molde === 'anos50');
 const temGola = (peca) => ['vestido', 'camisa', 'casaco', 'macacao'].includes(peca);
 const temBolso = (peca) => !['chapeu', 'cachecol', 'trico', 'patch'].includes(peca);
 function golaBolsoMarkup(m, peca, fin, zs) {
@@ -6403,7 +6414,8 @@ function renderEtiqueta(s) {
 function finMarkup(fin, zs) {
   if (!fin) return '';
   const lin = fin.linha || (zs && zs[0] && zs[0].cor ? shade(hexOf(zs[0].cor), -0.25) : '#3A3040');
-  const B = BOTOES[fin.botao || 'madeira'];
+  if (!fin.botao) return '';
+  const B = BOTOES[fin.botao];
   const btn = (y) => fin.botao === 'flor'
     ? `<g transform="translate(50 ${y})">${[0, 72, 144, 216, 288].map((a) => `<ellipse cx="0" cy="-1.6" rx="1.2" ry="1.6" fill="${B.c}" transform="rotate(${a})"/>`).join('')}<circle r=".9" fill="#F7D35E"/></g>`
     : `<circle cx="50" cy="${y}" r="2.2" fill="${B.c}" stroke="rgba(40,28,45,.45)" stroke-width=".5"/><circle cx="49.3" cy="${y}" r=".35" fill="rgba(40,28,45,.6)"/><circle cx="50.7" cy="${y}" r=".35" fill="rgba(40,28,45,.6)"/>`;
@@ -7021,7 +7033,7 @@ function aprPassar() {
   const req = needs(b);
   if (req.some((x) => (state.cloth[x.cor] || 0) < x.min + 1)) { toast('Flora precisa de um pouquinho mais de tecido (ela ainda corta com sobra).'); return; }
   req.forEach((x) => { state.cloth[x.cor] -= x.min + 1; });
-  const fin = { linha: b.linha || null, botao: b.botao || 'madeira', gola: temGola(b.peca) ? b.gola || 'nenhuma' : 'nenhuma', bolso: temBolso(b.peca) ? b.bolso || 'nenhum' : 'nenhum', etq: !!state.etiqueta };
+  const fin = { linha: b.linha || null, botao: temBotao(b.peca, b.molde) ? b.botao || 'madeira' : null, gola: temGola(b.peca) ? b.gola || 'nenhuma' : 'nenhuma', bolso: temBolso(b.peca) ? b.bolso || 'nenhum' : 'nenhum', etq: !!state.etiqueta };
   A.job = { peca: b.peca, molde: b.molde, z: b.z.map((z) => ({ ...z })), tam: b.tam || 'M', fin, done: gnow() + (5 - aprLevel()) * 60000 };
   ui.sheet = null; renderSheet();
   sfx('chime'); toast('Flora pegou a tesoura, toda animada!');
@@ -7425,12 +7437,12 @@ function renderCartela() {
   const can = ready && !lacking && !rackFull;
   const label = rackFull ? 'Arara cheia' : !ready ? 'Escolha os tecidos' : lacking ? `Falta tecido ${lacking.cor}` : 'Cortar o tecido';
   $('gen-body').innerHTML = `<div class="cartela">
-    <div class="cart-prev">${pieceSVG(b.peca, b.molde, b.z, 'Prévia da peça', null, null, { linha: b.linha, botao: b.botao || 'madeira', gola: b.gola, bolso: b.bolso, etq: !!state.etiqueta })}
+    <div class="cart-prev">${pieceSVG(b.peca, b.molde, b.z, 'Prévia da peça', null, null, { linha: b.linha, botao: temBotao(b.peca, b.molde) ? b.botao || 'madeira' : null, gola: b.gola, bolso: b.bolso, etq: !!state.etiqueta })}
       <div class="tams">${['P', 'M', 'G'].map((t) => `<button class="pat tamb" data-act="tam" data-v="${t}" id="tam-${t}" aria-pressed="${b.tam === t}">${t}</button>`).join('')}</div>
       <p class="help">${tamHint}</p>
       <p class="help">${ready ? `Precisa de uns ${req.map((x) => `${fmtM(x.min)} m de ${x.cor}`).join(' e ')}.` : 'Escolha um tecido pra cada parte. Cuidado com as cores e os tons parecidos!'}</p>
       <p class="label">Linha</p><div class="sws"><button class="swb${!b.linha ? ' on' : ''}" data-act="linha" data-v="" style="background:conic-gradient(${b.z[0].cor ? hexOf(b.z[0].cor) : CRU} 0 50%, #fff 0)" aria-label="Linha combinando" aria-pressed="${!b.linha}"></button>${THREADS.map((c) => `<button class="swb${b.linha === c ? ' on' : ''}" data-act="linha" data-v="${c}" style="background:${c}" aria-label="Linha ${c}" aria-pressed="${b.linha === c}"></button>`).join('')}</div>
-      <p class="label">Botões</p><div class="pats">${Object.entries(BOTOES).map(([k, B]) => `<button class="pat" data-act="botao" data-v="${k}" id="botao-${k}" aria-pressed="${(b.botao || 'madeira') === k}">${B.nome}${B.preco ? ` · ${B.preco}` : ''}</button>`).join('')}</div>
+      ${temBotao(b.peca, b.molde) ? `<p class="label">Botões</p><div class="pats">${Object.entries(BOTOES).map(([k, B]) => `<button class="pat" data-act="botao" data-v="${k}" id="botao-${k}" aria-pressed="${(b.botao || 'madeira') === k}">${B.nome}${B.preco ? ` · ${B.preco}` : ''}</button>`).join('')}</div>` : ''}
       ${temGola(b.peca) ? `<p class="label">Gola</p><div class="pats">${Object.entries(GOLAS).map(([k, G]) => `<button class="pat" data-act="gola" data-v="${k}" id="gola-${k}" aria-pressed="${(b.gola || 'nenhuma') === k}">${G.nome}${G.preco ? ` · ${G.preco}` : ''}</button>`).join('')}</div>` : ''}
       ${temBolso(b.peca) ? `<p class="label">Bolso</p><div class="pats">${Object.entries(BOLSOS).map(([k, B]) => `<button class="pat" data-act="bolso" data-v="${k}" id="bolso-${k}" aria-pressed="${(b.bolso || 'nenhum') === k}">${B.nome}${B.preco ? ` · ${B.preco}` : ''}</button>`).join('')}</div>` : ''}
       <button class="primary" data-act="open-cut" id="cart-cut" ${can ? '' : 'disabled'}>${label}</button>
@@ -8059,8 +8071,8 @@ function doCut() {
     if (sobra > 0) state.scraps[st.cor] = (state.scraps[st.cor] || 0) + sobra;
   });
   const b = state.bench;
-  const fin = { linha: b.linha || null, botao: b.botao || 'madeira', gola: temGola(b.peca) ? b.gola || 'nenhuma' : 'nenhuma', bolso: temBolso(b.peca) ? b.bolso || 'nenhum' : 'nenhum', etq: !!state.etiqueta };
-  state.coins = Math.max(0, state.coins - BOTOES[fin.botao].preco - GOLAS[fin.gola].preco - BOLSOS[fin.bolso].preco);
+  const fin = { linha: b.linha || null, botao: temBotao(b.peca, b.molde) ? b.botao || 'madeira' : null, gola: temGola(b.peca) ? b.gola || 'nenhuma' : 'nenhuma', bolso: temBolso(b.peca) ? b.bolso || 'nenhum' : 'nenhum', etq: !!state.etiqueta };
+  state.coins = Math.max(0, state.coins - (fin.botao ? BOTOES[fin.botao].preco : 0) - GOLAS[fin.gola].preco - BOLSOS[fin.bolso].preco);
   state.sewing = { kind: 'peca', peca: b.peca, molde: b.molde, z: b.z.map((z) => ({ ...z })), tam: b.tam || 'M', fin, obra: { i: 0, notas: [] } };
   b.z.forEach((z) => { if (!(state.cloth[z.cor] > 0)) z.cor = null; });
   cut = null;
@@ -8300,7 +8312,7 @@ function finishSew() {
 const PARTES = { vestido: ['ombros e decote', 'laterais do corpete', 'saia e barra'], saia: ['cós', 'laterais', 'barra'], camisa: ['ombros e gola', 'mangas', 'laterais e barra'], cachecol: ['bainha', 'laterais', 'franjas'], chapeu: ['copa', 'aba', 'acabamento da aba'] };
 const OBRA_ROT = { cortar: '✂️ Cortar', alfinetar: '📍 Alfinetar', costura: '🧵 Costurar', passar: '♨️ Passar', botoes: '🔘 Botões', prova: '🪞 Prova' };
 const OBRA_PESO = { cortar: 1, alfinetar: 0.5, costura: 1, passar: 0.5, botoes: 0.5 };
-const obraEtapas = (s) => ['cortar', 'alfinetar', ...(PARTES[s.peca] || ['primeira costura', 'segunda costura', 'terceira costura']).map((_, i) => 'costura' + i), 'passar', 'botoes', 'prova'];
+const obraEtapas = (s) => ['cortar', 'alfinetar', ...(PARTES[s.peca] || ['primeira costura', 'segunda costura', 'terceira costura']).map((_, i) => 'costura' + i), 'passar', ...(s.fin && s.fin.botao ? ['botoes'] : []), 'prova'];
 const etapaTipo = (e) => e.replace(/\d+$/, '');
 let obra = null;
 function openObra() {
@@ -8580,6 +8592,7 @@ function start(data) {
   if (!state.colsV) { Object.keys(state.cloth).forEach((k) => { state.cloth[k] *= MCOLS; }); state.colsV = true; }
   if (state.pot && state.pot.cor) {
     state.cloth[state.pot.cor] = (state.cloth[state.pot.cor] || 0) + (state.pot.m || 1) * MCOLS;
+    marcaFeito(state.pot.cor);
     if (!state.discovered.includes(state.pot.cor)) state.discovered.push(state.pot.cor);
   }
   state.pot = { slots: ((state.pot && state.pot.slots) || []).slice(0, 3) };
@@ -8600,6 +8613,7 @@ function start(data) {
   state.tec = state.tec || 'algodão';
   if (state.tab === 'mata') state.tab = 'jardim';
   state.correio = { cartas: [], obrigados: [], next: 0, n: 0, ...(state.correio || {}) };
+  if (!state.feitos) { state.feitos = []; [...Object.keys(state.cloth || {}), ...Object.keys(state.scraps || {}), ...(state.rack || []).flatMap((r) => (r.z || []).map((z) => z.cor))].forEach((k) => k && marcaFeito(k)); }
   state.clube = { quadros: [], colchas: 0, dia: 0, feitos: 0, aprendeu: [], ...(state.clube || {}) };
   if (state.misterio && state.misterio.cap >= 5) revelaAurora();
   state.myPats = state.myPats || [];
