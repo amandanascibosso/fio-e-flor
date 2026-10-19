@@ -612,34 +612,37 @@ body.portrait-ok .rotate { display: none; }
 @keyframes lovefl { 0% { transform: translateY(1px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-4px); opacity: 0; } }
 .crowd-v .sprite.hop2, .cust-spot .sprite.hop2 { animation: hop .45s ease-out 3; }
 @media (prefers-reduced-motion: reduce) { .sprite .swing, .sprite .lv { animation: none; } .sprite .lv { opacity: 1; } }
-.splash { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px; text-align: center; background: radial-gradient(circle at 50% 38%, #43344F 0, #2B2333 45%, #231E29 75%); color: #F6F0E6; transition: opacity .55s ease, visibility .55s; }
+/* Loading: the cover of the sewing notebook. A needle sews a line across it while the game loads,
+   Novelo naps in the corner and the tip of the day is on a sticky note */
+.splash { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: radial-gradient(circle at 50% 40%, #4A3456 0, #2B2234 55%, #1E1824 100%); transition: opacity .6s, visibility .6s; }
 .splash.out { opacity: 0; visibility: hidden; pointer-events: none; }
-.sp-logo { font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 12vh, 78px); line-height: 1; color: #F2A7C6; text-shadow: 0 4px 0 #8A3F6B, 0 8px 18px rgba(0,0,0,.35); animation: splogo 2.4s ease-in-out infinite; }
-.sp-logo span { color: #F7D35E; }
-@keyframes splogo { 50% { transform: translateY(-4px); } }
-.sp-anim { width: min(78vw, 440px); height: auto; margin: 4px 0; }
-.sp-st { opacity: 0; animation: spst 2.4s steps(1) infinite backwards; }
-@keyframes spst { 0% { opacity: 1; } 70% { opacity: 1; } 71%, 100% { opacity: 0; } }
-.sp-needle { animation: spneedle 2.4s linear infinite; }
-@keyframes spneedle { 0% { transform: translateX(0); } 70% { transform: translateX(126px); } 100% { transform: translateX(126px); } }
-.sp-bob { animation: spbob .24s steps(1) infinite; }
-@keyframes spbob { 50% { transform: translateY(4px); } }
-.sp-spool { animation: spspool .48s steps(1) infinite; }
-@keyframes spspool { 50% { transform: translateY(1px); } }
-.sp-flower { transform-box: fill-box; transform-origin: 50% 100%; animation: spflower 2.4s ease-out infinite; }
-@keyframes spflower { 0%, 60% { transform: scale(.2); opacity: .3; } 75%, 100% { transform: scale(1); opacity: 1; } }
-.sp-yarn { animation: spyarn 1.2s ease-in-out infinite; }
-@keyframes spyarn { 50% { transform: translateX(5px); } }
-.sp-tail { transform-box: fill-box; transform-origin: 100% 100%; animation: sptail .6s steps(2) infinite; }
-@keyframes sptail { 50% { transform: rotate(-25deg); } }
-.sp-msg { margin: 0; font-weight: 800; color: #E9DDF0; min-height: 1.4em; }
-.sp-tip { margin: 0; font-size: 13px; color: #B9A9C6; max-width: 420px; min-height: 2.6em; }
+.sp-cover { position: relative; width: min(440px, 82vw, 128vh); aspect-ratio: 7 / 5; border-radius: 8px 18px 18px 8px; border: 4px solid #3A2430; box-shadow: 0 8px 0 #000, inset 0 0 0 6px rgba(255, 255, 255, .08);
+  background: radial-gradient(circle, #F4A6C0 2.2px, transparent 2.6px) 0 0 / 16px 16px, radial-gradient(circle, #FFF3D6 1.4px, transparent 1.8px) 8px 8px / 16px 16px, #E77DA0; animation: spin .5s ease-out both; }
+@keyframes spin { from { transform: translateY(12px) rotate(-2deg); opacity: 0; } }
+.sp-cover::before { content: ''; position: absolute; left: -14px; top: 14px; bottom: 14px; width: 26px; background: radial-gradient(circle at 13px 13px, transparent 4px, #3A3040 4.2px, #3A3040 6px, #9AA0A8 6.2px, #D6DAE0 8px, #3A3040 8.4px, transparent 9px) 0 0 / 26px 26px repeat-y; }
+.sp-tape { position: absolute; top: -9px; width: 72px; height: 20px; background: repeating-linear-gradient(45deg, #BFE3D2 0 6px, #DDF2E8 6px 12px); opacity: .92; }
+.sp-label { position: absolute; left: 50%; top: 12%; transform: translateX(-50%) rotate(-1.5deg); background: #FFFDF6; border: 3px solid #3A2430; padding: 12px 26px 10px; text-align: center; box-shadow: 3px 4px 0 rgba(0, 0, 0, .25); outline: 2px dashed #C2537F; outline-offset: -8px; white-space: nowrap; }
+.sp-label b { display: block; font: 700 clamp(30px, 7vw, 44px) var(--font-display); color: #8A3F6B; line-height: 1; }
+.sp-label b span { color: #E8B931; }
+.sp-label small { font: 800 11px var(--font-body); color: #8A6E7E; letter-spacing: .06em; }
+.sp-line { position: absolute; left: 8%; right: 8%; bottom: 30%; height: 4px; background: repeating-linear-gradient(90deg, rgba(255, 243, 214, .45) 0 10px, transparent 10px 16px); }
+.sp-line i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: repeating-linear-gradient(90deg, #FFFFFF 0 10px, transparent 10px 16px); animation: spsew 2.6s ease-in-out forwards; }
+.sp-line b { position: absolute; left: 0; bottom: -9px; width: 4px; height: 26px; margin-left: -2px; background: linear-gradient(#F6F0E6, #9AA0A8); border: 1px solid #3A3040; animation: spneedle 2.6s ease-in-out forwards, spbob .3s steps(2) infinite; }
+@keyframes spsew { to { width: 100%; } }
+@keyframes spneedle { to { left: 100%; } }
+@keyframes spbob { 50% { margin-bottom: 5px; } }
+.sp-cat { position: absolute; right: 5%; bottom: 3%; width: 27%; height: auto; image-rendering: pixelated; }
+.sp-cat-z { position: absolute; right: 22%; bottom: 25%; font: 700 15px var(--font-display); color: #FFF3D6; animation: zz 2s steps(4) infinite; }
+.sp-msg { position: absolute; left: 8%; bottom: 13%; margin: 0; max-width: 58%; font-weight: 800; font-size: 14px; color: #FFF3D6; text-shadow: 0 2px 0 #8A3F6B; text-align: left; }
+.sp-tip { position: absolute; right: max(16px, 4vw); top: max(16px, 6vh); margin: 0; width: min(220px, 34vw); background: #FFF3A8; border: 2px solid #3A2430; padding: 8px 12px; font-weight: 800; font-size: 12px; color: #3A2430; transform: rotate(2deg); box-shadow: 3px 3px 0 rgba(0, 0, 0, .3); text-align: left; }
+.sp-tip:empty { display: none; }
+@media (max-width: 700px) and (orientation: portrait) { .sp-tip { position: static; margin-top: 18px; width: min(300px, 80vw); } .splash { align-content: center; } }
+@media (prefers-reduced-motion: reduce) { .sp-cover, .sp-line i, .sp-line b, .sp-cat-z { animation: none; } .sp-line i { width: 100%; } .sp-line b { left: 100%; } }
 .title-hi { font-family: var(--font-display); color: var(--accent); font-size: 18px; margin: 0; }
 .title-crowd { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 3%; pointer-events: none; }
 .title-crowd .sprite { height: 100%; width: auto; animation: idle var(--bd, 2.6s) steps(1) infinite; }
 .title-crowd .tcv { height: 100%; }
 @media (max-height: 360px) { .title-crowd { height: 34%; } }
-@media (prefers-reduced-motion: reduce) { .sp-logo, .sp-st, .sp-needle, .sp-bob, .sp-spool, .sp-flower, .sp-yarn, .sp-tail { animation: none; } .sp-st { opacity: 1; } .sp-needle { transform: translateX(126px); } }
 .fx span.fx-tw { width: .45cqw; height: .45cqw; background: #FFF6D0; box-shadow: 0 0 4px 1px rgba(255,246,208,.8); animation: twinkle 2.6s ease-in-out infinite; }
 @keyframes twinkle { 0%, 100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.15); } }
 .fx span.fx-fio { left: 0; right: 0; height: 1px; background: rgba(40,30,45,.7); animation: none; }
@@ -709,8 +712,6 @@ html.deitado .title-card h1 { font-size: clamp(34px, 8vw, 56px); }
 html.deitado .title-me { height: clamp(70px, 22vw, 130px); }
 html.deitado .rm-stage { width: min(260px, 52vw); }
 html.deitado .tc-stage { width: min(46vh, 200px); }
-html.deitado .sp-logo { font-size: clamp(40px, 12vw, 78px); }
-html.deitado .sp-anim { width: min(78vh, 440px); }
 html.deitado .bd2-grid { width: min(62vh, 44vw, 250px); }
 html.deitado body { padding-block: 4px; }
 html.deitado .game { gap: 4px; }
@@ -915,17 +916,13 @@ html.deitado .nbk { max-width: 500px; min-width: 262px; } html.deitado .nbk > .p
 </style>
 <script>try { var dp = localStorage.getItem('fio-deitado') || 'off'; if (dp !== 'off' && matchMedia('(orientation: portrait)').matches) { document.documentElement.classList.add('deitado'); if (dp === 'r') document.documentElement.classList.add('deitado-r'); } } catch (e) {}</script>
 <div id="splash" class="splash" role="status" aria-live="polite" aria-label="Carregando Fio e Flor">
-  <div class="sp-logo">Fio <span>&amp;</span> Flor</div>
-  <svg class="sp-anim" viewBox="0 0 200 64" shape-rendering="crispEdges" aria-hidden="true">
-    <g class="sp-spool"><rect x="10" y="26" width="18" height="4" fill="#8B6A50"/><rect x="12" y="30" width="14" height="14" fill="#E58FA6"/><rect x="12" y="32" width="14" height="1" fill="#C96A88"/><rect x="12" y="36" width="14" height="1" fill="#C96A88"/><rect x="12" y="40" width="14" height="1" fill="#C96A88"/><rect x="10" y="44" width="18" height="4" fill="#8B6A50"/><rect x="14" y="31" width="2" height="12" fill="#F6C3D5"/></g>
-    <rect x="26" y="39" width="8" height="2" fill="#E58FA6"/>
-    <g fill="#F2A7C6"><rect class="sp-st" x="34" y="39" width="5" height="2" style="animation-delay:0.00s"/><rect class="sp-st" x="43" y="39" width="5" height="2" style="animation-delay:0.12s"/><rect class="sp-st" x="52" y="39" width="5" height="2" style="animation-delay:0.24s"/><rect class="sp-st" x="61" y="39" width="5" height="2" style="animation-delay:0.36s"/><rect class="sp-st" x="70" y="39" width="5" height="2" style="animation-delay:0.48s"/><rect class="sp-st" x="79" y="39" width="5" height="2" style="animation-delay:0.60s"/><rect class="sp-st" x="88" y="39" width="5" height="2" style="animation-delay:0.72s"/><rect class="sp-st" x="97" y="39" width="5" height="2" style="animation-delay:0.84s"/><rect class="sp-st" x="106" y="39" width="5" height="2" style="animation-delay:0.96s"/><rect class="sp-st" x="115" y="39" width="5" height="2" style="animation-delay:1.08s"/><rect class="sp-st" x="124" y="39" width="5" height="2" style="animation-delay:1.20s"/><rect class="sp-st" x="133" y="39" width="5" height="2" style="animation-delay:1.32s"/><rect class="sp-st" x="142" y="39" width="5" height="2" style="animation-delay:1.44s"/><rect class="sp-st" x="151" y="39" width="5" height="2" style="animation-delay:1.56s"/></g>
-    <g class="sp-needle"><g class="sp-bob"><rect x="30" y="30" width="2" height="14" fill="#C9C4C0"/><rect x="30" y="30" width="1" height="14" fill="#F6F0E6"/><rect x="30" y="31" width="2" height="2" fill="#5E646C"/><rect x="30" y="44" width="2" height="2" fill="#9AA0A8"/></g></g>
-    <g class="sp-flower"><rect x="177" y="33" width="4" height="4" fill="#F2A7C6"/><rect x="185" y="33" width="4" height="4" fill="#F2A7C6"/><rect x="181" y="29" width="4" height="4" fill="#F2A7C6"/><rect x="181" y="37" width="4" height="4" fill="#F2A7C6"/><rect x="181" y="33" width="4" height="4" fill="#F7D35E"/><rect x="182" y="41" width="2" height="10" fill="#5E9A4E"/><rect x="184" y="45" width="4" height="2" fill="#6FAE5C"/></g>
-    <g class="sp-cat"><rect x="150" y="50" width="12" height="6" fill="#E39A4A"/><rect x="160" y="45" width="7" height="7" fill="#E39A4A"/><rect x="160" y="43" width="2" height="2" fill="#E39A4A"/><rect x="165" y="43" width="2" height="2" fill="#E39A4A"/><rect x="161" y="47" width="1" height="1" fill="#2E2A33"/><rect x="164" y="47" width="1" height="1" fill="#2E2A33"/><rect x="162" y="49" width="2" height="1" fill="#C8463D"/><rect x="151" y="56" width="2" height="2" fill="#B8722E"/><rect x="159" y="56" width="2" height="2" fill="#B8722E"/><g class="sp-tail"><rect x="146" y="47" width="2" height="6" fill="#E39A4A"/><rect x="146" y="46" width="3" height="2" fill="#B8722E"/></g></g>
-    <g class="sp-yarn"><rect x="170" y="52" width="6" height="6" fill="#B79AD6"/><rect x="171" y="51" width="4" height="8" fill="#B79AD6"/><rect x="171" y="54" width="4" height="1" fill="#8E70B3"/></g>
-  </svg>
-  <p class="sp-msg" id="sp-msg">Enfiando a linha na agulha…</p>
+  <div class="sp-cover">
+    <span class="sp-tape" style="left:16px;transform:rotate(-8deg)"></span><span class="sp-tape" style="right:16px;transform:rotate(7deg)"></span>
+    <div class="sp-label"><b>Fio <span>&amp;</span> Flor</b><small>CADERNINHO DE COSTURA</small></div>
+    <div class="sp-line" aria-hidden="true"><i></i><b></b></div>
+    <p class="sp-msg" id="sp-msg">Enfiando a linha na agulha…</p>
+    <img class="sp-cat" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADoAAAAwCAYAAABAIGlOAAAD0klEQVR4AeyWQUiUQRTHp4joIFGHgqLsEh08iESEePLYKehgBwvxEBHiIYigQxCBQRFFhHiQiJDykEHULU8eQkwkFg97iDBYisiCQCIiguI37ZPZad43s7uu7dYn/GfmvZl5837zvm/9Npr/5C8H/dcKnVc0r2iL3kD+6LZo4dS084qqV9OiE3lFW7Rwatp5RdWradGJvKItWjg17YZWtL+z/ad68jpPNAwUyNHhLkMfZ2r8iiTQapNlPZCNTz/9hCgoSd+9OZhcGdY3GyTXEQVlERJYQLBDYs6HxMYfWr+evkxQEgRQEmKM8ItPenxAid1sfSaolqwP2+yQcCSD/ljuNiI2CmwIcnPbGSNibTMoGdRPdmHykeFRHTrUZqeKc69t36xNMuimnXNGFIN5VxwxSNZxIVRe7L/RJ4P6yXV077cuv7fOcuPC4gK2WrFvLaSCkhDvYb2HfCx9siGIhagujzs9io3Jw5UNVkOjgtYQy24RMGuUm/nnS+b2tUlr8S7LU5Ay5jIuHd1jRAJtg1XRrDlo7GyBZF3K2L+4WoGDoNwaN/l1qWA0kWiK3pRW7LLOXVtWq2oddTYucEqoIKi7sXfkpWsa32ZSfHL7fRMl3HVL4mUFGujamvQdHgWduXjQwgGDsP2D8TEHIJoaaLdLpJrWaEAj8VNgo6DkB4gIOyTgRKH5an2xagpkatwkUD/Y9v4xg1aKh43owIWHBsnaahORffS1QMaqGgSdXCxtGB4tcKaV2wAo9r6RQTuUHsOFxRYtvv9mTvV1iFlzX+sFBkG1LFxIWTM+//v/o9j0GixzMcWqGduvzaugWVV1g12ZnnbN4LhR1SQuCh7qOVVQ1qXCslYTiaQ+slnV9B9ZiUtsxhOFFUO+Wh6ZoGxiM+/rnamiuX6sd1XMhfRs6IhBzJEAiTCuRxokMfmM5Aw+cPjQwRdSFJTND2ZnzfnHMxUC+vPkkHl19fgqPD7gRCQQOjTk06rpQobi8hkJLArFFV8mqEDKYrcHnEpffvrWDN4Y/UOs5SlI1ZMXyyYkgaPv2bvZIB8KWMSZmjJBtU2u/9b9cde043vnhiuqz6WIqLKIpH3JXKi3wcsNsKhsRrtMUN7PEz09wSD4mT978nTFvEBWOB3D/RdFFZAzbUgeuT4ZsxaJXU2fCUogYIDyhV/mBTYGyfpGiddIcgqdEQVlEwF84RcxB2zhw3fDhYhf6/nhQdp8in/H7m0GEScGSbwkUBbGBKwIWE38SksskkQk7Au/prGFL4YfQRHnSkytXzNQ9wAO1iTJ1dP7sd2ztfEvAAAA///LNwR7AAAABklEQVQDANCmrXQBAoSkAAAAAElFTkSuQmCC" alt="" aria-hidden="true"><span class="sp-cat-z" aria-hidden="true">z</span>
+  </div>
   <p class="sp-tip" id="sp-tip"></p>
 </div>
 
