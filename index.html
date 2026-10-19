@@ -2178,7 +2178,7 @@ function longSleeves(m, rib) {
 function puffSleeve(A, m, pat, far) {
   const at = (t) => { const n = A.length - 1, f = Math.min(t * n, n - 1e-6), i = Math.floor(f), u = f - i, a = A[i], b = A[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy); return [a[0] + dx * u, a[1] + dy * u, -dy / l, dx / l]; };
   // it only puffs outwards: on the body side it stays close to the arm, so it never covers the chest
-  const T1 = 0.56, N = 12, out = A[0][0] < 90 ? -1 : 1, W = (u) => (u < 0.6 ? 5.4 + 4.4 * Math.sin((u / 0.6) * Math.PI / 2) : 9.8 - ((u - 0.6) / 0.4) * 4.6), WI = (u) => 4.4 + 0.8 * Math.sin(Math.min(1, u / 0.7) * Math.PI) - (u > 0.85 ? (u - 0.85) * 3 : 0);
+  const T1 = 0.46, N = 12, out = A[0][0] < 90 ? -1 : 1, W = (u) => (u < 0.6 ? 5.4 + 4.4 * Math.sin((u / 0.6) * Math.PI / 2) : 9.8 - ((u - 0.6) / 0.4) * 4.6), WI = (u) => 4.4 + 0.8 * Math.sin(Math.min(1, u / 0.7) * Math.PI) - (u > 0.85 ? (u - 0.85) * 3 : 0);
   const P1 = [], P2 = [];
   for (let k = 0; k <= N; k++) { const [x, y, nx0, ny0] = at((k / N) * T1), sg = nx0 * out > 0 ? 1 : -1, nx = nx0 * sg, ny = ny0 * sg; P1.push([x + nx * W(k / N), y + ny * W(k / N)]); P2.push([x - nx * WI(k / N), y - ny * WI(k / N)]); }
   const [x0, y0] = at(0), [xe, ye] = at(T1);
