@@ -829,6 +829,88 @@ html.deitado .prova-me { width: min(30vh, 120px); } html.deitado .prova-peca { w
 @media (prefers-reduced-motion: reduce) {
   .plot.ready, .bubbles circle, .flame, .toast, .miss, .sprite .eyes, .crowd-v .sprite, .desfila, .cat .tail, .zzz, .drop, .loc.enter-r, .loc.enter-l, .rotate svg { animation: none !important; }
 }
+/* ===== Caderninho de costura: the panel is a spiral notebook with fabric tabs on its edge,
+   windows are notebook pages, letters are pinned notes and the scene labels hang on sewing pins ===== */
+:root { --nb-paper: #FFFDF6; --nb-grid: rgba(120, 170, 210, .2); --nb-rule: rgba(120, 170, 210, .38); --thread: #C2537F; --note: #FFF8E6;
+  --rings: radial-gradient(circle at 9px 11px, transparent 3px, #3A3040 3.2px, #3A3040 4.8px, #9AA0A8 5px, #D6DAE0 6.2px, #3A3040 6.6px, transparent 7px); }
+.nbk { flex: 1; min-width: 0; max-width: 500px; position: relative; display: flex; padding-right: 31px; }
+.nbk::before { content: ''; position: absolute; left: -8px; top: 12px; bottom: 12px; width: 18px; background: var(--rings) 0 0 / 18px 22px repeat-y; z-index: 4; pointer-events: none; }
+.nbk > .pnl { flex: 1; max-width: none; min-width: 0; position: relative; z-index: 1; padding-left: 22px; border-radius: 4px 10px 10px 4px; outline: none;
+  background-color: var(--nb-paper); background-image: linear-gradient(var(--nb-grid) 1px, transparent 1px), linear-gradient(90deg, var(--nb-grid) 1px, transparent 1px); background-size: 12px 12px; background-position: 4px 4px; }
+/* washi-tape titles, a different tape for each place */
+.nbk .pnl-title, .sheet-card h2, .title-card h1 + p { --tape: #F7C6D6; --tape2: #FBDDE6; }
+.nbk .pnl-title, .sheet-card h2 { flex-shrink: 0; align-self: flex-start; display: inline-block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 17px; line-height: 1.15; color: var(--edge); padding: 4px 18px 4px 14px; margin: 2px 0 0 -6px; transform: rotate(-1.5deg);
+  background: repeating-linear-gradient(45deg, var(--tape) 0 6px, var(--tape2) 6px 12px);
+  clip-path: polygon(0 10%, 3% 0, 6% 12%, 9% 0, 12% 10%, 15% 0, 100% 0, 97% 25%, 100% 50%, 97% 75%, 100% 100%, 0 100%, 3% 75%, 0 50%, 3% 25%); }
+.nbk .pnl-title::after { display: none; }
+.loc[data-panel="jardim"] .pnl-title { --tape: #BFE3B4; --tape2: #DCF1D4; }
+.loc[data-panel="tint"] .pnl-title { --tape: #CDBDEB; --tape2: #E4DAF6; }
+.loc[data-panel="casa"] .pnl-title { --tape: #F7E08A; --tape2: #FBEDB8; }
+.loc[data-panel="vila"] .pnl-title, .loc[data-panel="mata"] .pnl-title { --tape: #A9DCCB; --tape2: #CDEDE2; }
+/* fabric tabs on the edge: one per place */
+.nb-tabs { position: absolute; right: 0; top: 8px; bottom: 8px; width: 34px; display: flex; flex-direction: column; gap: 3px; z-index: 0; }
+.nb-tab { flex: 0 1 68px; min-height: 30px; width: 31px; border: 2.5px solid var(--edge); border-left: 0; border-radius: 0 9px 9px 0; padding: 3px 0 3px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 3px 0 #000; position: relative; color: var(--edge); overflow: visible; }
+.nb-tab svg { width: 18px; height: 18px; shape-rendering: crispEdges; flex: none; }
+.nb-tab span { writing-mode: vertical-rl; transform: rotate(180deg); font: 900 8px var(--font-body); letter-spacing: 0; text-transform: uppercase; white-space: nowrap; overflow: hidden; min-height: 0; }
+.nb-tab .badge { position: absolute; top: -7px; right: -8px; transform: scale(.85); }
+.nb-tab.on { width: 36px; margin-left: -5px; padding-left: 5px; z-index: 2; background: var(--nb-paper) !important; box-shadow: 0 3px 0 #000; }
+.nb-tab:active { transform: translateX(2px); }
+.nb-tab.t-casa { background: linear-gradient(90deg, rgba(232, 185, 49, .38) 50%, transparent 50%) 0 0 / 8px 8px, linear-gradient(rgba(232, 185, 49, .38) 50%, transparent 50%) 0 0 / 8px 8px, #FFF4CC; }
+.nb-tab.t-jardim { background: repeating-linear-gradient(90deg, #BFE3B4 0 4px, #DCF1D4 4px 8px); }
+.nb-tab.t-tint { background: radial-gradient(circle, #B79AD6 1.6px, transparent 2px) 0 0 / 7px 7px, #ECE4F8; }
+.nb-tab.t-atelie { background: radial-gradient(circle, #F4A6C0 1.6px, transparent 2px) 0 0 / 7px 7px, #FDE6EE; }
+.nb-tab.t-vila { background: repeating-linear-gradient(0deg, #A9DCCB 0 4px, #DDF2EA 4px 8px); }
+@media (max-height: 300px) { .nb-tab span { display: none; } }
+@media (orientation: landscape) { .nbk { min-width: 262px; } }
+@media (orientation: portrait) { .nbk { max-width: none; } .nbk > .pnl { overflow: visible; } }
+html.deitado .nbk { max-width: 500px; min-width: 262px; } html.deitado .nbk > .pnl { min-width: 0; max-width: none; }
+/* the ateliê's own sections, as small index tabs under the title */
+.nb-sub { flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 4px; margin: -2px 0 2px; }
+.nb-sub button { border: 2px solid var(--edge); border-radius: 7px 7px 2px 2px; background: #fff; padding: 2px 8px; font: 800 11px var(--font-body); display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 0 var(--edge); }
+.nb-sub button svg { width: 13px; height: 13px; shape-rendering: crispEdges; }
+.nb-sub button[aria-pressed="true"] { background: var(--thread); color: #fff; }
+.nb-sub .n { background: var(--heart); color: #fff; border-radius: 999px; padding: 0 5px; font-size: 10px; }
+/* notes pinned to the page */
+.nbk .shop-item, .nbk .weather, .sheet-card .shop-item, .nbk .balcao, .sheet-card .balcao { background: var(--note); border: 2px solid var(--edge); border-radius: 3px; box-shadow: 3px 3px 0 rgba(58, 48, 64, .2); }
+.nbk .balcao, .sheet-card .balcao { position: relative; margin-top: 7px; padding-top: 10px; }
+.nbk .balcao::before, .sheet-card .balcao::before { content: ''; position: absolute; top: -8px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; border: 2px solid var(--edge); background: radial-gradient(circle at 35% 35%, #FFC2D6 0 2px, #E0457A 2.4px); }
+.nbk .balcao > .sprite { background: #fff; border: 2px solid var(--edge); border-radius: 0; padding: 2px 2px 8px; width: 50px; transform: rotate(-4deg); box-shadow: 2px 2px 0 rgba(0, 0, 0, .18); }
+.nbk .label, .sheet-card .label { color: var(--thread); }
+/* fabric patch buttons with a stitched edge */
+.primary { background: var(--thread); border: 2px solid var(--edge); border-radius: 6px; box-shadow: 0 3px 0 var(--edge); }
+.primary:not(:focus-visible) { outline: 2px dashed rgba(255, 255, 255, .78); outline-offset: -6px; }
+.btn { background: #FFF3C4; border: 2px solid var(--edge); border-radius: 5px; }
+.btn:hover:not(:disabled) { background: #FFF8DC; }
+.btn:not(:focus-visible) { outline: 1.5px dashed rgba(58, 48, 64, .32); outline-offset: -5px; }
+.pat { border-radius: 4px; }
+.pat[aria-pressed="true"] { background: #FBE3EC; border-color: var(--thread); }
+/* windows are notebook pages: rings on the left, grid paper, washi title, a fabric "Fechar" */
+.sheet-card { border-radius: 4px 12px 12px 4px; padding-left: 32px; position: relative;
+  background-color: var(--nb-paper); background-image: var(--rings), linear-gradient(90deg, transparent 22px, rgba(194, 83, 127, .35) 22px 23.5px, transparent 23.5px), linear-gradient(var(--nb-grid) 1px, transparent 1px), linear-gradient(90deg, var(--nb-grid) 1px, transparent 1px);
+  background-size: 18px 22px, 100% 100%, 12px 12px, 12px 12px; background-repeat: repeat-y, no-repeat, repeat, repeat; background-position: 0 6px, 0 0, 0 0, 0 0; background-attachment: local; }
+.sheet-card > .row:first-child { align-items: flex-start; }
+#gen-close, .sheet-card .row .btn[data-act="close-sheet"] { background: var(--thread); color: #fff; border-radius: 999px; box-shadow: 0 3px 0 var(--edge); outline-color: rgba(255, 255, 255, .7); }
+/* portraits become taped polaroids */
+.sheet-card .portrait { flex: none; border-radius: 0; border: 2px solid var(--edge); box-shadow: 0 0 0 5px #fff, 0 0 0 7px var(--edge), 4px 6px 0 7px rgba(0, 0, 0, .18); transform: rotate(-3deg); margin: 10px 20px 12px 10px; }
+.sheet-card .talk { grid-template-columns: 152px 1fr; gap: 8px; }
+@media (max-height: 520px) { .sheet-card .talk { grid-template-columns: 140px 1fr; } .sheet-card .talk .portrait { width: 104px; height: 114px; } }
+/* scene labels hang on sewing pins */
+.scene-box .hot span { background: var(--nb-paper); border: 2px solid var(--edge); border-radius: 2px 8px 8px 2px; padding: 2px 9px 2px 8px; font-size: 11px; overflow: visible; box-shadow: 2px 2px 0 rgba(0, 0, 0, .3); }
+.scene-box .hot span::before { content: ''; position: absolute; left: -7px; top: -7px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--edge); background: radial-gradient(circle at 35% 35%, #FFC2D6 0 1.5px, #E0457A 2px); }
+.scene-box .hot.on span { background: #FFE9A8; color: var(--edge); }
+.scene-box .hot.on span::before { background: radial-gradient(circle at 35% 35%, #FFF3B0 0 1.5px, #E8B931 2px); }
+.map-tag { background: var(--nb-paper); border-radius: 2px 7px 7px 2px; box-shadow: 2px 2px 0 rgba(0, 0, 0, .3); overflow: visible; }
+.map-tag::before { content: ''; position: absolute; left: -5px; top: -5px; width: 6px; height: 6px; border-radius: 50%; border: 1.5px solid var(--edge); background: #E0457A; }
+.map-bub { border-radius: 999px; }
+/* speech is a paper note; letters are on lined paper with a stamp */
+.bubble { border-radius: 4px; box-shadow: 3px 3px 0 rgba(58, 48, 64, .25); }
+.bubble.carta { transform: rotate(-1deg); border-radius: 2px; padding-right: 34px; background-color: #FFFBF0; background-image: repeating-linear-gradient(transparent 0 1.25em, var(--nb-rule) 1.25em calc(1.25em + 1px)); }
+.carta-box .bubble.carta::before { content: ''; left: auto; right: 6px; top: 6px; width: 18px; height: 22px; border: 0; background: radial-gradient(circle, #E58FA6 0 4px, transparent 4.5px), #FBE3EC; outline: 2px dotted var(--thread); outline-offset: -1px; }
+.carta-box .bubble.carta::after { display: none; }
+.want-tag { border-radius: 2px; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--edge), 3px 4px 0 5px rgba(0, 0, 0, .2); transform: rotate(3deg); }
+/* little messages are sticky notes */
+.toast { background: #FFF3A8; border: 2px solid var(--edge); border-radius: 2px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .35); transform: rotate(-1deg); }
+.title-card { border-radius: 4px 14px 14px 4px; padding-left: 40px; background-color: var(--nb-paper); background-image: var(--rings), linear-gradient(var(--nb-grid) 1px, transparent 1px), linear-gradient(90deg, var(--nb-grid) 1px, transparent 1px); background-size: 18px 22px, 12px 12px, 12px 12px; background-repeat: repeat-y, repeat, repeat; background-position: 4px 6px, 0 0, 0 0; }
 </style>
 <script>try { var dp = localStorage.getItem('fio-deitado') || 'off'; if (dp !== 'off' && matchMedia('(orientation: portrait)').matches) { document.documentElement.classList.add('deitado'); if (dp === 'r') document.documentElement.classList.add('deitado-r'); } } catch (e) {}</script>
 <div id="splash" class="splash" role="status" aria-live="polite" aria-label="Carregando Fio e Flor">
@@ -4784,14 +4866,14 @@ function renderGarden() {
       ${weatherFX(ck)}<div class="plots-field" style="grid-template-rows:repeat(${n > 6 ? 3 : 2},1fr)">${plots}</div>
       ${state.up.colmeia ? `<div class="hive" aria-hidden="true"></div><div class="fx" aria-hidden="true">${[0, 1, 2, 3, 4].map((i) => `<span class="fx-abelha" style="left:${20 + i * 15}%;top:${55 + (i % 3) * 12}%;animation-delay:-${i * 1.3}s;animation-duration:${5 + i}s"></span>`).join('')}</div>` : ''}
       ${lifeFX('jardim', ck)}${meSpot('me-jardim', REGADOR)}${nav('jardim')}</div></div>
-    <aside class="pnl" aria-labelledby="h-jardim">
+    <div class="nbk">${nbTabs('jardim')}<aside class="pnl" aria-labelledby="h-jardim">
       <h2 class="pnl-title" id="h-jardim">Jardim</h2>
       <div class="weather">${clockIcon(ck)}<div><b>${wx[0]}</b><p>${wx[1]}</p></div></div>
       <div class="group"><p class="label">Flores da ${ck.season.nome.toLowerCase()}</p>
         <div class="est-row">${est.map((k) => `<span class="est-f${flowerOpen(k) ? '' : ' locked'}">${flowerSVG(k, 3)}<small>${FLOWERS[k].nome}</small></span>`).join('')}</div>
         <p class="help">Crescem na metade do tempo nesta estação. Toque no + de um canteiro pra plantar.</p></div>
       ${shelfBtns('j')}
-    </aside>`;
+    </aside></div>`;
   lastPlotSig = [];
   updatePlots(now);
 }
@@ -4840,7 +4922,7 @@ function renderTint() {
   const tecs = Object.entries(TECIDOS).filter(([, T]) => unlocked(T)).map(([k, T]) => `<button class="pat" data-act="tec" data-v="${k}" id="tec-${k}" aria-pressed="${tec === k}">${T.nome} · ${cruOf(k)} m</button>`).join('');
   $('p-tint').innerHTML = `
     <div class="scene-col"><div class="scene-box">${tintArt()}<div class="pot-spot pot-fx">${pot.slots.length ? `<svg class="pot" viewBox="0 0 98 20" aria-hidden="true"><g class="bubbles" fill="${liquid}" stroke="rgba(255,255,255,.6)"><circle cx="36" cy="10" r="3"/><circle cx="52" cy="9" r="4"/><circle cx="64" cy="11" r="2.5"/></g></svg>` : ''}${pot.slots.length ? '<svg class="colher" viewBox="0 0 10 40" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="2" height="32" fill="#B98A5E"/><rect x="3" y="30" width="4" height="8" fill="#9E6E48"/></svg>' : ''}</div>${pslots}${lifeFX('tint')}${meSpot('me-tint')}${nav('tint')}</div></div>
-    <aside class="pnl" aria-labelledby="h-tint">
+    <div class="nbk">${nbTabs('tint')}<aside class="pnl" aria-labelledby="h-tint">
       <h2 class="pnl-title" id="h-tint">Tinturaria</h2>
       <p class="will" aria-live="polite">${will}</p>
       <div class="dye-row">
@@ -4851,7 +4933,7 @@ function renderTint() {
       ${degOpen ? `<div class="group"><p class="label">Técnica</p><div class="pats"><button class="pat" data-act="dye-mode" id="dye-normal" aria-pressed="${!deg}">Normal</button><button class="pat" data-act="dye-mode" id="dye-degrade" aria-pressed="${deg}">Degradê</button></div>${deg ? '<p class="help">Degradê: duas flores diferentes, uma de cada lado do tecido. Coloque exatamente 2 flores no tacho.</p>' : ''}</div>` : ''}
       <p class="help">Uma flor dá a cor dela. Duas ou três flores diferentes dão cores novas. Repetir uma flor puxa o tom.</p>
       ${shelfBtns('t')}
-    </aside>`;
+    </aside></div>`;
 }
 
 function renderAtelie() {
@@ -4958,10 +5040,11 @@ function renderAtelie() {
     <div class="scene-col"><div class="scene-box">${atelieArt()}${novLayer('atelie')}${cust}
       ${hot('mesa', 'Mesa', 33, 44, 26, 17)}${hot('arara', 'Arara', 72.5, 48, 24, 27)}${hot('retalhos', 'Retalhos', 48.5, 70, 8, 10)}${hot('mural', `Cartas · ${open.length}`, 52, 16, 10, 14, 'pedidos')}
       ${lifeFX('atelie')}${state.aprendiz ? `<button class="crowd-v flora" data-act="sheet" data-kind="aprendiz" id="flora" style="left:79%;bottom:2%;--dx:0cqw" aria-label="Flora, a aprendiz">${state.aprendiz.job ? '<span class="chat" aria-hidden="true">🧵</span>' : ''}${figureSVG(FLORA, state.aprendiz.job ? 'feliz' : null)}<span class="nm">Flora</span></button>` : ''}${meSpot('me-atelie')}${confirmCard}${nav('atelie')}</div></div>
-    <aside class="pnl" aria-labelledby="h-atelie">
+    <div class="nbk">${nbTabs('atelie')}<aside class="pnl" aria-labelledby="h-atelie">
       <h2 class="pnl-title" id="h-atelie">${title}</h2>
+      <div class="nb-sub" role="group" aria-label="Partes do ateliê">${[['mesa', 'Mesa'], ['arara', 'Arara'], ['retalhos', 'Retalhos']].map(([k, t]) => `<button data-act="subtab" data-v="${k}" aria-pressed="${sub === k}">${nbIcon(k)}${t}</button>`).join('')}<button data-act="sheet" data-kind="pedidos">${nbIcon('cartas')}Cartas${open.length ? `<span class="n">${open.length}</span>` : ''}</button></div>
       ${balcao}${content}
-    </aside>`;
+    </aside></div>`;
 }
 
 function renderTabs() {
@@ -5678,7 +5761,7 @@ function renderVila() {
   const nextRow = next ? `<div class="mor soon"><span class="q" aria-hidden="true">?</span><span><b>Casa vazia</b><br><small>Alguém se muda pra vila quando você juntar ${next.need} ♥.</small></span></div>` : '';
   $('p-vila').innerHTML = `
     <div class="scene-col"><div class="scene-box map-box">${PIXART.mapa({ part: c.part, season: c.season.id, festa: !!(c.festa || casamentoHoje()), vazias })}${weatherFX(c)}${lifeFX('vila', c)}${over}${nav('vila')}</div></div>
-    <aside class="pnl" aria-labelledby="h-vila">
+    <div class="nbk">${nbTabs('vila')}<aside class="pnl" aria-labelledby="h-vila">
       <h2 class="pnl-title" id="h-vila">Vila</h2>
       <p class="help" style="margin:0">Toque numa casinha pra visitar quem mora lá.</p>
       ${casamentoHoje() || (state.casamento && state.casamento.fase === 3 && state.casamento.dia === c.day) ? `<div class="festa on"><b>💒 Hoje é o casamento da Lua e da Nina!</b><p>A pracinha do chafariz está toda enfeitada de flores.</p><button class="primary" data-act="sheet" data-kind="casamento" id="casorio-btn" style="align-self:flex-start">${state.casamento.fase >= 3 ? 'Ver de novo' : 'Ir à cerimônia'}</button></div>` : ''}
@@ -5689,7 +5772,7 @@ function renderVila() {
       <div class="festa${state.capas[seasonIdx()] && state.capas[seasonIdx()].ok ? ' on' : ''}"><b>📰 Revista Moda da Capital</b><p>${state.capas[seasonIdx()] ? (state.capas[seasonIdx()].ok ? 'Sua peça é capa desta estação!' : 'Você já tentou nesta estação. Tem tema novo na próxima!') : `Tema da estação: ${revistaTema(seasonIdx()).map((x) => x.txt).join(' e ')}.`}</p><button class="btn" data-act="sheet" data-kind="revista" id="rev-open" style="align-self:flex-start">${state.capas[seasonIdx()] ? 'Ver a revista' : 'Enviar uma peça'}</button></div>
       <div class="group"><p class="label">Vitrine do ateliê · ${filled} de ${state.vitrine.length}</p><div class="vit-list">${vit}</div>${pass}</div>
       <div class="group"><p class="label">Moradoras · toque pra visitar</p><div class="mor-list">${mor}${nextRow}</div></div>
-    </aside>`;
+    </aside></div>`;
 }
 
 function renderAll() {
@@ -6863,12 +6946,12 @@ function renderMata() {
   const left = mataSpots().filter((x) => !x.picked).length;
   $('p-mata').innerHTML = `
     <div class="scene-col"><div class="scene-box">${mataSceneSVG()}${lifeFX('mata')}${weatherFX(clock())}${spots}${meSpot('me-mata')}${nav('mata')}</div></div>
-    <aside class="pnl" aria-labelledby="h-mata">
+    <div class="nbk">${nbTabs('mata')}<aside class="pnl" aria-labelledby="h-mata">
       <h2 class="pnl-title" id="h-mata">Mata e rio</h2>
       <p class="help">${left ? `Tem ${left} coisinha${left > 1 ? 's' : ''} pra colher hoje. Toque nelas!` : 'Você já colheu tudo hoje. Amanhã aparece mais.'}</p>
       <p class="help">Corantes naturais vão no tacho <b>sozinhos</b> (pode repetir) e dão cores que nenhuma flor faz. Misturar com flor vira barro!</p>
       <div class="group"><p class="label">Sua cestinha</p><div class="folds inv">${inv || '<p class="help">Vazia por enquanto.</p>'}</div></div>
-    </aside>`;
+    </aside></div>`;
 }
 function renderCasa() {
   const c = state.casa;
@@ -6895,7 +6978,7 @@ function renderCasa() {
   const mqArt = mq ? `<div class="mq-piece" aria-hidden="true">${pieceSVG(mq.peca, mq.molde, mq.z, null, mq.acc, mq.bordado, mq.fin)}</div>` : '';
   $('p-casa').innerHTML = `
     <div class="scene-col"><div class="scene-box">${casaArt()}${novLayer('casa')}${mqArt}${visitorArt}${meSpot('me-casa')}${nav('casa')}</div></div>
-    <aside class="pnl" aria-labelledby="h-casa">
+    <div class="nbk">${nbTabs('casa')}<aside class="pnl" aria-labelledby="h-casa">
       <h2 class="pnl-title" id="h-casa">Sua casa</h2>
       <p class="help">Seu cantinho. Cada conquista traz um móvel novo; depois dá pra comprar outros estilos dele.</p>
       <div class="deliver-row">${colcha}<button class="btn" data-act="sheet" data-kind="conquistas" id="conq-casa">🏅 Conquistas</button>
@@ -6903,7 +6986,7 @@ function renderCasa() {
         <button class="btn" data-act="sheet" data-kind="correio" id="correio-casa">📬 Correio${state.correio.cartas.length ? ` (${state.correio.cartas.length})` : ''}</button></div>
       ${mqBox}
       <p class="label">Móveis · ${c.moveis.length} de ${MOVEIS.length}</p><div class="shop-list">${moveis}</div>
-    </aside>`;
+    </aside></div>`;
 }
 
 /* ---------- lugares, setas e cenários em pixel art (320x200) ---------- */
@@ -6911,6 +6994,26 @@ const LOCS = [{ id: 'casa', nome: 'Casa' }, { id: 'jardim', nome: 'Jardim' }, { 
 const ARROW = (dir) => `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor">${dir < 0
   ? '<rect x="1" y="3" width="1" height="2"/><rect x="2" y="2" width="1" height="4"/><rect x="3" y="1" width="1" height="6"/><rect x="4" y="3" width="3" height="2"/>'
   : '<rect x="6" y="3" width="1" height="2"/><rect x="5" y="2" width="1" height="4"/><rect x="4" y="1" width="1" height="6"/><rect x="1" y="3" width="3" height="2"/>'}</svg>`;
+/* The notebook's fabric tabs: one per place, with the same marks as the arrows */
+const NB_PAL = { k: '#3A3040', p: '#E0457A', P: '#F4A6C0', y: '#E8B931', w: '#FFFFFF', g: '#9AA0A8', b: '#3E6FB0', B: '#8EC3E6', n: '#8A5A3A', N: '#C9A06E', v: '#5E9A4E', V: '#9CC48E', c: '#FFF8E6', l: '#B79AD6' };
+const NB_ICON = {
+  casa: ['.....kk.....', '....kppk....', '...kppppk...', '..kppppppk..', '.kkkkkkkkkk.', '..kccccNNk..', '..kcbbcNNk..', '..kccccNNk..', '..kkkkkkkk..'],
+  jardim: ['....kk.kk...', '...kPPkPPk..', '...kPykyPk..', '....kPPPk...', '.....kkk....', '..kk..k..kk.', '..kVk.k.kVk.', '...kVkkkVk..', '....kkvkk...', '.....kvk....'],
+  tint: ['...kkkkkk...', '..k......k..', '.kkkkkkkkkk.', 'kk.kllllk.kk', '.kgllllllgk.', '.kggggggggk.', '..kggggggk..', '...kkkkkk...'],
+  atelie: ['...k....k...', '...kg..gk...', '....kg.gk...', '.....kgk....', '......k.....', '.....k.k....', '...kkk.kkk..', '..kp.k.kpk..', '..kp.k.kpk..', '...kk...kk..'],
+  vila: ['.....k......', '....kkkk....', '....kyyyk...', '....kyyyyk..', '....kkkkk...', '.....k......', '.....k......', '..kkkkkkk...', '..kvvvvvk...', '..kkkkkkk...'],
+  arara: ['.....kk.....', '....k..k....', '.......k....', '......k.....', '.....kk.....', '...kkkkkk...', '..kNNNNNNk..', '.kN......Nk.', 'kkkkkkkkkkkk'],
+  retalhos: ['kkkkkk......', 'kPPPPkkkkk..', 'kPpPPkyyyk..', 'kPPPPkyyykkk', 'kkkkkkkkkBBk', '..kvvvvkkBBk', '..kvvvvk.kkk', '..kkkkkk....'],
+  cartas: ['kkkkkkkkkkkk', 'kckcccccckck', 'kcckcccckcck', 'kccckccckcck', 'kcccckkcccck', 'kcccccccccck', 'kcccccccpcck', 'kkkkkkkkkkkk'],
+};
+NB_ICON.mesa = NB_ICON.atelie;
+function nbIcon(k) {
+  const a = NB_ICON[k], w = Math.max(...a.map((r) => r.length));
+  const by = new Map();
+  a.forEach((r, y) => [...r].forEach((ch, x) => { if (NB_PAL[ch]) by.set(ch, (by.get(ch) || '') + `M${x} ${y}h1v1h-1z`); }));
+  return `<svg viewBox="0 0 ${w} ${a.length}" aria-hidden="true">${[...by].map(([ch, d]) => `<path fill="${NB_PAL[ch]}" d="${d}"/>`).join('')}</svg>`;
+}
+const nbTabs = (id) => `<nav class="nb-tabs" aria-label="Lugares">${LOCS.map((l) => `<button class="nb-tab t-${l.id}${l.id === id ? ' on' : ''}" data-act="go" data-v="${l.id}" aria-label="${l.nome}"${l.id === id ? ' aria-current="page"' : ''}>${nbIcon(l.id)}<span>${l.nome === 'Tinturaria' ? 'Tinta' : l.nome}</span><b class="badge" data-badge-for="${l.id}"></b></button>`).join('')}</nav>`;
 function nav(id) {
   const i = LOCS.findIndex((l) => l.id === id);
   const prev = LOCS[i - 1], next = LOCS[i + 1];
