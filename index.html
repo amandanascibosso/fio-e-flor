@@ -144,7 +144,7 @@ svg.ico { width: 16px; height: 16px; shape-rendering: crispEdges; }
 .vit-field .mq { flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; background: transparent; border: 0; padding: 0; }
 .vit-field .mq svg { height: 100%; width: auto; max-width: 100%; }
 .vit-field .mq:hover { filter: drop-shadow(0 0 2px #fff); }
-.crowd-v { position: absolute; transform: translateX(-50%); height: 36%; z-index: 4; background: transparent; border: 0; padding: 0; }
+.crowd-v { position: absolute; transform: translateX(-50%); height: 44%; z-index: 4; background: transparent; border: 0; padding: 0; }
 .crowd-v.back { height: 29%; z-index: 3; }
 .crowd-v .sprite { height: 100%; width: auto; animation: idle var(--bd, 2.6s) steps(1) infinite; }
 .crowd-v:nth-child(2n) .sprite { animation-delay: -1.3s; }
@@ -479,7 +479,7 @@ body.portrait-ok .rotate { display: none; }
 .hang .bord { font-size: 9px; color: var(--accent); }
 .conq .medal { font-size: 22px; flex: none; }
 .conq:not(.got) { opacity: .65; }
-.me-casa { left: 40%; bottom: 3%; height: 44%; }
+.me-casa { left: 40%; bottom: 3%; height: 54%; }
 .mq-piece { position: absolute; left: 54.1%; top: 43.5%; width: 8%; z-index: 2; }
 .mq-piece svg { width: 100%; height: auto; display: block; }
 /* personagens: retrato, aceno e reações */
@@ -505,7 +505,7 @@ body.portrait-ok .rotate { display: none; }
 @media (prefers-reduced-motion: reduce) { .wv1, .wv2 { display: none; } .wvd { opacity: 1; animation: none; } .react-feliz .sprite, .react-amor .sprite, .react-triste .sprite, .react-hmm .sprite { animation: none; } }
 .want-conj { display: flex; align-items: center; gap: 4px; font-family: var(--font-display); font-weight: 700; font-size: clamp(14px, 3cqw, 20px); }
 .want-conj .wsw { width: clamp(22px, 5cqw, 34px); height: clamp(22px, 5cqw, 34px); border-radius: 6px; border: 2px solid var(--edge); }
-.crowd-v.visitor { height: 44%; animation: none; transform: translateX(-50%); }
+.crowd-v.visitor { height: 54%; animation: none; transform: translateX(-50%); }
 .locked-m { opacity: .7; }
 .mv-own .pats { margin-top: 6px; }
 /* vida nas cenas, estações, abertura e passantes */
@@ -549,7 +549,7 @@ body.portrait-ok .rotate { display: none; }
 .mspot { position: absolute; width: 8%; aspect-ratio: 1; margin: -4% 0 0 -4%; border-radius: 50%; border: 2px dashed rgba(255,255,255,.9); background: rgba(255,255,255,.35); padding: 2px; z-index: 3; animation: bob 1.8s ease-in-out infinite; }
 .mspot svg { width: 100%; height: 100%; }
 .me-mata { left: 4%; bottom: 3%; height: 40%; }
-.crowd-v.flora { height: 38%; animation: none; transform: translateX(-50%); z-index: 3; }
+.crowd-v.flora { height: 47%; animation: none; transform: translateX(-50%); z-index: 3; }
 .xp { height: 10px; border: 2px solid var(--edge); border-radius: 6px; background: #F3E9D6; overflow: hidden; }
 .xp i { display: block; height: 100%; background: var(--leaf); }
 .capa { align-self: center; width: 200px; background: #FFF8EC; border: 3px solid var(--edge); border-radius: 6px; box-shadow: 0 4px 0 var(--edge); padding: 8px; display: flex; flex-direction: column; gap: 4px; text-align: center; }
@@ -803,9 +803,9 @@ html.deitado .prova-me { width: min(30vh, 120px); } html.deitado .prova-peca { w
 @keyframes spark { from { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } to { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(.3); opacity: 0; } }
 .me-spot { position: absolute; z-index: 3; pointer-events: none; }
 .me-spot .sprite { height: 100%; width: auto; animation: idle 2.6s steps(1) infinite; animation-delay: -.7s; }
-.me-jardim { left: 2%; bottom: 3%; height: 34%; }
-.me-tint { left: 12%; bottom: 4%; height: 46%; }
-.me-atelie { left: 56.5%; bottom: 2%; height: 44%; }
+.me-jardim { left: 1%; bottom: 3%; height: 42%; }
+.me-tint { left: 10%; bottom: 4%; height: 56%; }
+.me-atelie { left: 55%; bottom: 2%; height: 54%; }
 .me-praca { left: 22%; bottom: 2%; height: 36%; }
 .loc.enter-r .me-spot { animation: mewalkR .5s steps(5) both; }
 .loc.enter-l .me-spot { animation: mewalkL .5s steps(5) both; }
