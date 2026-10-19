@@ -2812,6 +2812,8 @@ function villager(sp) {
       if (this.cadeira) { ARM = ARM_SEAT; ARMR = ARMR_SEAT; } else ARMR = null;
       const p = fp(this), S = this.S = ramp(this.pele); this.I = ramp(this.olho);
       const hr = ramp(this.cabelo), H = HAIRS[this.hair](hr, this);
+      // hairDY brings the whole hairdo down a little: a lower hairline and a shorter crown
+      if (p.hairDY) ['back', 'top', 'front'].forEach((k) => { if (H[k]) H[k] = `<g transform="translate(0 ${p.hairDY})">${H[k]}</g>`; });
       const LK = Object.assign({}, this.look, p.look || {}), hat = (p.look && p.look.hat) || this.hat;
       let s = '', up = '';
       // legs and shoes stay put; everything above the waist moves down when seated
@@ -3285,7 +3287,7 @@ const BODY = { teca: { bx: 1.12, sx: 1, legW: 1.35 }, cida: { bx: 1.14, sx: 1, l
   /* ---------- game side: build a villager from the approved designs, dress her, pixelate her ---------- */
   MOOD.sono = () => ({ eyesClosed: true, mouthShape: null, smileEyes: 0, browRaise: 0 });
   const TRIOK = { bia: 1, dandara: 1, zeze: 1 };
-  const NEUTRAL_F = { eyeW: 5.6, eyeH: 1.05, tilt: 0.4, iris: 1.05, lashes: 2, lashW: 1.5, cw: 19.4, jaw: 15, jawLow: 2, chinW: 7.6, chinY: 66.2, gap: 9, ey: 45, browW: 1.5, browArc: 2.2, browY: 0, nose: 'botao', mouthW: 3.6, lipFull: 1.3, smile: 0.7, freck: 8, blushA: 0.6, legW: 1.3 };
+  const NEUTRAL_F = { eyeW: 5.6, eyeH: 1.05, tilt: 0.4, iris: 1.05, lashes: 2, lashW: 1.5, cw: 19.4, jaw: 15, jawLow: 2, chinW: 7.6, chinY: 66.2, gap: 9, ey: 45, browW: 1.5, browArc: 2.2, browY: 0, nose: 'botao', mouthW: 3.6, lipFull: 1.3, smile: 0.7, freck: 8, blushA: 0.6, legW: 1.3, headSX: 0.92, headSY: 0.9, hairDY: 3.5 };
   const HAIR_OF = { longo: 'liso', franja: 'bob', afro: 'afro', coque: 'coque', trancas: 'duas', curto: 'pixie', rabo: 'rabo', chiquinhas: 'duas', cacheado: 'ondulado', raspado: 'raspado' };
   // approved villager k, with extra props/face values/look on top
   function make(k, m = {}) {
