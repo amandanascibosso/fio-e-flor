@@ -5674,9 +5674,75 @@ const PIXART = (() => {
   }
 
   const hsh = (o) => { const t = JSON.stringify(o); let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h.toString(36); };
+  /* ---------- Novelo, painted like the rooms: curled up asleep or sitting up awake ---------- */
+  function novelo(o) {
+    uid = 0;
+    const F = ramp('#EE9A4E'), CR = ramp('#FFF1DC'), PK = '#F4A0B4', INK = '#3A2430', LN = F.d3;
+    const acc = o.acc, A = acc ? ramp(acc.hex) : null, AB = acc ? ramp(mix(acc.hex, '#FFFFFF', 0.2)) : null;
+    let s = '';
+    if (o.part === 'tail') {
+      if (o.awake) {
+        s += L('M24.6 28.8 Q37.4 29.4 37.6 20.4 Q37.4 14.2 33.8 13.6', LN, 5.6) + L('M24.6 28.8 Q37.4 29.4 37.6 20.4 Q37.4 14.2 33.8 13.6', F.b, 3.6);
+        s += L('M35.8 25.8 L37.8 25.2 M37 20.8 L39 20.8', F.d, 1.1) + C(34, 13.8, 1.9, CR.b);
+      } else {
+        s += L('M33 27.6 Q34.4 31.6 26 31.8 Q14 32 9.6 30.6', LN, 5.4) + L('M33 27.6 Q34.4 31.6 26 31.8 Q14 32 9.6 30.6', F.b, 3.4);
+        s += L('M27 30.6 L27.6 32.8 M21 30.8 L21.4 33 M15 30.6 L15.2 32.8', F.d, 1) + C(10, 30.6, 1.8, CR.b);
+      }
+      return s;
+    }
+    const ear = (x, y, flip, tilt = 0) => { const d = flip ? -1 : 1; return piece(`M${x - 3.4 * d} ${y + 3} L${x + 0.6 * d + tilt} ${y - 4.6} L${x + 3.6 * d} ${y + 2} Z`, F.b, P(`M${x - 1.6 * d} ${y + 2} L${x + 0.6 * d + tilt * 0.6} ${y - 2.2} L${x + 2 * d} ${y + 1.6} Z`, PK), LN, 0.9); };
+    if (o.awake) {
+      // sitting up, looking at you
+      s += piece('M12.4 30 Q11.6 22 14.6 18.6 Q19.4 15.4 24.4 18.6 Q27.6 22 26.8 30 Z', F.b, E(25.4, 25, 4, 7, F.d) + E(13.6, 23, 1.6, 4, F.l) + L('M14.6 21 Q16 20.4 16.6 22 M23 21 Q24.6 20.6 25 22.4', F.d, 0.9), LN, 1);
+      s += piece('M16.4 30 Q15.6 24 19.6 21 Q23.6 24 22.8 30 Z', CR.b, E(21.6, 27, 1.8, 3, CR.d), CR.d3, 0.8);
+      s += piece(ell(16.4, 29.6, 2.6, 1.7), CR.b, E(17, 30.2, 1.6, 0.8, CR.d), CR.d3, 0.8) + piece(ell(22.8, 29.6, 2.6, 1.7), CR.b, E(23.4, 30.2, 1.6, 0.8, CR.d), CR.d3, 0.8);
+      s += L('M15.6 30.6 L15.6 29.6 M17.2 30.6 L17.2 29.6 M22 30.6 L22 29.6 M23.6 30.6 L23.6 29.6', CR.d2, 0.5);
+      s += ear(13.4, 7, false, -0.6) + ear(25.6, 7, true, 0.6);
+      s += piece(ell(19.6, 12.6, 8.4, 6.8), F.b, E(25.6, 14, 4, 6, F.d) + E(15.6, 9.6, 3, 2, F.l) + L('M18.2 6.6 L18.6 9 M19.8 6.2 L19.8 8.8 M21.4 6.6 L21 9', F.d, 1) + E(19.6, 16, 4.4, 2.8, CR.b), LN, 1);
+      [16.2, 23].forEach((x) => { s += piece(ell(x, 12.6, 1.9, 2.2), INK, C(x - 0.6, 11.8, 0.7, '#FFFFFF') + C(x + 0.6, 13.4, 0.35, '#FFFFFF'), INK, 0.4); });
+      s += E(14.4, 15.4, 1.7, 0.9, mix(F.b, PK, 0.7)) + E(24.8, 15.4, 1.7, 0.9, mix(F.b, PK, 0.7));
+      s += P('M18.8 14.6 L20.4 14.6 L19.6 15.6 Z', '#E8607A') + L('M19.6 15.6 Q19.6 16.8 18.6 16.8 M19.6 15.6 Q19.6 16.8 20.6 16.8', INK, 0.5);
+      s += L('M13 14.8 L9.6 14.2 M13 15.8 L9.8 16.4 M26.2 14.8 L29.6 14.2 M26.2 15.8 L29.4 16.4', '#FFFFFF', 0.45);
+    } else {
+      // curled up asleep, chin on paws
+      s += piece('M9.6 27 Q9.6 17.6 21 17 Q33.4 16.6 34.4 25.6 Q34.6 30 30 30.6 L13 30.6 Q9.6 30.4 9.6 27 Z', F.b, E(24, 29, 11, 3.4, F.d) + E(22, 19.6, 7, 2, F.l) + [[20, 18.2], [24, 18], [28, 18.8]].map(([x, y]) => L(`M${x} ${y} Q${x + 0.8} ${y + 1.6} ${x} ${y + 3}`, F.d, 1)).join(''), LN, 1);
+      s += ear(6.6, 15.6, false, -1) + ear(14.2, 14.6, true, 0.6);
+      s += piece(ell(10.8, 21.6, 6.8, 5.6), F.b, E(14.6, 23.4, 3, 4, F.d) + E(8.4, 19.4, 2.4, 1.6, F.l) + L('M9.4 16.4 L9.8 18.4 M11 16.2 L11 18.2 M12.6 16.6 L12.2 18.4', F.d, 0.9) + E(10.4, 24.4, 3.8, 2.2, CR.b), LN, 1);
+      [8, 13.2].forEach((x) => { s += L(`M${x - 1.4} 21.6 Q${x} 23 ${x + 1.4} 21.6`, INK, 0.75); });
+      s += E(6.6, 23.4, 1.4, 0.8, mix(F.b, PK, 0.7)) + E(14.6, 23.4, 1.4, 0.8, mix(F.b, PK, 0.7));
+      s += P('M9.8 23.2 L11.2 23.2 L10.5 24 Z', '#E8607A');
+      s += piece(ell(9, 27.6, 3, 1.7), CR.b, E(9.6, 28.2, 1.8, 0.8, CR.d), CR.d3, 0.8) + piece(ell(14.4, 28.2, 3, 1.7), CR.b, E(15, 28.8, 1.8, 0.8, CR.d), CR.d3, 0.8);
+    }
+    // what you made for him
+    if (acc) {
+      const t = acc.tipo, aw = o.awake;
+      const [hx, hy] = aw ? [25.4, 6.6] : [13.8, 15], [nx, ny] = aw ? [19.6, 18.8] : [12.4, 26.2];
+      if (t === 'laco') s += bow(hx, hy, AB, 0.3);
+      if (t === 'tiara') s += L(aw ? 'M12.4 9.6 Q19.6 2.6 26.8 9.6' : 'M5.4 19 Q10.8 13.2 16.4 18.2', A.d3, 2.2) + L(aw ? 'M12.4 9.6 Q19.6 2.6 26.8 9.6' : 'M5.4 19 Q10.8 13.2 16.4 18.2', A.b, 1.3) + C(aw ? 19.6 : 10.8, aw ? 5 : 15.4, 1.1, A.l2);
+      if (t === 'presilha') s += piece(`M${hx - 3} ${hy + 1.6} L${hx + 1} ${hy - 0.4} L${hx + 1.6} ${hy + 0.8} L${hx - 2.4} ${hy + 2.8} Z`, A.b, '', A.d3, 0.6);
+      if (t === 'lencinho' || t === 'capinha') s += piece(aw ? `M14.4 18 Q19.6 20.6 24.8 18 L23.6 20.4 Q21.4 25 19.6 25.6 Q17.8 25 15.6 20.4 Z` : `M7 25.6 Q11 27.8 15.4 25.2 L14.6 27.6 Q12.4 30 10.8 30 Q9 29.6 7.8 27.6 Z`, A.b, E(aw ? 21.6 : 13, aw ? 21.4 : 27.4, 2, 2.4, A.d) + C(aw ? 18 : 9.6, aw ? 21 : 27.2, 0.6, A.l2) + C(aw ? 20.4 : 11.4, aw ? 22.6 : 28.4, 0.6, A.l2), A.d3, 0.8);
+      if (t === 'capinha' && aw) s += piece('M14.6 18.4 Q12 24 12.6 29.6 L16 29.6 Q16 23 19.6 19.6 Z', A.d, '', A.d3, 0.7) + piece('M24.6 18.4 Q27.2 24 26.6 29.6 L23.2 29.6 Q23.2 23 19.6 19.6 Z', A.d, '', A.d3, 0.7);
+      if (t === 'gravatinha') s += bow(nx, ny + 0.6, AB, 0.2);
+      if (t === 'colar' || t === 'pulseira') for (let k = 0; k < 7; k++) { const a = Math.PI * (0.15 + 0.7 * k / 6); s += C(nx - Math.cos(a) * 4.6, ny - 1.4 + Math.sin(a) * 1.8, 0.7, k % 2 ? A.b : A.l); }
+      if (t === 'broche' || t === 'fuxico') s += flower(nx + (aw ? 0 : 1), ny + (aw ? 1.2 : 0), 1.8, A.b, A.l2, 6);
+      if (t === 'bolsinha') s += piece(`M${nx + 2} ${ny + 2} L${nx + 6} ${ny + 2} L${nx + 5.6} ${ny + 5.4} L${nx + 2.4} ${ny + 5.4} Z`, A.b, '', A.d3, 0.6);
+    }
+    return s;
+  }
+  // the same picture in pixels, for an <image> inside an SVG (swapped in when it's ready)
+  function pixHref(key, w, h, vb, draw) {
+    if (cache.has(key)) return cache.get(key);
+    if (!busy.has(key)) {
+      busy.add(key);
+      setTimeout(() => pixelate(draw(), w, h, vb).then((url) => { cache.set(key, url); busy.delete(key); document.querySelectorAll(`image[data-pk="${key}"]`).forEach((el) => el.setAttribute('href', url)); }).catch(() => busy.delete(key)), 30);
+    }
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w * 2}" height="${h * 2}" viewBox="${vb}">${draw()}</svg>`);
+  }
+  const novImg = (o) => { const key = 'nov-' + hsh(o); return `<image data-pk="${key}" href="${pixHref(key, 88, 68, '0 0 44 34', () => novelo(o))}" width="44" height="34" preserveAspectRatio="none" image-rendering="optimizeSpeed" style="image-rendering:pixelated"/>`; };
   const cena = (nome, fn) => (o) => img(`${nome}-${hsh(o)}`, 640, 400, '0 0 320 200', () => fn(o), 'pixbg');
 
   return {
+    novImg, novelo,
     praca: cena('praca', (o) => { uid = 0; return scenePraca(o); }),
     atelie: cena('atelie', atelie), tint: cena('tint', tint), casa: cena('casa', casa), jardim: cena('jardim', jardim), tOf,
     mapa: (o) => img(`mapa-${o.part}-${o.season}-${o.festa ? 1 : 0}-${(o.vazias || []).join('.')}`, 640, 400, '0 0 320 200', () => mapa(o), 'pixbg'),
@@ -6138,30 +6204,20 @@ function renderConfig() {
 /* Novelo strolls around the house: the fabric pile, the scrap box, under the table, his bed at home, the garden */
 const NOV_SPOTS = ['pilha', 'caixa', 'chao', 'pilha', 'casa', 'jardim', 'caixa', 'casa', 'pilha', 'jardim'];
 const NOV_AT = { pilha: [0, 0], caixa: [-110, -4], chao: [-138, 13] };
-function novSVG(dx, dy) {
-  const cat = state.cat || {};
-  const fur = '#E39A4A', furD = '#B8722E';
-  const catArt = cat.awake
-    ? `<rect x="266" y="58" width="12" height="13" fill="${fur}"/><rect x="265" y="49" width="12" height="10" fill="${fur}"/><rect x="265" y="47" width="3" height="3" fill="${fur}"/><rect x="274" y="47" width="3" height="3" fill="${fur}"/><rect x="268" y="52" width="2" height="2" fill="#4E8540"/><rect x="272" y="52" width="2" height="2" fill="#4E8540"/><rect x="270" y="55" width="2" height="1" fill="#C8463D"/><rect x="267" y="61" width="3" height="10" fill="${furD}"/><g class="tail"><rect x="278" y="56" width="3" height="14" fill="${fur}"/><rect x="279" y="54" width="3" height="3" fill="${furD}"/></g>`
-    : `<rect x="262" y="64" width="22" height="7" fill="${fur}"/><rect x="280" y="60" width="9" height="8" fill="${fur}"/><rect x="280" y="58" width="2" height="2" fill="${fur}"/><rect x="287" y="58" width="2" height="2" fill="${fur}"/><rect x="282" y="63" width="2" height="1" fill="${furD}"/><rect x="285" y="63" width="2" height="1" fill="${furD}"/><rect x="266" y="64" width="3" height="7" fill="${furD}"/><rect x="272" y="64" width="3" height="7" fill="${furD}"/><g class="tail"><rect x="258" y="67" width="6" height="3" fill="${fur}"/></g><text x="291" y="56" class="zzz">z</text><text x="296" y="50" class="zzz z2">z</text>`;
-  let o = '';
-  if (cat.acc) {
-    const ac = hexOf(cat.acc.cor), dk = shade(ac, -0.3), t = cat.acc.tipo;
-    const hx = cat.awake ? 272 : 284, hy = cat.awake ? 45 : 56;
-    if (t === 'laco') o += `<rect x="${hx}" y="${hy}" width="2" height="3" fill="${ac}"/><rect x="${hx + 2}" y="${hy + 1}" width="1" height="1" fill="${dk}"/><rect x="${hx + 3}" y="${hy}" width="2" height="3" fill="${ac}"/>`;
-    if (t === 'tiara') o += `<rect x="${hx - 6}" y="${hy + 2}" width="10" height="1" fill="${ac}"/><rect x="${hx - 2}" y="${hy + 1}" width="2" height="1" fill="${dk}"/>`;
-    if (t === 'presilha') o += `<rect x="${hx}" y="${hy + 1}" width="4" height="1" fill="${ac}"/>`;
-    const nx = cat.awake ? 268 : 280, ny = cat.awake ? 58 : 64;
-    if (t === 'lencinho') o += `<rect x="${nx}" y="${ny}" width="7" height="2" fill="${ac}"/><rect x="${nx + 2}" y="${ny + 2}" width="3" height="2" fill="${ac}"/><rect x="${nx + 3}" y="${ny + 4}" width="1" height="1" fill="${dk}"/>`;
-    if (t === 'gravatinha') o += `<rect x="${nx + 1}" y="${ny}" width="2" height="3" fill="${ac}"/><rect x="${nx + 3}" y="${ny + 1}" width="1" height="1" fill="${dk}"/><rect x="${nx + 4}" y="${ny}" width="2" height="3" fill="${ac}"/>`;
-    if (t === 'colar' || t === 'pulseira') o += [0, 2, 4, 6].map((d) => `<rect x="${nx + d}" y="${ny + (d === 2 || d === 4 ? 1 : 0)}" width="1" height="1" fill="${ac}"/>`).join('');
-    if (t === 'capinha') o += cat.awake ? `<rect x="265" y="58" width="14" height="6" fill="${ac}"/><rect x="265" y="63" width="14" height="1" fill="${dk}"/>` : `<rect x="262" y="63" width="20" height="4" fill="${ac}"/><rect x="262" y="66" width="20" height="1" fill="${dk}"/>`;
-    if (t === 'broche' || t === 'fuxico') o += `<rect x="${cat.awake ? 268 : 271}" y="${cat.awake ? 60 : 65}" width="3" height="3" fill="${ac}"/><rect x="${cat.awake ? 269 : 272}" y="${cat.awake ? 61 : 66}" width="1" height="1" fill="${dk}"/>`;
-  }
-
+/* Novelo on his layer: a pixel picture (body + a swishing tail), little z's when he sleeps,
+   a ball of yarn to chase when he's awake, and whatever you made for him to wear */
+function novSVG(x, y, k = 0.78) {
+  const cat = state.cat || {}, aw = !!cat.awake;
+  const acc = cat.acc ? { tipo: cat.acc.tipo, hex: hexOf(cat.acc.cor) || '#C8463D' } : null;
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tail = PIXART.novImg({ part: 'tail', awake: aw, acc: null });
+  const body = PIXART.novImg({ part: 'body', awake: aw, acc });
+  const swish = calm ? '' : aw ? '<animateTransform attributeName="transform" type="rotate" values="0 25 29;7 25 29;0 25 29;-4 25 29;0 25 29" dur="2.2s" repeatCount="indefinite"/>' : '<animateTransform attributeName="transform" type="rotate" values="0 32 28;-3 32 28;0 32 28" dur="3.4s" repeatCount="indefinite"/>';
+  const breathe = calm || aw ? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 -0.5;0 0" dur="3s" repeatCount="indefinite"/>';
   const yc = hexOf((clothKeys('cloth')[0]) || 'rosa') || '#E58FA6';
-  const yarn = cat.awake ? `<g class="yarn"><rect x="249" y="66" width="6" height="5" fill="${yc}"/><rect x="250" y="65" width="4" height="7" fill="${yc}"/><rect x="250" y="67" width="4" height="1" fill="${shade(yc, -0.25)}"/><rect x="251" y="69" width="3" height="1" fill="${shade(yc, -0.25)}"/><path d="M249 70 Q244 72 240 70" stroke="${yc}" stroke-width=".8" fill="none"/></g>` : '';
-  return `<g transform="translate(${dx} ${dy})"><g data-act="cat" id="cat" class="cat" role="button" tabindex="0" aria-label="Novelo, o gatinho">${catArt}${o}<rect x="256" y="44" width="40" height="30" fill="transparent"/></g>${yarn}</g>`;
+  const yarn = aw ? `<g class="yarn"><circle cx="4" cy="29" r="3.4" fill="${yc}" stroke="${shade(yc, -0.45)}" stroke-width=".8"/><path d="M1.6 27.6 Q4 30 6.6 28 M2 30.4 Q4.4 27.6 6.8 30" fill="none" stroke="${shade(yc, -0.25)}" stroke-width=".6"/><path d="M7 30.6 Q10 32 12.4 31" fill="none" stroke="${yc}" stroke-width=".7"/></g>` : '';
+  const zz = aw ? '' : '<text x="18" y="12" class="zzz">z</text><text x="23" y="7" class="zzz z2">z</text>';
+  return `<g transform="translate(${(x - 20 * k).toFixed(1)} ${(y - 31 * k).toFixed(1)}) scale(${k})">${yarn}<g data-act="cat" id="cat" class="cat" role="button" tabindex="0" aria-label="Novelo, o gatinho"><g>${swish}${tail}</g><g>${breathe}${body}</g>${zz}<rect x="2" y="2" width="38" height="31" fill="transparent"/></g></g>`;
 }
 /* Novelo lives on his own layer above the painted rooms, so he can still be petted and dressed up */
 const NOV_PE = { chao: [38, 167], pilha: [212, 162], caixa: [168, 146], jardim: [298, 159] };
@@ -6171,7 +6227,7 @@ function novLayer(where) {
   if (where === 'atelie' && NOV_AT[ns]) at = NOV_PE[ns];
   if (where === 'casa' && ns === 'casa') at = state.casa.moveis.includes('caminha-gato') ? [112, 169] : [112, 175];
   if (where === 'jardim' && ns === 'jardim') at = NOV_PE.jardim;
-  return at ? `<svg class="bg nov-layer" viewBox="0 0 320 200" preserveAspectRatio="none">${novSVG(at[0] - 274, at[1] - 71)}</svg>` : '';
+  return at ? `<svg class="bg nov-layer" viewBox="0 0 320 200" preserveAspectRatio="none">${novSVG(at[0], at[1])}</svg>` : '';
 }
 const NOV_ONDE = { pilha: 'dormindo nos rolos de tecido do ateliê', caixa: 'em cima da caixa de retalhos', chao: 'debaixo da mesa do ateliê', casa: 'na caminha dele, lá em casa', jardim: 'tomando sol no jardim' };
 function novSpot(now = gnow()) {
