@@ -506,6 +506,7 @@ body.portrait-ok .rotate { display: none; }
 .want-conj { display: flex; align-items: center; gap: 4px; font-family: var(--font-display); font-weight: 700; font-size: clamp(14px, 3cqw, 20px); }
 .want-conj .wsw { width: clamp(22px, 5cqw, 34px); height: clamp(22px, 5cqw, 34px); border-radius: 6px; border: 2px solid var(--edge); }
 .crowd-v.visitor { height: 54%; animation: none; transform: translateX(-50%); }
+.talkbox.prova-box { left: 31%; top: 6%; max-width: 46%; }
 .locked-m { opacity: .7; }
 .mv-own .pats { margin-top: 6px; }
 /* vida nas cenas, estações, abertura e passantes */
@@ -4358,7 +4359,7 @@ function settle(c, v, r) {
   state.served += 1;
   if (r.h >= 1) taskEv('entregar');
   c.result = r;
-  c.leaveAt = gnow() + 4000;
+  c.leaveAt = gnow() + (c.misterio ? 4000 : 9000);
   state.focus = c.id;
   checkUnlocks(before, state.best);
   if ((state.hearts[v.id] - r.h) < 3 && state.hearts[v.id] >= 3) {
@@ -4560,6 +4561,7 @@ function act(el) {
   else if (a === 'set-papel') { state.decor.papel = state.decor.papel === el.dataset.v ? null : el.dataset.v; }
   else if (a === 'talk') { talkTo(el.dataset.v); return; }
   else if (a === 'casa-v') { openCasa(el.dataset.v); return; }
+  else if (a === 'visita-at') { ui.noAtelie = el.dataset.v; talkTo(el.dataset.v); return; }
   else if (a === 'recado') { (state.recados = state.recados || {})[el.dataset.v] = clock().day; sfx('chime'); toast(`Você deixou um recadinho na porta da ${villager(el.dataset.v).nome}. 💌`); save(); renderSheet(); return; }
   else if (a === 'medir-casa') { const vid = el.dataset.v; goTo('vila'); renderAll(); openCasa(vid); return; }
   else if (a === 'measure-v') {
@@ -4936,6 +4938,29 @@ function renderTint() {
     </aside></div>`;
 }
 
+/* Someone dropping by the ateliê just to chat: not at night, not if she's away, never the one visiting your house */
+function atelieVisitor() {
+  const ck = clock();
+  if (ck.part === 'noite') return null;
+  const c = curOrder();
+  if (c && c.result) return null;
+  const emCasa = casaVisitor();
+  const pool = activeVillagers().filter((v) => !foraHoje(v, ck.day) && (!emCasa || emCasa.id !== v.id));
+  if (!pool.length) return null;
+  const h = (((ck.day * 2 + (ck.part === 'tarde' ? 1 : 0)) + 11) * 2654435761) >>> 0;
+  if (h % 5 >= 3) return null;
+  return pool[(h >>> 4) % pool.length];
+}
+/* What she says when you talk to her at the ateliê */
+function atelieLine(v) {
+  const ck = clock(), pr = state.rack[0], vit = state.vitrine.filter(Boolean).length, ns = novSpot();
+  const L = [`Passei só pra dar um oi! O cheirinho de tecido novo daqui é o melhor.`, `Posso ficar um pouquinho olhando você costurar? Eu acho tão calmante.`, `Vim espiar as novidades do ateliê. Tem algum tecido novo?`];
+  if (pr) L.push(`Que arara bonita! ${pr.z[0].cor === pr.z[1].cor ? `Essa peça ${pr.z[0].cor}` : `Essa peça ${pr.z[0].cor} e ${pr.z[1].cor}`} ficou um charme.`);
+  if (vit) L.push('Vi a vitrine lá da rua e não resisti, tive que entrar!');
+  if (NOV_AT[ns]) L.push('O Novelo tá aqui todo folgado. Ele manda no ateliê, né?');
+  if (ck.rain) L.push('Entrei pra fugir da chuva… e aproveitar a companhia!');
+  return L[(ck.day + v.id.length) % L.length];
+}
 function renderAtelie() {
   const c = curOrder();
   const b = state.bench;
@@ -4951,7 +4976,19 @@ function renderAtelie() {
   const open = state.orders.filter((o) => !o.result);
 
   let cust;
-  if (!c) cust = `<div class="talkbox carta-box"><div class="bubble quiet">📭 Nenhuma carta com pedido agora. Elas chegam pelo correio da Nina.</div></div>`;
+  /* a finished piece: she comes to try it on before taking it home */
+  const prova = c && c.result && !c.misterio ? (c.kind === 'conjunto' ? c.vids.map(villager) : [villager(c.vid)]) : [];
+  const visAt = prova.length ? null : atelieVisitor();
+  /* she waves only the first time she shows up */
+  const waveAt = !!visAt && ui.waveSeen !== visAt.id;
+  if (waveAt) ui.waveSeen = visAt.id;
+  const gente = prova.length
+    ? prova.map((v, i) => `<button class="crowd-v visitor prova" data-act="visita-at" data-v="${v.id}" style="left:${prova.length > 1 ? 18 + i * 9 : 24}%;bottom:2%;--dx:0cqw" aria-label="${v.nome} provando a peça">${figureSVG(v, i ? 'feliz' : c.result.mood, c.result.h >= 2, null)}<span class="nm">${v.nome}</span></button>`).join('')
+    : visAt ? `<button class="crowd-v visitor" data-act="visita-at" data-v="${visAt.id}" id="visita-at" style="left:24%;bottom:2%;--dx:0cqw" aria-label="${visAt.nome} passou pra visitar">${state.talked[visAt.id] === clock().day ? '' : '<span class="chat" aria-hidden="true">💬</span>'}${figureSVG(visAt, null, waveAt)}<span class="nm">${visAt.nome}</span></button>` : '';
+  if (prova.length) {
+    const r = c.result;
+    cust = `<div class="talkbox prova-box"><div class="bubble"><span class="carta-de">👗 ${prova.length > 1 ? nomesDe(c.vids) + ' provaram' : prova[0].nome + ' provou'}</span>${r.msg}<span class="bub-res">+${r.pay} moedas${r.h ? ` · ${r.h > 0 ? '+' : '−'}${Math.abs(r.h)} ♥` : ''}</span></div></div>`;
+  } else if (!c) cust = `<div class="talkbox carta-box"><div class="bubble quiet">📭 Nenhuma carta com pedido agora. Elas chegam pelo correio da Nina.</div></div>`;
   else {
     const v = villager(c.vid);
     const r = c.result;
@@ -4977,7 +5014,7 @@ function renderAtelie() {
     const gosta = !accOrder && !conj && (state.hearts[v.id] || 0) >= 4 && VBOTAO[v.id] ? `Gosta de botão de ${BOTOES[VBOTAO[v.id]].nome.toLowerCase()}, linha ${VCONTRASTE[v.id] ? 'colorida' : 'combinando'}${(state.hearts[v.id] || 0) >= 6 && VGOLA[v.id] ? `, ${GOLAS[VGOLA[v.id]].nome.toLowerCase()} e ${BOLSOS[VBOLSO[v.id]].nome.toLowerCase()}` : ''}` : '';
     const info = [c.pressa && gnow() < c.pressa ? `<b>⏱ Com pressa! Bônus se entregar em <span id="pressa-left">${secs(c.pressa - gnow())}</span></b>` : '', gosta, conj ? `Conjunto: ${c.got.length} de ${c.vids.length} peças · cada uma toda ${c.cor}` : !accOrder && !rf && !['trico', 'patch'].includes(c.peca) ? (needsMeasure ? 'Tamanho ainda não medido' : `Veste ${v.tam}`) : '', favKnown ? `Adora ${PATTERNS.find((p) => p.id === v.fav).nome.toLowerCase()}` : ''].filter(Boolean).join(' · ');
     balcao = `<div class="balcao">${avatarSVG(v)}<div class="balcao-txt"><b>Carta ${c.misterio ? 'sem assinatura' : conj ? `de ${nomesDe(c.vids)}` : `da ${v.nome}`}</b>${info ? `<span class="help">${info}</span>` : ''}
-      <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${rf ? `<button class="primary sm" data-act="rf-start" id="rf-start">✂️ Reformar${c.tipo === 'cor' ? ` (1 m de ${c.cor})` : ''}</button>` : ''}${needsMeasure ? `<button class="primary sm" data-act="medir-casa" data-v="${v.id}" id="measure">📏 Medir na casa dela</button>` : ''}${rem || rf ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">📮 Enviar pelo correio: ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
+      <div class="deliver-row">${rem ? '<button class="primary sm" data-act="sheet" data-kind="remendo" id="remendo-open">🧵 Remendar</button>' : ''}${rf ? `<button class="primary sm" data-act="rf-start" id="rf-start">✂️ Reformar${c.tipo === 'cor' ? ` (1 m de ${c.cor})` : ''}</button>` : ''}${needsMeasure ? `<button class="primary sm" data-act="medir-casa" data-v="${v.id}" id="measure">📏 Medir na casa dela</button>` : ''}${rem || rf ? '' : giving ? `<button class="primary sm" data-act="deliver" id="deliver">${c.misterio ? '📮 Enviar pelo correio' : '👗 Chamar pra provar'}: ${giving}</button>` : `<span class="help">Escolha na ${accOrder ? 'caixinha' : 'arara'} o que entregar.</span>`}</div>
       ${hintBox(c)}
       <button class="linkish" data-act="skip" id="skip">Recusar pedido</button></div></div>`;
   }
@@ -5037,7 +5074,7 @@ function renderAtelie() {
   }
 
   $('p-atelie').innerHTML = `
-    <div class="scene-col"><div class="scene-box">${atelieArt()}${novLayer('atelie')}${cust}
+    <div class="scene-col"><div class="scene-box">${atelieArt()}${novLayer('atelie')}${gente}${cust}
       ${hot('mesa', 'Mesa', 33, 44, 26, 17)}${hot('arara', 'Arara', 72.5, 48, 24, 27)}${hot('retalhos', 'Retalhos', 48.5, 70, 8, 10)}${hot('mural', `Cartas · ${open.length}`, 52, 16, 10, 14, 'pedidos')}
       ${lifeFX('atelie')}${state.aprendiz ? `<button class="crowd-v flora" data-act="sheet" data-kind="aprendiz" id="flora" style="left:79%;bottom:2%;--dx:0cqw" aria-label="Flora, a aprendiz">${state.aprendiz.job ? '<span class="chat" aria-hidden="true">🧵</span>' : ''}${figureSVG(FLORA, state.aprendiz.job ? 'feliz' : null)}<span class="nm">Flora</span></button>` : ''}${meSpot('me-atelie')}${confirmCard}${nav('atelie')}</div></div>
     <div class="nbk">${nbTabs('atelie')}<aside class="pnl" aria-labelledby="h-atelie">
@@ -5683,6 +5720,7 @@ function fofoca(v, c) {
 }
 function openCasa(vid) {
   const v = villager(vid), c = clock();
+  ui.noAtelie = null;
   if (!v) return;
   if (v.id === 'aurora' && v.fora) { openSheet({ kind: 'torre' }); return; }
   if (!activeVillagers().includes(v)) { toast(`Casa vazia. Alguém se muda pra cá quando você juntar ${v.need} ♥.`); return; }
@@ -6023,11 +6061,11 @@ function renderTalk(s) {
   const gifts = state.box.length
     ? state.box.map((x, i) => `<button class="piece" data-act="gift" data-i="${i}" id="gift-${i}" ${done ? 'disabled' : ''}>${accSVG(x.tipo, x.cor)}${ACCS[x.tipo].nome}<span class="price">${x.cor}</span></button>`).join('')
     : `<p class="help" style="margin:0;grid-column:1/-1">A caixinha está vazia. Faça acessórios na aba Retalhos do ateliê.</p>`;
-  const line = talkLine(v);
+  const noAt = ui.noAtelie === v.id, line = noAt ? atelieLine(v) : talkLine(v);
   const T = trocaDe(v), trocou = state.trocas && state.trocas[v.id] === c.day;
   const trocaBox = `<div class="festa"><b>🔄 Troca do dia</b><p>${v.nome} te dá <b>${trocaTxt(T.da)}</b> em troca de <b>${trocaTxt(T.por)}</b>.</p>${trocou ? '<p>Vocês já trocaram hoje. Amanhã tem outra!</p>' : `<button class="btn" data-act="troca" data-v="${v.id}" id="troca-${v.id}" style="align-self:flex-start" ${trocaPode(T) ? '' : 'disabled'}>${trocaPode(T) ? 'Trocar' : 'Falta o que ela pede'}</button>`}</div>`;
   $('gen-body').innerHTML = `<div class="talk"><div class="talk-fig">${portraitSVG(v, talkMood(v, line), true)}${petSVG(v.id)}</div>
-      <div class="talk-txt">${CASA_NOME[v.id] ? `<p class="help" style="margin:0">🏠 ${CASA_NOME[v.id]}</p>` : ''}<p class="quote">${line}</p>${precisa ? `<button class="primary" data-act="measure-v" data-v="${v.id}" id="measure-${v.id}" style="align-self:flex-start">📏 Tirar as medidas dela</button>` : ''}${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}${(() => { const hm = humorOf(v), H = HUMORES[hm]; return `<p class="help" style="margin:0">${H.emo} ${H.txt}: ${hm === 'pensativa' ? `"Ando pensando em ${v.cores[c.day % v.cores.length]}…"` : H.efeito}.</p>`; })()}${(() => { const m = (state.memorias || []).filter((x) => x.vid === v.id).pop(); return m ? `<p class="help" style="margin:0">📖 ${motivoDepois(m)}</p>` : ''; })()}${amigaDe(v.id) && villager(amigaDe(v.id)) ? `<p class="help" style="margin:0">💞 Melhor amiga: ${villager(amigaDe(v.id)).nome}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
+      <div class="talk-txt">${noAt ? '<p class="help" style="margin:0">✂️ De visita no ateliê</p>' : CASA_NOME[v.id] ? `<p class="help" style="margin:0">🏠 ${CASA_NOME[v.id]}</p>` : ''}<p class="quote">${line}</p>${precisa ? `<button class="primary" data-act="measure-v" data-v="${v.id}" id="measure-${v.id}" style="align-self:flex-start">📏 Tirar as medidas dela</button>` : ''}${PETS[v.id] ? `<p class="help" style="margin:0">🐾 ${petLine(v)}</p>` : ''}${(() => { const hm = humorOf(v), H = HUMORES[hm]; return `<p class="help" style="margin:0">${H.emo} ${H.txt}: ${hm === 'pensativa' ? `"Ando pensando em ${v.cores[c.day % v.cores.length]}…"` : H.efeito}.</p>`; })()}${(() => { const m = (state.memorias || []).filter((x) => x.vid === v.id).pop(); return m ? `<p class="help" style="margin:0">📖 ${motivoDepois(m)}</p>` : ''; })()}${amigaDe(v.id) && villager(amigaDe(v.id)) ? `<p class="help" style="margin:0">💞 Melhor amiga: ${villager(amigaDe(v.id)).nome}</p>` : ''}<p class="sub">${cap(v.quem)} · <span class="hrt">♥</span> ${state.hearts[v.id] || 0}</p><p class="help" style="margin:0">${likesText(v)}</p></div></div>
     <p class="label">Dar um presente${done ? ' · ela já ganhou um hoje' : ' · um por dia'}</p><div class="box">${gifts}</div>${trocaBox}`;
 }
 
@@ -7648,7 +7686,7 @@ function renderPedidos() {
       <span class="want-tag">${wantIcon(o)}</span>
       <button class="btn" data-act="focus" data-v="${o.id}" id="foc-${o.id}" ${cur && cur.id === o.id ? 'disabled' : ''}>${cur && cur.id === o.id ? 'Aberta' : 'Abrir carta'}</button></div>`;
   }).join('');
-  $('gen-body').innerHTML = `<p class="help">Sem pressa: os pedidos chegam por carta e esperam você. Abra uma carta pra ver o pedido; quando a peça ficar pronta, a Nina leva pelo correio.</p>
+  $('gen-body').innerHTML = `<p class="help">Sem pressa: os pedidos chegam por carta e esperam você. Abra uma carta pra ver o pedido; quando a peça ficar pronta, ela vem provar no ateliê.</p>
     <div class="ords">${cards || '<p class="empty">Nenhum pedido no mural agora. Logo chega mais.</p>'}</div>`;
 }
 
