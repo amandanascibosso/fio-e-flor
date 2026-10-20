@@ -6259,16 +6259,21 @@ function light(g, T, W, H, wins) {
 }
 
 /* ---------- a faint joystick at the bottom of every scene: drag it and Bia walks that way ---------- */
-const JOY = { on: false, x: 0, y: 0 };
-function bindJoy(el) {
-  if (!el || el.dataset.bound) return; el.dataset.bound = '1';
-  const knob = el.querySelector('i');
-  const move = (sx, sy) => { const r = localRect(el), rad = r.width / 2, [cx, cy] = toLocal(sx, sy); let dx = (cx - r.left - rad) / rad, dy = (cy - r.top - rad) / rad; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
+const JOY = { on: false, x: 0, y: 0, rect: null };
+// one joystick for the whole game, moved into whichever scene is showing, so a re-render never drops the finger
+const JOY_EL = document.createElement('div');
+JOY_EL.className = 'px-joy'; JOY_EL.setAttribute('aria-hidden', 'true'); JOY_EL.innerHTML = '<i></i>';
+{
+  const el = JOY_EL, knob = el.querySelector('i');
+  const move = (sx, sy) => { const r0 = localRect(el), r = r0.width ? r0 : JOY.rect; if (!r) return; JOY.rect = r;
+    const rad = r.width / 2, [cx, cy] = toLocal(sx, sy); let dx = (cx - r.left - rad) / rad, dy = (cy - r.top - rad) / rad; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
     JOY.x = dx; JOY.y = dy; knob.style.transform = `translate(${dx * 60}%, ${dy * 60}%)`; };
   const end = () => { JOY.on = false; JOY.x = JOY.y = 0; knob.style.transform = ''; el.classList.remove('on'); };
-  el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); JOY.on = true; el.classList.add('on'); el.setPointerCapture && el.setPointerCapture(e.pointerId); move(e.clientX, e.clientY); });
+  el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); JOY.on = true; JOY.rect = null; el.classList.add('on'); try { el.setPointerCapture(e.pointerId); } catch (err) { /* capture is a nicety */ } move(e.clientX, e.clientY); });
   el.addEventListener('pointermove', (e) => { if (JOY.on) { e.preventDefault(); move(e.clientX, e.clientY); } });
-  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((k) => el.addEventListener(k, end));
+  // the scene can re-render under the finger and take the release with it, so any release anywhere ends the drag
+  ['pointerup', 'pointercancel'].forEach((k) => { el.addEventListener(k, end); window.addEventListener(k, () => { if (JOY.on) end(); }); });
+  el.addEventListener('touchend', end); window.addEventListener('blur', end);
   // keep the page's swipe-to-change-place from reacting to the joystick
   ['touchstart', 'touchmove', 'touchend'].forEach((k) => el.addEventListener(k, (e) => { e.stopPropagation(); if (k !== 'touchend') e.preventDefault(); }, { passive: false }));
   el.addEventListener('click', (e) => e.stopPropagation());
@@ -6324,7 +6329,7 @@ function mountRoom(cv, name) {
     if (spot) { goSpot(spot); return; }
     pending = null; st.bia.path = route(x, y);
   });
-  bindJoy(box.querySelector('.px-joy'));
+  box.appendChild(JOY_EL);
   let leaving = false;
   // tapping the game's own hotspot also sends Bia over to it
   box.querySelectorAll('.hot').forEach((h) => h.addEventListener('click', () => { if (h.dataset.pxWalked) { delete h.dataset.pxWalked; return; } const s = def.spots.find((sp) => sp.hot === h.id); if (s) { st.bia.path = route(s.at[0], s.at[1]); st.bia.face = s.face; } }, true));
@@ -6385,7 +6390,7 @@ function mountVila(cv) {
     if (wx > 36 && wx < 210 && wy > 404 && wy < 470) { pending = { act: { act: 'go', v: 'jardim' } }; st.bia.path = route(st.bia, 120, 400); return; }
     pending = null; st.bia.path = route(st.bia, wx, wy);
   });
-  bindJoy(box.querySelector('.px-joy'));
+  box.appendChild(JOY_EL);
   let entering = 0;
   const mapBtn = box.querySelector('.px-mapbtn');
   if (mapBtn) mapBtn.addEventListener('click', () => { st.overview = !st.overview; mapBtn.setAttribute('aria-pressed', st.overview); });
@@ -6444,7 +6449,7 @@ function tick(t) {
   });
 }
 requestAnimationFrame(tick);
-const tag = (name, o) => { OPTS[name] = o || {}; return `<canvas class="pxroom" data-room="${name}" width="${RW}" height="${RH}" aria-hidden="true"></canvas><div class="px-joy" aria-hidden="true"><i></i></div>${name === 'vila' ? '<button class="px-mapbtn" type="button" aria-label="Ver a vila inteira" aria-pressed="false">Mapa</button>' : ''}`; };
+const tag = (name, o) => { OPTS[name] = o || {}; return `<canvas class="pxroom" data-room="${name}" width="${RW}" height="${RH}" aria-hidden="true"></canvas>${name === 'vila' ? '<button class="px-mapbtn" type="button" aria-label="Ver a vila inteira" aria-pressed="false">Mapa</button>' : ''}`; };
 return { tag, ROOMS };
 
 })();
