@@ -6263,7 +6263,7 @@ const JOY = { on: false, x: 0, y: 0 };
 function bindJoy(el) {
   if (!el || el.dataset.bound) return; el.dataset.bound = '1';
   const knob = el.querySelector('i');
-  const move = (cx, cy) => { const r = el.getBoundingClientRect(), rad = r.width / 2; let dx = (cx - r.left - rad) / rad, dy = (cy - r.top - rad) / rad; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
+  const move = (sx, sy) => { const r = localRect(el), rad = r.width / 2, [cx, cy] = toLocal(sx, sy); let dx = (cx - r.left - rad) / rad, dy = (cy - r.top - rad) / rad; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
     JOY.x = dx; JOY.y = dy; knob.style.transform = `translate(${dx * 60}%, ${dy * 60}%)`; };
   const end = () => { JOY.on = false; JOY.x = JOY.y = 0; knob.style.transform = ''; el.classList.remove('on'); };
   el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); JOY.on = true; el.classList.add('on'); el.setPointerCapture && el.setPointerCapture(e.pointerId); move(e.clientX, e.clientY); });
@@ -6319,7 +6319,7 @@ function mountRoom(cv, name) {
   const arrive = () => { const s = pending; pending = null; if (!s) return; st.bia.face = s.face || 'up';
     if (s.hot) { const h = document.getElementById(s.hot); if (h) { h.dataset.pxWalked = '1'; h.click(); } } else if (s.act) fire(box, s.act); else if (s.say) say(s.say); };
   cv.addEventListener('click', (e) => {
-    const b = cv.getBoundingClientRect(), x = (e.clientX - b.left) / b.width * RW, y = (e.clientY - b.top) / b.height * RH;
+    const b = localRect(cv), [lx, ly] = toLocal(e.clientX, e.clientY), x = (lx - b.left) / b.width * RW, y = (ly - b.top) / b.height * RH;
     const spot = def.spots.find((s) => x >= s.x && x <= s.x + s.w && y >= s.y && y <= s.y + s.h);
     if (spot) { goSpot(spot); return; }
     pending = null; st.bia.path = route(x, y);
@@ -6375,7 +6375,7 @@ function mountVila(cv) {
   let pending = null, smoke = [], leaves = [];
   const VIEW_S = Math.min(RW / VW, RH / VH), OX = (RW - VW * VIEW_S) / 2;
   cv.addEventListener('click', (e) => {
-    const b = cv.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * RW, py = (e.clientY - b.top) / b.height * RH;
+    const b = localRect(cv), [lx, ly] = toLocal(e.clientX, e.clientY), px = (lx - b.left) / b.width * RW, py = (ly - b.top) / b.height * RH;
     const wx = st.overview ? (px - OX) / VIEW_S : st.cam.x + px, wy = st.overview ? py / VIEW_S : st.cam.y + py;
     if (st.overview) { st.overview = false; const mb = box.querySelector('.px-mapbtn'); if (mb) mb.setAttribute('aria-pressed', 'false'); st.cam = null; }
     const npc = Object.values(st.people).find((p) => Math.abs(wx - p.x) < 10 && wy > p.y - 33 && wy < p.y + 4);
