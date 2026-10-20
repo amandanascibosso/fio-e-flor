@@ -6258,6 +6258,30 @@ function light(g, T, W, H, wins) {
   if (T === 'noite' && wins) wins.forEach(([x, y, w, h]) => { g.R(x, y, w, h, '#ffd27a'); g.alpha(.2, () => g.ell(x + w / 2, y + h / 2, w, h, '#ffc860')); });
 }
 
+/* ---------- a faint joystick at the bottom of every scene: drag it and Bia walks that way ---------- */
+const JOY = { on: false, x: 0, y: 0 };
+function bindJoy(el) {
+  if (!el || el.dataset.bound) return; el.dataset.bound = '1';
+  const knob = el.querySelector('i');
+  const move = (cx, cy) => { const r = el.getBoundingClientRect(), rad = r.width / 2; let dx = (cx - r.left - rad) / rad, dy = (cy - r.top - rad) / rad; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
+    JOY.x = dx; JOY.y = dy; knob.style.transform = `translate(${dx * 60}%, ${dy * 60}%)`; };
+  const end = () => { JOY.on = false; JOY.x = JOY.y = 0; knob.style.transform = ''; el.classList.remove('on'); };
+  el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); JOY.on = true; el.classList.add('on'); el.setPointerCapture && el.setPointerCapture(e.pointerId); move(e.clientX, e.clientY); });
+  el.addEventListener('pointermove', (e) => { if (JOY.on) { e.preventDefault(); move(e.clientX, e.clientY); } });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((k) => el.addEventListener(k, end));
+  // keep the page's swipe-to-change-place from reacting to the joystick
+  ['touchstart', 'touchmove', 'touchend'].forEach((k) => el.addEventListener(k, (e) => { e.stopPropagation(); if (k !== 'touchend') e.preventDefault(); }, { passive: false }));
+  el.addEventListener('click', (e) => e.stopPropagation());
+}
+function joyMove(p, freeAt, speed) {
+  const m = Math.hypot(JOY.x, JOY.y);
+  if (!JOY.on || m < .2) return false;
+  const k = speed * Math.min(1, m * 1.25), vx = JOY.x / m * k, vy = JOY.y / m * k;
+  p.path = [];
+  if (freeAt(p.x + vx, p.y + vy)) { p.x += vx; p.y += vy; } else if (freeAt(p.x + vx, p.y)) p.x += vx; else if (freeAt(p.x, p.y + vy)) p.y += vy;
+  p.dir = dirOf(vx, vy, p.dir); p.step = (p.step || 0) + 1; return true;
+}
+
 /* ---------- controllers: one per canvas; Bia's place in each room survives re-renders ---------- */
 const OPTS = {}, KEEP = {}, CTRL = new WeakMap();
 let lastRoom = null;
@@ -6300,14 +6324,20 @@ function mountRoom(cv, name) {
     if (spot) { goSpot(spot); return; }
     pending = null; st.bia.path = route(x, y);
   });
+  bindJoy(box.querySelector('.px-joy'));
+  let leaving = false;
   // tapping the game's own hotspot also sends Bia over to it
   box.querySelectorAll('.hot').forEach((h) => h.addEventListener('click', () => { if (h.dataset.pxWalked) { delete h.dataset.pxWalked; return; } const s = def.spots.find((sp) => sp.hot === h.id); if (s) { st.bia.path = route(s.at[0], s.at[1]); st.bia.face = s.face; } }, true));
   return {
     frame(t) {
       g.ctx.drawImage(st.bg, 0, 0);
       def.dyn && def.dyn(g, t, o);
-      const moving = stepWalker(st.bia);
+      let moving = joyMove(st.bia, freeR, 1.3);
+      if (moving) pending = null; else moving = stepWalker(st.bia);
       if (!moving && pending) arrive();
+      // walking out through the door with the joystick goes back to the village
+      const out0 = name === 'jardim' ? st.bia.x < 12 && st.bia.y > 96 : st.bia.y > RH - 9 && Math.abs(st.bia.x - 120) < 16;
+      if (JOY.on && out0 && !leaving) { leaving = true; JOY.on = false; fire(box, { act: 'go', v: 'vila' }); }
       const items = st.fronts.slice();
       items.push({ y: st.bia.y, draw: () => drawPerson(g, st.bia, moving, BIA_PAL, SPR) });
       guests.forEach((p) => items.push({ y: p.y, draw: () => drawPerson(g, p, false, p.pal, p.spr) }));
@@ -6355,6 +6385,8 @@ function mountVila(cv) {
     if (wx > 36 && wx < 210 && wy > 404 && wy < 470) { pending = { act: { act: 'go', v: 'jardim' } }; st.bia.path = route(st.bia, 120, 400); return; }
     pending = null; st.bia.path = route(st.bia, wx, wy);
   });
+  bindJoy(box.querySelector('.px-joy'));
+  let entering = 0;
   const mapBtn = box.querySelector('.px-mapbtn');
   if (mapBtn) mapBtn.addEventListener('click', () => { st.overview = !st.overview; mapBtn.setAttribute('aria-pressed', st.overview); });
   const bubble = (x, y, kind) => { const { R, P } = g; R(x - 6, y - 9, 13, 9, '#3a2a20'); R(x - 5, y - 8, 11, 7, '#fffaf0'); P(x - 1, y, '#3a2a20'); P(x, y, '#3a2a20'); P(x, y + 1, '#3a2a20');
@@ -6374,7 +6406,12 @@ function mountVila(cv) {
       if (!reduce && o.season === 'outono' && leaves.length < 40 && Math.random() < .2) leaves.push({ x: Math.random() * VW, y: -4, c: ['#d9802e', '#bf5530', '#cf9e2a'][Math.random() * 3 | 0], ph: Math.random() * 6 });
       if (!reduce && o.season === 'inverno' && leaves.length < 80 && Math.random() < .5) leaves.push({ x: Math.random() * VW, y: -4, c: '#ffffff', ph: Math.random() * 6 });
       leaves.forEach((l) => { l.y += .4; l.x += Math.sin(t / 500 + l.ph) * .5; }); leaves = leaves.filter((l) => l.y < VH);
-      const bm = stepWalker(st.bia);
+      let bm = joyMove(st.bia, free, 1.6);
+      if (bm) { pending = null; st.overview = false;
+        // pushing up against a door goes inside
+        const h = JOY.y < -.4 && t > entering ? HOUSES.find((x) => Math.abs(st.bia.x - x.doorX) < 12 && Math.abs(st.bia.y - x.doorY) < 10) : null;
+        if (h && (h.go || h.vid)) { entering = t + 1500; JOY.on = false; fire(box, h.go ? { act: 'go', v: h.go } : { act: 'casa-v', v: h.vid }); }
+      } else bm = stepWalker(st.bia);
       if (!bm && pending) { const p = pending; pending = null; if (p.act) fire(box, p.act); else if (p.say) say(p.say); }
       const ppl = Object.values(st.people), mv = {};
       ppl.forEach((p) => { if (p.wait > 0) { p.wait--; mv[p.id] = false; return; } if (!p.path.length && Math.random() < .006) p.path = route(p, p.home[0] + (Math.random() - .5) * 160, p.home[1] + (Math.random() - .5) * 70); mv[p.id] = stepWalker(p); });
@@ -6407,11 +6444,15 @@ function tick(t) {
   });
 }
 requestAnimationFrame(tick);
-const tag = (name, o) => { OPTS[name] = o || {}; return `<canvas class="pxroom" data-room="${name}" width="${RW}" height="${RH}" aria-hidden="true"></canvas>${name === 'vila' ? '<button class="px-mapbtn" type="button" aria-label="Ver a vila inteira" aria-pressed="false">Mapa</button>' : ''}`; };
+const tag = (name, o) => { OPTS[name] = o || {}; return `<canvas class="pxroom" data-room="${name}" width="${RW}" height="${RH}" aria-hidden="true"></canvas><div class="px-joy" aria-hidden="true"><i></i></div>${name === 'vila' ? '<button class="px-mapbtn" type="button" aria-label="Ver a vila inteira" aria-pressed="false">Mapa</button>' : ''}`; };
 return { tag, ROOMS };
 
 })();
-{ const st = document.createElement('style'); st.textContent = `\n.scene-box > canvas.pxroom { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; z-index: 1; display: block; touch-action: manipulation; }\n.px-on .me-spot, .px-on .nov-layer, .px-on .pot-spot, .px-vila .map-casa { display: none !important; }\n.px-on .crowd-v svg { visibility: hidden; }\n.px-atelie #hot-mesa { left: 5.8% !important; top: 33.3% !important; width: 27.5% !important; height: 28% !important; }\n.px-atelie #hot-arara { left: 60% !important; top: 32% !important; width: 27.5% !important; height: 34.7% !important; }\n.px-atelie #hot-retalhos { left: 85.8% !important; top: 64% !important; width: 12.5% !important; height: 16% !important; }\n.px-atelie #hot-mural { left: 85% !important; top: 4% !important; width: 13.3% !important; height: 21.3% !important; }\n.px-tint .pot-slots { left: 37%; width: 28%; bottom: 58%; }\n.px-mapbtn { position: absolute; right: 8px; bottom: 8px; z-index: 8; font-family: var(--font-display); font-weight: 700; font-size: 12px; padding: 5px 9px; background: var(--nb-paper, #fff8ec); border: 2px solid var(--edge); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); color: var(--ink, #3a3040); }\n.px-mapbtn[aria-pressed="true"] { background: #ffe7a8; }\n`; document.head.appendChild(st); }
+{ const st = document.createElement('style'); st.textContent = `\n.scene-box > canvas.pxroom { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; z-index: 1; display: block; touch-action: manipulation; }\n.px-on .me-spot, .px-on .nov-layer, .px-on .pot-spot, .px-vila .map-casa { display: none !important; }\n.px-on .crowd-v svg { visibility: hidden; }\n.px-atelie #hot-mesa { left: 5.8% !important; top: 33.3% !important; width: 27.5% !important; height: 28% !important; }\n.px-atelie #hot-arara { left: 60% !important; top: 32% !important; width: 27.5% !important; height: 34.7% !important; }\n.px-atelie #hot-retalhos { left: 85.8% !important; top: 64% !important; width: 12.5% !important; height: 16% !important; }\n.px-atelie #hot-mural { left: 85% !important; top: 4% !important; width: 13.3% !important; height: 21.3% !important; }\n.px-tint .pot-slots { left: 37%; width: 28%; bottom: 58%; }\n.px-mapbtn { position: absolute; right: 8px; bottom: 8px; z-index: 8; font-family: var(--font-display); font-weight: 700; font-size: 12px; padding: 5px 9px; background: var(--nb-paper, #fff8ec); border: 2px solid var(--edge); border-radius: 8px; box-shadow: 0 2px 0 var(--edge); color: var(--ink, #3a3040); }\n.px-mapbtn[aria-pressed="true"] { background: #ffe7a8; }
+.px-joy { position: absolute; left: 3%; bottom: 5%; width: 17cqw; max-width: 130px; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,.10); border: 2px solid rgba(255,255,255,.28); z-index: 7; touch-action: none; }
+.px-joy i { position: absolute; left: 30%; top: 30%; width: 40%; height: 40%; border-radius: 50%; background: rgba(255,255,255,.26); box-shadow: 0 1px 0 rgba(0,0,0,.15); transition: transform .06s linear; pointer-events: none; }
+.px-joy.on { background: rgba(255,255,255,.16); }
+.px-joy.on i { background: rgba(255,255,255,.4); transition: none; }\n`; document.head.appendChild(st); }
 PIXART.atelie = (o) => PIXV.tag('atelie', o); PIXART.tint = (o) => PIXV.tag('tint', o); PIXART.casa = (o) => PIXV.tag('casa', o); PIXART.jardim = (o) => PIXV.tag('jardim', o);
 PIXART.mapa = (o) => PIXV.tag('vila', Object.assign({}, o, { T: PIXART.tOf(o.part) }));
 
