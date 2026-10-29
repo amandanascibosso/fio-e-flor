@@ -95,6 +95,16 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .chip { border: 2px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; font: 700 13px/1 var(--body); display: inline-flex; align-items: center; gap: 6px; min-height: 34px; }
 .chip.warn { border-color: var(--accent); color: var(--accent); }
 
+/* loading: a random picture fills itself with beads while fonts and the gallery get ready */
+#splash { position: fixed; inset: 0; z-index: 9; background: var(--bg); display: grid; place-items: center; transition: opacity .4s; }
+#splash.out { opacity: 0; pointer-events: none; }
+.splashbox { display: grid; justify-items: center; gap: 18px; padding: 24px; }
+.splashbox canvas { width: min(240px, 60vw); aspect-ratio: 1; border-radius: 14px; }
+.splashbox h1 { margin: 0; font: 700 44px/1 var(--display); display: flex; align-items: center; gap: 10px; }
+.splashbox h1 i { width: .7em; height: .7em; background: var(--accent); display: inline-block; box-shadow: .18em .18em 0 var(--ink); }
+.splashbox p { margin: 0; color: var(--muted); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { #splash { transition: none; } }
+
 /* finished */
 #done { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); display: grid; place-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px; z-index: 5; }
 .donebox { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 12px; justify-items: center; max-width: 380px; width: 100%; text-align: center; }
@@ -108,6 +118,8 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 </head>
 <body>
+<section id="splash" aria-label="Carregando"><div class="splashbox"><canvas id="splashcv" width="480" height="480" aria-hidden="true"></canvas><h1><i aria-hidden="true"></i>Pontinho</h1><p id="splashtxt">montando as continhas…</p></div></section>
+
 <section id="gallery" aria-labelledby="g-title">
   <div class="wrap">
     <div class="brand"><h1 id="g-title"><i aria-hidden="true"></i>Pontinho</h1><button class="icon" id="theme" type="button" aria-label="Trocar entre modo claro e escuro"><svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M10 1.5v2.5M10 16v2.5M1.5 10H4M16 10h2.5M4 4l1.8 1.8M14.2 14.2 16 16M4 16l1.8-1.8M14.2 5.8 16 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><p>Escolha um desenho, toque numa cor e encaixe as continhas com aquele número. No fim, passe o ferrinho.</p></div>
@@ -467,6 +479,25 @@ $('theme').addEventListener('click', () => {
 });
 
 renderGallery();
+
+/* splash: one picture at random fills itself up, then the gallery takes over */
+(function splash() {
+  const box = $('splash'), a = ARTS[Math.floor(Math.random() * ARTS.length)], c = $('splashcv'), g = c.getContext('2d');
+  const s = Math.floor(D / (Math.max(a.w, a.h) + 2)), ox = (D - a.w * s) / 2, oy = (D - a.h * s) / 2, cols = boardColours();
+  const idx = []; for (let i = 0; i < a.target.length; i++) if (a.target[i] >= 0) idx.push(i);
+  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  const shown = { cells: new Int8Array(a.w * a.h).fill(-1), order: [], ironed: false };
+  const paint = () => { g.clearRect(0, 0, D, D); drawBoard(g, a, ox, oy, s, cols); drawBeads(g, a, shown, ox, oy, s, null, null); };
+  const t0 = performance.now(), dur = reduce ? 0 : 1100; let done = false;
+  const close = () => { if (done) return; done = true; box.classList.add('out'); setTimeout(() => { box.hidden = true; }, 450); };
+  box.addEventListener('click', close);
+  (function step() {
+    const k = dur ? Math.min(1, (performance.now() - t0) / dur) : 1, n = Math.floor(idx.length * k * k);
+    for (let i = 0; i < n; i++) shown.cells[idx[i]] = a.target[idx[i]];
+    paint();
+    if (k < 1) requestAnimationFrame(step); else { $('splashtxt').textContent = a.nome; (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(close, reduce ? 0 : 500)); }
+  })();
+})();
 })();
 </script>
 
