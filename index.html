@@ -40,7 +40,7 @@
 html, body { height: 100%; margin: 0; }
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 img { max-width: 100%; }
-body { background: var(--bg); color: var(--ink); font: 500 16px/1.5 var(--body); -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+body { background: var(--bg); color: var(--ink); font: 500 16px/1.5 var(--body); -webkit-tap-highlight-color: transparent; overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
@@ -338,11 +338,12 @@ function pickCell(cx, cy) {
   const r = stage.getBoundingClientRect(), fx = (cx - r.left - view.x) / view.s, fy = (cy - r.top - view.y) / view.s, x = Math.floor(fx), y = Math.floor(fy);
   const ok = (X, Y) => X >= 0 && Y >= 0 && X < art.w && Y < art.h && art.target[Y * art.w + X] === sel && st.cells[Y * art.w + X] !== sel;
   if (ok(x, y)) return [x, y];
-  let best = null, bd = .95 ** 2;
-  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (!ok(X, Y)) continue;
+  const R = Math.max(.95, 14 / view.s), n = Math.ceil(R); let best = null, bd = R * R;
+  for (let dy = -n; dy <= n; dy++) for (let dx = -n; dx <= n; dx++) { const X = x + dx, Y = y + dy; if (!ok(X, Y)) continue;
     const d = (X + .5 - fx) ** 2 + (Y + .5 - fy) ** 2; if (d < bd) { bd = d; best = [X, Y]; } }
   return best || [x, y];
 }
+cv.addEventListener('contextmenu', (e) => e.preventDefault());
 cv.addEventListener('pointerdown', (e) => {
   if (st.ironed) return;
   cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
