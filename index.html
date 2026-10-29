@@ -106,6 +106,24 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .splashbox p { margin: 0; color: var(--muted); font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { #splash { transition: none; } }
 
+/* size picker and the stamps earned per size */
+#pick { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); display: grid; place-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px; z-index: 5; }
+.pickbox h2 { font-size: 24px; }
+.opts { display: grid; gap: 8px; width: 100%; }
+.opt { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; min-height: 56px; }
+.opt:hover { border-color: var(--accent); }
+.opt > span { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.opt b { font: 700 17px/1 var(--display); }
+.opt small { color: var(--muted); font-size: 12px; }
+.opt .bar { display: block; height: 4px; }
+.opt em { font: 700 13px/1 var(--display); font-style: normal; color: var(--muted); }
+.stamps { display: inline-flex; gap: 5px; }
+.stamp { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed var(--line); display: inline-grid; place-items: center; flex: none; box-sizing: border-box; }
+.stamp.on { border: 2px solid var(--accent); background: var(--accent); }
+.stamp.on::after { content: ""; width: 5px; height: 9px; border: solid var(--accent-ink); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.opt .stamp { width: 24px; height: 24px; }
+.opt .stamp.on::after { width: 6px; height: 11px; }
+
 /* finished */
 #done { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); display: grid; place-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px; z-index: 5; }
 .donebox { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 12px; justify-items: center; max-width: 380px; width: 100%; text-align: center; }
@@ -126,7 +144,7 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     <div class="brand"><h1 id="g-title"><i aria-hidden="true"></i>Pontinho</h1><button class="icon" id="theme" type="button" aria-label="Trocar entre modo claro e escuro"><svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M10 1.5v2.5M10 16v2.5M1.5 10H4M16 10h2.5M4 4l1.8 1.8M14.2 14.2 16 16M4 16l1.8-1.8M14.2 5.8 16 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><p>Escolha um desenho, toque numa cor e encaixe as continhas com aquele número. No fim, passe o ferrinho.</p></div>
     <div class="tabs" id="tabs" role="tablist" aria-label="Categorias"></div>
     <div class="grid" id="cards" role="tabpanel"></div>
-    <p class="ver">Pontinho · versão 11</p>
+    <p class="ver">Pontinho · versão 12</p>
   </div>
 </section>
 
@@ -147,6 +165,15 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   <div class="dock">
     <div class="hintrow"><span id="tip">Pinça: zoom · dois dedos: mover</span><span style="display:flex;gap:6px"><button class="chip" id="hint" type="button">Onde falta?</button></span></div>
     <div class="pal" id="pal" role="toolbar" aria-label="Cores"></div>
+  </div>
+</section>
+
+<section id="pick" hidden aria-labelledby="pickname">
+  <div class="donebox pickbox">
+    <h2 id="pickname">Desenho</h2>
+    <p>Que tamanho você quer montar?</p>
+    <div class="opts" id="pickopts"></div>
+    <button class="chip" id="pickclose" type="button">Voltar</button>
   </div>
 </section>
 
@@ -173,7 +200,9 @@ const lum = (h) => { const [r, g, b] = hx(h); return (0.299 * r + 0.587 * g + 0.
 const tone = (h, k) => { const [r, g, b] = hx(h), t = k < 0 ? 0 : 255, f = Math.abs(k); return `rgb(${Math.round(r + (t - r) * f)},${Math.round(g + (t - g) * f)},${Math.round(b + (t - b) * f)})`; };
 
 /* each picture: cells hold a bead colour number (lightest = 1); "." is an empty peg with no bead */
-ARTS.forEach((a) => {
+const BIG = 5000; // beads; from here on a picture counts as 'grande' and comes in three sizes
+const SIZES = { p: 'Pequeno', m: 'Médio', g: 'Grande' };
+function prep(a) {
   a.w = a.rows[0].length; a.h = a.rows.length;
   const keys = [...new Set(a.rows.join(''))].filter((k) => a.pal[k]).sort((x, y) => lum(a.pal[y]) - lum(a.pal[x]));
   a.colors = keys.map((k) => a.pal[k]);
@@ -182,7 +211,35 @@ ARTS.forEach((a) => {
   a.count = a.colors.map((_, i) => a.target.filter((t) => t === i).length);
   a.n = a.count.reduce((s, v) => s + v, 0);
   a.rim = a.colors.map((c) => tone(c, -.3)); a.hole = a.colors.map((c) => tone(c, -.42));
-});
+  return a;
+}
+// rgb -> Lab, to pick the palette colour closest to how the eye sees it
+function lab([r, g, b]) {
+  const lin = (v) => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+  const R = lin(r), G = lin(g), B = lin(b);
+  const f = (t) => (t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const x = f((.4124 * R + .3576 * G + .1805 * B) / .95047), y = f(.2126 * R + .7152 * G + .0722 * B), z = f((.0193 * R + .1192 * G + .9505 * B) / 1.08883);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+// a smaller version: each f×f block of beads becomes one bead of the block's average colour, snapped to the palette
+function shrink(a, f, size) {
+  const keys = Object.keys(a.pal), labs = keys.map((k) => lab(hx(a.pal[k]))), rgb = keys.map((k) => hx(a.pal[k]));
+  const h2 = Math.ceil(a.h / f), w2 = Math.ceil(a.w / f), rows = [], used = new Set();
+  for (let Y = 0; Y < h2; Y++) { let row = '';
+    for (let X = 0; X < w2; X++) { let n = 0, r = 0, g = 0, b = 0;
+      for (let y = Y * f; y < Math.min(a.h, Y * f + f); y++) for (let x = X * f; x < Math.min(a.w, X * f + f); x++) { const c = a.rows[y][x]; if (c === '.') continue; const k = keys.indexOf(c); n++; r += rgb[k][0]; g += rgb[k][1]; b += rgb[k][2]; }
+      if (n * 2 < f * f) { row += '.'; continue; }
+      const m = lab([r / n, g / n, b / n]); let best = 0, bd = 1e9;
+      labs.forEach((L, i) => { const d = (L[0] - m[0]) ** 2 + (L[1] - m[1]) ** 2 + (L[2] - m[2]) ** 2; if (d < bd) { bd = d; best = i; } });
+      row += keys[best]; used.add(keys[best]); }
+    rows.push(row); }
+  const pal = {}; used.forEach((k) => { pal[k] = a.pal[k]; });
+  return prep({ id: a.id + ':' + size, nome: a.nome, cats: a.cats, rows, pal, size, base: a });
+}
+ARTS.forEach(prep);
+ARTS.forEach((a) => { if (a.n >= BIG) { a.size = 'g'; a.base = a; a.vars = { p: shrink(a, 3, 'p'), m: shrink(a, 2, 'm'), g: a }; } });
+// every version of a picture, smallest first
+const versions = (a) => (a.vars ? [a.vars.p, a.vars.m, a.vars.g] : [a]);
 
 /* progress lives in this browser only */
 const KEY = 'pontinho-v2';
@@ -248,7 +305,6 @@ function drawThumb(cv, a, st) {
 }
 
 /* gallery, filtered by category */
-const BIG = 5000; // beads; from here on a picture counts as 'grande'
 const inCat = (a, k) => (k === 'grandes' ? a.n >= BIG : (a.cats || []).includes(k));
 const CAT_NOME = { todos: 'Todos', grandes: 'Grandes', fofo: 'Fofo', bichinhos: 'Bichinhos', comidinhas: 'Comidinhas', flores: 'Flores', casinhas: 'Casinhas', halloween: 'Halloween', natal: 'Natal', pascoa: 'Páscoa', paisagens: 'Paisagens', pessoas: 'Pessoas' };
 let cat = 'todos';
@@ -263,11 +319,15 @@ function renderGallery() {
   renderTabs();
   const box = $('cards'); box.innerHTML = '';
   ARTS.filter((a) => cat === 'todos' || inCat(a, cat)).forEach((a) => {
-    const st = stateOf(a), pr = progress(a, st), b = document.createElement('button');
-    b.className = 'card'; b.type = 'button'; b.setAttribute('aria-label', `${a.nome}, ${st.ironed ? 'passado a ferro' : Math.round(pr * 100) + '% montado'}`);
-    const cv = document.createElement('canvas'); drawThumb(cv, a, st); b.append(cv);
+    const vs = versions(a).map((v) => { const st = stateOf(v); return { v, st, pr: progress(v, st) }; });
+    // the thumbnail follows whichever version has gone furthest (the big one when they tie)
+    const show = vs.reduce((best, x) => (x.pr > best.pr ? x : best), vs[vs.length - 1]), { st, pr } = show, b = document.createElement('button');
+    const done = vs.filter((x) => x.pr >= 1).length;
+    b.className = 'card'; b.type = 'button'; b.setAttribute('aria-label', `${a.nome}, ${st.ironed ? 'passado a ferro' : Math.round(pr * 100) + '% montado'}${a.vars ? `, ${done} de 3 tamanhos prontos` : ''}`);
+    const cv = document.createElement('canvas'); drawThumb(cv, show.v, st); b.append(cv);
     const tag = st.ironed ? '<span class="done-tag">passado</span>' : pr >= 1 ? '<span class="done-tag">pronto</span>' : `<span>${Math.round(pr * 100)}%</span>`;
-    b.insertAdjacentHTML('beforeend', `<b>${a.nome}</b><div class="bar"><i style="width:${pr * 100}%"></i></div><div class="meta"><span>${a.n >= BIG ? '<b class="big">grande</b> · ' : ''}${a.n} contas · ${a.colors.length} cores</span>${tag}</div>`);
+    const stamps = `<span class="stamps" aria-label="${done} de ${vs.length} selos">${vs.map((x) => `<i class="stamp${x.pr >= 1 ? ' on' : ''}" title="${SIZES[x.v.size || 'g']}"></i>`).join('')}</span>`;
+    b.insertAdjacentHTML('beforeend', `<b>${a.nome}</b><div class="bar"><i style="width:${pr * 100}%"></i></div><div class="meta"><span>${a.vars ? '<b class="big">3 tamanhos</b>' : `${a.n} contas · ${a.colors.length} cores`}</span>${tag}</div><div class="meta">${stamps}</div>`);
     b.addEventListener('click', () => open(a));
     box.append(b);
   });
@@ -399,9 +459,22 @@ $('hint').addEventListener('click', () => {
 addEventListener('resize', () => { if (!$('paint').hidden) { resize(); clampView(); } });
 
 function open(a) {
+  if (!a.vars) return openArt(a);
+  const box = $('pickopts'); box.innerHTML = '';
+  $('pickname').textContent = a.nome;
+  versions(a).forEach((v) => {
+    const s = stateOf(v), pr = progress(v, s), b = document.createElement('button'); b.type = 'button'; b.className = 'opt';
+    b.innerHTML = `<i class="stamp${pr >= 1 ? ' on' : ''}"></i><span><b>${SIZES[v.size]}</b><small>${v.w} × ${v.h} · ${v.n} contas · ${v.colors.length} cores</small><span class="bar"><i style="width:${pr * 100}%"></i></span></span><em>${s.ironed ? 'passado' : pr >= 1 ? 'pronto' : Math.round(pr * 100) + '%'}</em>`;
+    b.addEventListener('click', () => { $('pick').hidden = true; openArt(v); });
+    box.append(b);
+  });
+  $('pick').hidden = false;
+}
+$('pickclose').addEventListener('click', () => { $('pick').hidden = true; });
+function openArt(a) {
   art = a; st = stateOf(a); sel = 0;
   for (let i = 0; i < a.colors.length; i++) { let left = false; for (let c = 0; c < st.cells.length; c++) if (a.target[c] === i && st.cells[c] !== i) { left = true; break; } if (left) { sel = i; break; } }
-  $('gallery').hidden = true; $('paint').hidden = false; $('pname').textContent = a.nome;
+  $('gallery').hidden = true; $('paint').hidden = false; $('pname').textContent = a.size && a.size !== 'g' ? `${a.nome} · ${SIZES[a.size].toLowerCase()}` : a.nome;
   resize(); fit(); renderPalette();
   if (!st.ironed && progress(a, st) >= 1) finish();
 }
