@@ -126,7 +126,7 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     <div class="brand"><h1 id="g-title"><i aria-hidden="true"></i>Pontinho</h1><button class="icon" id="theme" type="button" aria-label="Trocar entre modo claro e escuro"><svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M10 1.5v2.5M10 16v2.5M1.5 10H4M16 10h2.5M4 4l1.8 1.8M14.2 14.2 16 16M4 16l1.8-1.8M14.2 5.8 16 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><p>Escolha um desenho, toque numa cor e encaixe as continhas com aquele número. No fim, passe o ferrinho.</p></div>
     <div class="tabs" id="tabs" role="tablist" aria-label="Categorias"></div>
     <div class="grid" id="cards" role="tabpanel"></div>
-    <p class="ver">Pontinho · versão 9</p>
+    <p class="ver">Pontinho · versão 10</p>
   </div>
 </section>
 
@@ -145,7 +145,7 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     </div>
   </div>
   <div class="dock">
-    <div class="hintrow"><span id="tip">Pinça: zoom · dois dedos: mover</span><span style="display:flex;gap:6px"><button class="chip" id="hint" type="button">Onde falta?</button><button class="chip" id="reset" type="button">Recomeçar</button></span></div>
+    <div class="hintrow"><span id="tip">Pinça: zoom · dois dedos: mover</span><span style="display:flex;gap:6px"><button class="chip" id="hint" type="button">Onde falta?</button></span></div>
     <div class="pal" id="pal" role="toolbar" aria-label="Cores"></div>
   </div>
 </section>
@@ -395,12 +395,6 @@ $('hint').addEventListener('click', () => {
   if (best < 0) return;
   const x = best % art.w, y = best / art.w | 0; view.s = Math.max(view.s, 28); view.x = r.width / 2 - (x + .5) * view.s; view.y = r.height / 2 - (y + .5) * view.s; clampView();
   pulse = { x, y, t0: performance.now() }; dirty = true;
-});
-let resetArmed = 0;
-$('reset').addEventListener('click', (e) => {
-  const b = e.currentTarget;
-  if (Date.now() - resetArmed > 3000) { resetArmed = Date.now(); b.textContent = 'Tirar tudo?'; b.classList.add('warn'); setTimeout(() => { b.textContent = 'Recomeçar'; b.classList.remove('warn'); }, 3000); return; }
-  resetArmed = 0; st = { cells: new Int8Array(art.w * art.h).fill(-1), order: [], ironed: false }; store(art, st); sel = 0; renderPalette(); dirty = true; b.textContent = 'Recomeçar'; b.classList.remove('warn');
 });
 addEventListener('resize', () => { if (!$('paint').hidden) { resize(); clampView(); } });
 
