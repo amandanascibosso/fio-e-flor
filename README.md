@@ -1,7 +1,9 @@
-# Fio & Flor
+# Pontinho
 
-Joguinho cozy de jardim, tingimento e costura, em pixel art. Plante flores, tinja tecidos em tons claros, médios e escuros, tire medidas, corte os moldes e costure as encomendas das moradoras da vila.
+Colorir por número em pixel art. Escolha um desenho, toque numa cor e pinte os quadradinhos com aquele número.
 
-**Jogar:** https://amandanascibosso.github.io/fio-e-flor/
+**Abrir:** https://amandanascibosso.github.io/fio-e-flor/
 
-No celular, abra o link e adicione à tela de início (iPhone: Compartilhar → Adicionar à Tela de Início; Android: ⋮ → Instalar app). Ele abre em tela cheia, deitado, e funciona offline.
+No iPhone: Compartilhar → Adicionar à Tela de Início. O progresso fica salvo no próprio celular.
+
+O jogo antigo, Fio & Flor, está guardado na branch `fio-e-flor-jogo`.
