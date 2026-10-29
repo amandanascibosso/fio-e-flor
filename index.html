@@ -324,10 +324,21 @@ function afterPaint() {
 /* touch: one finger places beads, two fingers pinch and move; a quick second finger cancels the first dab */
 const pts = new Map(); let mode = null, stroke = [], gesture = null, last = null;
 const cellAt = (cx, cy) => { const r = stage.getBoundingClientRect(); return [Math.floor((cx - r.left - view.x) / view.s), Math.floor((cy - r.top - view.y) / view.s)]; };
+// a finger is wider than a bead: if the bead right under it is already done (or is an empty peg), take the nearest
+// neighbour that still needs the selected colour, as long as it is close enough to be the one meant
+function pickCell(cx, cy) {
+  const r = stage.getBoundingClientRect(), fx = (cx - r.left - view.x) / view.s, fy = (cy - r.top - view.y) / view.s, x = Math.floor(fx), y = Math.floor(fy);
+  const ok = (X, Y) => X >= 0 && Y >= 0 && X < art.w && Y < art.h && art.target[Y * art.w + X] === sel && st.cells[Y * art.w + X] !== sel;
+  if (ok(x, y)) return [x, y];
+  let best = null, bd = .95 ** 2;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (!ok(X, Y)) continue;
+    const d = (X + .5 - fx) ** 2 + (Y + .5 - fy) ** 2; if (d < bd) { bd = d; best = [X, Y]; } }
+  return best || [x, y];
+}
 cv.addEventListener('pointerdown', (e) => {
   if (st.ironed) return;
   cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (pts.size === 1) { mode = 'paint'; stroke = []; const [x, y] = cellAt(e.clientX, e.clientY); last = [x, y]; const i = paintCell(x, y, false); if (i !== false) stroke.push([i, -1]); stroke.t0 = performance.now(); }
+  if (pts.size === 1) { mode = 'paint'; stroke = []; const [x, y] = pickCell(e.clientX, e.clientY); last = [x, y]; const i = paintCell(x, y, false); if (i !== false) stroke.push([i, -1]); stroke.t0 = performance.now(); }
   else if (pts.size === 2) {
     if (mode === 'paint' && stroke.length <= 2 && performance.now() - stroke.t0 < 250) stroke.forEach(([i, prev]) => { st.cells[i] = prev; if (st.order[st.order.length - 1] === i) st.order.pop(); });
     else if (stroke.length) afterPaint();
@@ -337,7 +348,7 @@ cv.addEventListener('pointerdown', (e) => {
 cv.addEventListener('pointermove', (e) => {
   if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (mode === 'paint' && pts.size === 1) {
-    const [x, y] = cellAt(e.clientX, e.clientY); if (last && x === last[0] && y === last[1]) return;
+    const [x, y] = pickCell(e.clientX, e.clientY); if (last && x === last[0] && y === last[1]) return;
     // step through every cell between the last one and this one so fast strokes leave no gaps
     const [lx, ly] = last || [x, y], n = Math.max(Math.abs(x - lx), Math.abs(y - ly));
     for (let k = 1; k <= n; k++) { const cx = Math.round(lx + (x - lx) * k / n), cy = Math.round(ly + (y - ly) * k / n), i = paintCell(cx, cy, true); if (i !== false) stroke.push([i, -1]); }
