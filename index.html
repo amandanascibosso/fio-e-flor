@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f1eef6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#faf9fc" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1922" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -13,13 +13,14 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Pontinho</title>
+<script>try { const t = localStorage.getItem('pontinho-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Nunito:wght@500;700;800&display=swap">
 <style>
 /* Layout: a one-screen app. Gallery of pictures; tapping one opens a full-height canvas with the palette docked at the bottom. */
 :root {
-  --bg: #f1eef6;          /* lilac paper */
+  --bg: #faf9fc;          /* almost white */
   --card: #ffffff;
   --ink: #2c2836;
   --muted: #7a7388;
@@ -46,7 +47,11 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 /* gallery */
 #gallery { height: 100%; overflow-y: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 40px; }
 .wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 22px; }
-.brand { display: grid; gap: 4px; }
+.brand { display: grid; gap: 4px; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.brand p { grid-column: 1 / -1; }
+#theme .moon { display: none; }
+:root[data-theme="dark"] #theme .sun { display: none; } :root[data-theme="dark"] #theme .moon { display: block; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #theme .sun { display: none; } :root:not([data-theme="light"]) #theme .moon { display: block; } }
 .brand h1 { margin: 0; font: 700 clamp(34px, 7vw, 48px)/1 var(--display); letter-spacing: .01em; display: flex; align-items: center; gap: 10px; }
 .brand h1 i { width: .7em; height: .7em; background: var(--accent); display: inline-block; box-shadow: .18em .18em 0 var(--ink); }
 .brand p { margin: 0; color: var(--muted); }
@@ -105,7 +110,7 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 <body>
 <section id="gallery" aria-labelledby="g-title">
   <div class="wrap">
-    <div class="brand"><h1 id="g-title"><i aria-hidden="true"></i>Pontinho</h1><p>Escolha um desenho, toque numa cor e encaixe as continhas com aquele número. No fim, passe o ferrinho.</p></div>
+    <div class="brand"><h1 id="g-title"><i aria-hidden="true"></i>Pontinho</h1><button class="icon" id="theme" type="button" aria-label="Trocar entre modo claro e escuro"><svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M10 1.5v2.5M10 16v2.5M1.5 10H4M16 10h2.5M4 4l1.8 1.8M14.2 14.2 16 16M4 16l1.8-1.8M14.2 5.8 16 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><p>Escolha um desenho, toque numa cor e encaixe as continhas com aquele número. No fim, passe o ferrinho.</p></div>
     <div class="tabs" id="tabs" role="tablist" aria-label="Categorias"></div>
     <div class="grid" id="cards" role="tabpanel"></div>
   </div>
@@ -452,6 +457,13 @@ function ironIt() {
 function gloss(g, x, y, w, h) { const gr = g.createLinearGradient(x, y, x + w, y + h); gr.addColorStop(0, 'rgba(255,255,255,.16)'); gr.addColorStop(.5, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,.1)'); g.fillStyle = gr; g.fillRect(x, y, w, h); }
 $('iron').addEventListener('click', ironIt);
 $('dclose').addEventListener('click', () => { $('done').hidden = true; $('paint').hidden = true; $('gallery').hidden = false; renderGallery(); });
+
+/* light or dark, remembered on this phone; with nothing saved it follows the system */
+$('theme').addEventListener('click', () => {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches, cur = document.documentElement.dataset.theme || (dark ? 'dark' : 'light'), next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next; try { localStorage.setItem('pontinho-theme', next); } catch (e) { /* only a convenience */ }
+  renderGallery(); dirty = true;
+});
 
 renderGallery();
 })();
